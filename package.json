@@ -1,0 +1,21 @@
+{
+  "author": "Collin Miller <collintmiller@gmail.com>",
+  "name": "alpha_simprini",
+  "description": "Core libraries for Alpha Simprini based applications.",
+  "version": "0.0.4-6-g621932e",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/collin/alpha_simprini.git"
+  },
+  "engines": {
+    "node": "~0.4.11"
+  },
+  "main": "lib/alpha_simprini",
+  "directories": {
+    "lib": "app/assets/javascripts"
+  },
+  "dependencies": {
+    "underscore": ">= 1.2.0"
+  },
+  "devDependencies": {}
+}
