@@ -1,5 +1,6 @@
 AS = require("alpha_simprini")
 _ = require "underscore"
+jQuery = require "jQuery"
 console.warn "DEBUG CODE IN PLACE"
 
 class AS.DOM
@@ -15,12 +16,14 @@ class AS.DOM
   constructor: (args) ->
     # body...
 
+  $: jQuery
+
   text: (text_content) ->
     console.warn "FIXME: escape text content!"
     @current_node.appendChild document.createTextNode(text_content)
   
   raw: (html) ->
-    $(@span()).html(html)
+    @$(@span()).html(html)
   
   tag: (name, attrs, content) ->
     @current_node ?= document.createDocumentFragment()
@@ -42,7 +45,7 @@ class AS.DOM
     @current_node.appendChild node
   
     if text_content
-      $(node).text text_content
+      @$(node).text text_content
     else if content
       @within_node node, ->
         if window.location.href.match(/debug$/)

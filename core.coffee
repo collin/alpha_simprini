@@ -1,5 +1,5 @@
 AS = require "alpha_simprini"
-Core = AS.Core = require: (libraries) -> AS.require "core", libraries
+Core = AS.part("Core")
 _ = require "underscore"
 sharejs = require("share").client
 
@@ -8,6 +8,8 @@ Core.require """
   instance_methods
   
   collection model model/share
+  
+  models/radio_selection_model
 """
 
 # # ## Some little utility functions. 

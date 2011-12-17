@@ -16,7 +16,11 @@
   },
   "dependencies": {
     "underscore": ">= 1.2.0",
-    "share": "git://github.com/collin/ShareJS.git#master"
+    "share": "git://github.com/collin/ShareJS.git#master",
+    "jQuery": ">= 1.6",
+    "jwerty": ">= 0.3"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "jsdom": ">= 0.2"
+  }
 }

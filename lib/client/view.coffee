@@ -6,7 +6,7 @@ class AS.View extends AS.DOM
     
   tag_name: "div"
     
-  _ensure_element: -> @el ?= $(@build_element())
+  _ensure_element: -> @el ?= @$(@build_element())
     
   constructor: (config={}) ->
     @cid = _.uniqueId("c")

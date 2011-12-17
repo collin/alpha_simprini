@@ -1,5 +1,7 @@
 AS = require("alpha_simprini")
 _ = require "underscore"
+jwerty = require("jwerty").jwerty
+domready = require("jQuery").ready
 
 class AS.Application
   AS.Event.extends(this)
@@ -9,7 +11,7 @@ class AS.Application
     for name, template of @template_source
       @template_source[name] = CoffeeKup.compile(template, locals:yes, hardcode:AS.TemplateHelpers)
       
-    $ => 
+    domready => 
       @params = AS.params
       @god_given_key_handlers()
       @initialize?()

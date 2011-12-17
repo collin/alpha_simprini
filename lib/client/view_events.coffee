@@ -79,7 +79,7 @@ class AS.ViewEvents
     else if selector[0] is '@'
       @view[selector.slice(1)]?.unbind @namespace
     else
-      target = $(selector, @view.el[0])
+      target = @view.$(selector, @view.el[0])
       target.die @namespace
       target.click() # bug with drag/drop allows for one last drag after revoking bindings :(
   
@@ -101,4 +101,4 @@ class AS.ViewEvents
       else
         emitter.bind event_name, handler, @view
     else
-      $(selector, @view.el[0]).live event_name, handler
+      @view.$(selector, @view.el[0]).live event_name, handler

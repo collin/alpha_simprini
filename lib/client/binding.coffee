@@ -6,10 +6,10 @@ class AS.Binding
     if _.isFunction(@options)
       [@fn, @options] = [@options, {}]
     
-    @container = $ @context.current_node
+    @container = @context.$ @context.current_node
     @binding_group = @context.binding_group
     
-    @content = $ []
+    @content = @context.$ []
 
     if @constructor.will_group_bindings?
       @context.group_bindings (binding_group) => 
@@ -84,12 +84,12 @@ class AS.Binding.Field extends AS.Binding
     @fn?() or super
 
   make_content: ->
-    $ @context.span()
+    @context.$ @context.span()
     
 class AS.Binding.Input extends AS.Binding.Field
 
   make_content: ->
-    input = $ @context.input(@options)
+    input = @context.$ @context.input(@options)
     @context.binds input, "change", @set_field, this
     input
     
@@ -139,7 +139,7 @@ class AS.Binding.EditLine extends AS.Binding
       @context.binds @content, event, @generate_operation, this
     
   make_content: ->
-    $ @context.span(@options)
+    @context.$ @context.span(@options)
   
   replace_text: (new_text="") ->
     range = rangy.createRange()
@@ -215,7 +215,7 @@ class AS.Binding.HasMany extends AS.Binding
     if siblings.get(0) is undefined or siblings.get(index) is undefined
       @container.append(content)
     else
-      $(siblings.get(index)).before(content)
+      @context.$(siblings.get(index)).before(content)
     
   remove_item: (item) =>
     return if @skip_item(item)
@@ -227,7 +227,7 @@ class AS.Binding.HasMany extends AS.Binding
 
   make_content: (item) =>
     return if @skip_item(item)
-    content = $ []
+    content = @context.$ []
     @context.within_binding_group @binding_group, =>
       @context.group_bindings =>
         @bindings[item.cid] = @context.binding_group
@@ -272,7 +272,7 @@ class AS.Binding.BelongsTo extends AS.Binding
     if item
       @context.within_binding_group @binding_group, =>
         @context.within_node @container, =>
-          @content = $ []
+          @content = @context.$ []
           binding = new AS.Binding.Model(@context, item, @content)
           made = @fn.call(@context, AS.ViewModel.build(@context, item), binding)
           if made?.jquery
@@ -282,4 +282,4 @@ class AS.Binding.BelongsTo extends AS.Binding
           binding.paint()
           @content
     else
-      @content = $ []
+      @content = @context.$ []

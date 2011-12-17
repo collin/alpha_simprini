@@ -1,5 +1,6 @@
 AS = require("alpha_simprini")
 _ = require "underscore"
+jQuery = require "jQuery"
 
 class AS.ViewModel
   AS.Delegate.extends(this)
@@ -65,7 +66,7 @@ class AS.ViewModel
   
   element: (tagname, fn) ->
     element = @context[tagname] class: @model.constructor.name, fn
-    $(element).data().model = @model
+    @view.$(element).data().model = @model
     element
   
   component: (constructor) ->
