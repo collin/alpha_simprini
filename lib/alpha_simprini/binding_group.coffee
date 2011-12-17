@@ -1,4 +1,6 @@
 AS = require("alpha_simprini")
+_ = require "underscore"
+
 class AS.BindingGroup
 
   constructor: ->

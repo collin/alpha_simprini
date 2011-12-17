@@ -1,4 +1,5 @@
 AS = require("alpha_simprini")
+_ = require "underscore"
 
 class AS.ViewEvents
   EVENT_SPLITTER = /^(@?[\w:]+)(\{.*\})?\s*(.*)$/

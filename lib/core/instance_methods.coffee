@@ -1,4 +1,6 @@
 AS = require("alpha_simprini")
+_ = require "underscore"
+
 AS.instance_methods = (klass) ->
   methods = _(klass.prototype).chain().keys()
   if klass.__super__

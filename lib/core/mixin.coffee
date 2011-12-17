@@ -1,6 +1,7 @@
 # BITCHIN SWEET CoffeeScript/_ Mixin capability
 AS = require("alpha_simprini")
 _ = require "underscore"
+
 class AS.Mixin
   extended: (klass) ->
     _(klass.extended_by || klass.constructor.extended_by).include(this)

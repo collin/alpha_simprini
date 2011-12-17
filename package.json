@@ -15,7 +15,8 @@
     "lib": "app/assets/javascripts"
   },
   "dependencies": {
-    "underscore": ">= 1.2.0"
+    "underscore": ">= 1.2.0",
+    "share": "git://github.com/collin/ShareJS.git#master"
   },
   "devDependencies": {}
 }

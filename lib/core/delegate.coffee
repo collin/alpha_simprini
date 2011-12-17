@@ -1,5 +1,6 @@
 AS = require("alpha_simprini")
-_ = require "underscore"
+_ = require "underscore
+"
 AS.Delegate = new AS.Mixin
   class_methods:
     delegate: (delegated_methods..., options) ->

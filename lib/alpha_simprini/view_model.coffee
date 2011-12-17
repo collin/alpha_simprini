@@ -1,4 +1,5 @@
 AS = require("alpha_simprini")
+_ = require "underscore"
 
 class AS.ViewModel
   AS.Delegate.extends(this)

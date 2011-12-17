@@ -1,4 +1,7 @@
-class module("AS").ParallelHashQueue
+AS = require "alpha_simprini"
+_ = require "underscore"
+
+class AS.ParallelHashQueue
   AS.Event.extends(this)
   
   initialize: (hash, fn) ->

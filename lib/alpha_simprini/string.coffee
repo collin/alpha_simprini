@@ -1,3 +1,6 @@
+String::blank = ->
+  !!@match(/^\s*?$/)
+  
 String::underscore = ->
   under = @replace(/([A-Z])/g, (match) -> "_#{match}")
   if under[0] is "_"

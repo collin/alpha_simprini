@@ -1,4 +1,6 @@
 AS = require("alpha_simprini")
+_ = require "underscore"
+
 class AS.Collection
   AS.Delegate.extends(this)
   AS.Event.extends(this)

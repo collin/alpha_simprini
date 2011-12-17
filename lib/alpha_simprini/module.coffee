@@ -1,4 +1,5 @@
 _ = require("underscore")
+Í
 # Extended to allow "Nested.Modules"
 _module = exports.module = (name, fn) ->
   if _.isString(name)

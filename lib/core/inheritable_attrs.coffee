@@ -1,4 +1,6 @@
 AS = require "alpha_simprini"
+_ = require "underscore"
+
 AS.InheritableAttrs = new AS.Mixin
   mixed_in: ->
     @class_inheritable_attrs = []
