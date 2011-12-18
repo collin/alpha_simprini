@@ -8,12 +8,9 @@
     "url": "git://github.com/collin/alpha_simprini.git"
   },
   "engines": {
-    "node": "~0.4.11"
+    "node": "~0.6.6"
   },
-  "main": "lib/alpha_simprini",
-  "directories": {
-    "lib": "app/assets/javascripts"
-  },
+  "main": "node_modules/alpha_simprini",
   "dependencies": {
     "underscore": ">= 1.2.0",
     "share": "git://github.com/collin/ShareJS.git#master",
