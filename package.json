@@ -10,12 +10,14 @@
   "engines": {
     "node": "~0.6.6"
   },
-  "main": "node_modules/alpha_simprini",
+  "main": "lib/alpha_simprini.coffee",
   "dependencies": {
     "underscore": ">= 1.2.0",
+    "underscore.string": ">= 2.0.0",
     "share": "git://github.com/collin/ShareJS.git#master",
     "jQuery": ">= 1.6",
-    "jwerty": ">= 0.3"
+    "jwerty": ">= 0.3",
+    "rangy-core": "0.2.2"
   },
   "devDependencies": {
     "jsdom": ">= 0.2"
