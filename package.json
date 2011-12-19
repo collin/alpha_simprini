@@ -14,7 +14,7 @@
   "dependencies": {
     "underscore": ">= 1.2.0",
     "underscore.string": ">= 2.0.0",
-    "share": "git://github.com/collin/ShareJS.git",
+    "share": "https://github.com/collin/ShareJs/tarball/master",
     "jQuery": ">= 1.6",
     "jwerty": ">= 0.3",
     "rangy-core": "0.2.2"
