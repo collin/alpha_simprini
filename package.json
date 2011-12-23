@@ -8,13 +8,13 @@
     "url": "git://github.com/collin/alpha_simprini.git"
   },
   "engines": {
-    "node": "~0.6.6"
+    "node": "~0.6"
   },
   "main": "lib/alpha_simprini.coffee",
   "dependencies": {
     "underscore": ">= 1.2.0",
     "underscore.string": ">= 2.0.0",
-    "share": "https://github.com/collin/ShareJs/tarball/master",
+    "share": "https://github.com/collin/ShareJs/tarball/catmaster",
     "jQuery": ">= 1.6",
     "jwerty": ">= 0.3",
     "rangy-core": "0.2.2"
