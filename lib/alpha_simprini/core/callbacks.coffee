@@ -1,5 +1,6 @@
 AS = require("alpha_simprini")
 AS.Callbacks = new AS.Mixin
+  depends_on: [AS.InheritableAttrs]
   class_methods:
     define_callbacks: (all) ->
       for key, callbacks of all

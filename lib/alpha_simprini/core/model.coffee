@@ -1,7 +1,12 @@
 AS = require("alpha_simprini")
+_ = require("underscore")
 AS.All =
   byId: {}
   byCid: {}
+
+require_config = (config, key, message) ->
+  return if key in config
+  throw new Error message
     
 class AS.Model
   AS.Event.extends(this)
@@ -10,7 +15,7 @@ class AS.Model
     
   @define_callbacks(after: ["initialize"], before: ["initialize", "open"])
     
-  @embeds_many: (name, config) ->
+  @embeds_many: (name, config={}) ->
     config.relation = true
     @relation(name)
     @attribute(name)
@@ -23,6 +28,8 @@ class AS.Model
     @write_inheritable_value("has_manys", name, config)
 
   @embeds_one: (name, config={}) ->
+    # require_config config, 'model', "for @embeds_one '#{name}, must specify the 'model' option. (Provide a function that returns a model constructor.)"
+    
     config.relation = true
     @relation(name)
     @write_inheritable_value("embeds_ones", name, config)
@@ -108,7 +115,7 @@ class AS.Model
   initialize: (options={}) ->
     @attributes.id ?= AS.uniq()
       
-    @previous_attributes = @attributes
+    @previous_attributes = AS.deep_clone(@attributes)
     @id = @attributes.id
     @cid = @id or _.uniqueId("c")
     
@@ -140,14 +147,14 @@ class AS.Model
     data = {}
     klass = class this["#{name}_collection_klass"] extends AS.Collection
     _.extend klass::, config
-    klass.model = -> config.model() if config.model
+    klass.model = -> config.model?() or AS.Model
     @has_manys[name] = collection = data[name] = new klass()
     collection.source = this
     @set data
     
   initialize_embeds_one: (name, config) ->
     unless @[name](@attributes[name])
-      @[name]( new (config.model()) )
+      @[name]( new (config.model?() || AS.Model) )
     
   initialize_has_one: (name, config) ->
     @[name](@attributes[name])
@@ -157,13 +164,13 @@ class AS.Model
   
   save: () ->
     return false unless @changed()
-    @persist()
+    @persisted()
     true
 
   # Persisted is a callback here.
   # Actual persistance will be handled by an observer. DEAL WITH IT IF YOU WANT IT.
   persisted: ->
-    @previous_attributes = @attributes
+    @previous_attributes = AS.deep_clone(@attributes)
   
   changes: () ->
     changed = {}
@@ -171,8 +178,7 @@ class AS.Model
       changed[key] = value unless @previous_attributes[value] is value
     changed
   
-  # Blessed be backbone
-  changed: () -> _(@changes).chain().keys().any().value()
+  changed: () -> _(@changes()).chain().keys().any().value()
   
   get: (attr) -> @[attr]()
   

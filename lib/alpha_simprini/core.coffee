@@ -4,10 +4,10 @@ _ = require "underscore"
 sharejs = require("share").client
 
 Core.require """
-  mixin event callbacks inheritable_attrs delegate state_machine
+  mixin event inheritable_attrs callbacks delegate state_machine
   instance_methods
   
-  collection model model/share
+  model collection  model/share
   
   models/radio_selection_model
 """
