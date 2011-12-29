@@ -33,7 +33,6 @@ AS.StateMachine = new AS.Mixin
     transition_state: (options) ->
       if @state is options.from
         @["exit_#{@state}"]?(options) if @state # default state comes from nowhere
-        console.log "transition from #{@state} to #{options.to}"
         @state = options.to
         @["enter_#{options.to}"]?(options)
       

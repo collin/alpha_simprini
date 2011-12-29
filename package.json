@@ -10,6 +10,9 @@
   "engines": {
     "node": "~0.6"
   },
+  "scripts": {
+    "test": "watchr autotest.watchr"
+  },
   "main": "lib/alpha_simprini.coffee",
   "dependencies": {
     "underscore": ">= 1.2.0",
@@ -20,6 +23,7 @@
     "rangy-core": "0.2.2"
   },
   "devDependencies": {
-    "jsdom": ">= 0.2"
+    "jsdom": ">= 0.2",
+    "nodeunit": "latest"
   }
 }
