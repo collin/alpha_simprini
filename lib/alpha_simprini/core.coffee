@@ -7,7 +7,7 @@ Core.require """
   mixin event inheritable_attrs callbacks delegate state_machine
   instance_methods
   
-  model collection  model/share
+  model collection model/share
   
   models/radio_selection_model
 """

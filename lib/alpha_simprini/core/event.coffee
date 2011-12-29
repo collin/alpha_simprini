@@ -3,7 +3,7 @@ _ = require "underscore"
 AS.Event = new AS.Mixin
   instance_methods: 
     _eventNamespacer: /\.([\w-_]+)$/
-    bind: (ev, callback, context) ->
+    bind: (ev, callback, context=this) ->
       if not (callback and context)
         AS.error """
         Attempted to bind an event #{ev} without a callback AND a context.

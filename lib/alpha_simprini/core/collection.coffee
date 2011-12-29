@@ -22,6 +22,9 @@ class AS.Collection
     @models = _([]).chain()
     @add(model) for model in given_models
   
+  at: (index) ->
+    @models.value()[index]
+  
   add: (model={}, options={}) ->
     
     unless model instanceof AS.Model

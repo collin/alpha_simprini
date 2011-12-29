@@ -236,6 +236,72 @@ class RelationModel extends AS.Model
   @has_one "relation"
   @belongs_to "owner"
 
+class Evented
+  AS.Event.extends(this)
+  
+exports.Event =
+  "trigger events without namespace": (test) ->
+    test.expect 3
+    o = new Evented
+    o.bind "event.namespace", -> test.ok true
+    o.bind "event.namespace2", -> test.ok true
+    o.bind "event", -> test.ok true
+    o.trigger "event"
+    
+    test.done()
+    
+  "trigger events with namespace": (test) ->
+    test.expect 1
+    o = new Evented
+    o.bind "event2.namespace2", -> test.ok true
+    o.bind "event.namespace2", -> test.ok true
+    o.bind "event", -> test.ok true
+    o.trigger "event.namespace2"
+    o.trigger ".namespace2"
+  
+    test.done()
+    
+  "unbind events without namespace": (test) ->
+    test.expect 1
+    o = new Evented
+    o.bind "event.namespace", -> test.ok true
+    o.bind "event.namespace2", -> test.ok true
+    o.bind "event", -> test.ok true
+    o.unbind ".namespace2"
+    o.unbind "event.namespace"
+    o.trigger "event"
+    o.trigger "event2"
+    
+    test.done()
+    
+  "unbind events with namespace": (test) ->
+    o = new Evented
+
+    test.expect 2
+    
+    o.bind "event.namespace", -> test.ok true
+    o.bind "event.namespace2", -> test.ok true
+    o.bind "event", -> test.ok true
+    
+    o.unbind(".namespace2")
+    o.trigger "event"
+    
+    test.done()
+  
+  "unbind all events": (test) ->
+    o = new Evented
+
+    test.expect 0
+    
+    o.bind "event.namespace", -> test.ok true
+    o.bind "event.namespace2", -> test.ok true
+    o.bind "event", -> test.ok true
+    
+    o.unbind()
+    o.trigger "event"
+    
+    test.done()
+
 exports.Model =
   "has a place for all models": (test) ->
     test.deepEqual AS.All, byCid: {}, byId: {}
@@ -339,7 +405,7 @@ exports.Model =
     "embeds many association is a collection": (test) ->
       model = new RelationModel
       embeds = model.embeds()
-      test.ok embeds instanceof AS.Collection
+      test.ok embeds instanceof AS.EmbeddedCollection
       test.done()
     
     "has many configuration passes through" : (test) ->
@@ -380,5 +446,75 @@ exports.Model =
       model.bind "destroy", -> test.ok true
       model.destroy()
       test.done()
+
+exports.Collection =
+  "inserts item of specified type": (test) ->
+    class Thing extends AS.Model
+    class ThingCollection extends AS.Collection
+      model: -> Thing
+    
+    things = new ThingCollection
+    things.add()
+    
+    # test.ok things.first().value() instanceof Thing
+    test.done()
+  
+  "inserts item at a specified index": (test)->
+    things = new AS.Collection
+    
+    things.add()
+    things.add()
+    
+    thing = things.add({}, at: 1)
+    
+    test.equal things.length, 3
+    test.equal things.at(1), thing
+    
+    test.done()
+  
+  "remove item from collection": (test) ->
+    things = new AS.Collection
+    thing = things.add()
+    things.remove(thing)
+    test.equal things.length, 0
+    test.done()
+    
+  Events:
+    "add event": (test) ->
+      test.expect 1
+      collection = new AS.Collection
+      collection.bind "add", -> test.ok true
+      collection.add()
+      test.done()
       
+    "remove event": (test) ->
+      test.expect 1
+      collection = new AS.Collection
+      thing = collection.add()
+      collection.bind "remove", -> test.ok true
+      collection.remove(thing)
+      test.done()
+    
+    "model change events bubble through collection": (test) ->
+      test.expect 2
+      collection = new AS.Collection
+      thing = collection.add()
+      collection.bind "all", -> test.ok true
+      collection.bind "modelevent", -> test.ok true
+      
+      thing.trigger "modelevent"
+      
+      test.done()
+    
+    "add/remove evends capture on collection": (test) ->
+      test.expect 2
+      thing = new AS.Model
+      collection = new AS.Collection
+      thing.bind "add", -> test.ok true
+      thing.bind "remove", -> test.ok true
+      
+      collection.add(thing)
+      collection.remove(thing)
+      
+      test.done()
       
