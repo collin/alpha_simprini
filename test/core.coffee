@@ -1,5 +1,12 @@
 AS = require "alpha_simprini"
 _ = require "underscore"
+
+exports.setUp = (callback) ->
+  AS.All =
+    byCid: {}
+    byId: {}
+  callback()
+
 exports.core = 
   testIdentity: (test) ->
     test.ok AS.Identity(10)(10)
@@ -517,4 +524,9 @@ exports.Collection =
       collection.remove(thing)
       
       test.done()
-      
+
+exports["AS.Models.RadioSelectionModel belongs_to selected"] = (test) ->
+  test.ok AS.Models.RadioSelectionModel.belongs_tos.selected
+  model = new AS.Models.RadioSelectionModel
+  test.equal model.selected(), null
+  test.done()

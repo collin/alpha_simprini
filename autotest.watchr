@@ -4,8 +4,15 @@ def run_all_tests
   puts `nodeunit test/`
 end
 
+def run_tests(m)
+  print `clear`
+  puts "Tests run @ #{m} an #{Time.now.strftime('%Y-%m-%d %H:%M:%S')}"
+  puts `nodeunit #{m}`
+end
+
 run_all_tests
-watch("(test|lib)(/.*)+.coffee") { |m| run_all_tests }
+watch("(lib)(/.*)+.coffee") { |m| run_all_tests }
+watch("(test)(/.*)+.coffee") { |m| run_tests(m) }
 
 @interrupted = false
 

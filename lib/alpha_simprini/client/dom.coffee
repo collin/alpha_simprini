@@ -19,7 +19,9 @@ class AS.DOM
   $: jQuery
 
   text: (text_content) ->
-    console.warn "FIXME: escape text content!"
+    # createTextNode creates a text node, no DOM injection here
+    # TODO: DOUBLE EXPRESS VERIFY THIS ASSUMPTION AND PASTE
+    #   LINKS TO SUPPORTING EVIDENCE IN THE CODE.
     @current_node.appendChild document.createTextNode(text_content)
   
   raw: (html) ->

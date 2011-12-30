@@ -1,7 +1,6 @@
 AS = require("alpha_simprini")
 _ = require "underscore"
 # FIXME: non-module
-require("rangy-core")
 
 class AS.Binding  
   constructor: (@context, @model, @field, @options={}, @fn=undefined) ->
@@ -144,6 +143,8 @@ class AS.Binding.EditLine extends AS.Binding
     @context.$ @context.span(@options)
   
   replace_text: (new_text="") ->
+    rangy = require("rangy-core")
+    
     range = rangy.createRange()
     selection = rangy.getSelection()
     
@@ -169,6 +170,7 @@ class AS.Binding.EditLine extends AS.Binding
     @replace_text @elem.innerHTML[...position] + @elem.innerHTML[position + text.length..]
     
   generate_operation: () =>
+    rangy = require("rangy-core")
     selection = rangy.getSelection()
     if selection.rangeCount
       range = rangy.getSelection().getRangeAt(0)

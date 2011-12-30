@@ -3,6 +3,7 @@ _ = require "underscore"
 
 class AS.View extends AS.DOM
   AS.Event.extends(this)
+  AS.StateMachine.extends(this)
     
   tag_name: "div"
     

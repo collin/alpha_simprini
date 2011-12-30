@@ -89,7 +89,7 @@ class AS.ViewEvents
   apply_binding: (options) ->
     [selector, event_name, handler] = [options.selector, options.event_name, options.handler]
     if selector is ''
-      @view.el.bind event_name, handler, @view
+      @view.el.bind event_name, handler
     else if selector is '@'
       @view.bind event_name, handler, @view
     else if selector[0] is '@'
