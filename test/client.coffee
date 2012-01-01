@@ -554,7 +554,58 @@ exports.Binding =
       @binding.model.owner new_owner 
       test.ok @binding.container.find("##{new_owner.cid}").is("div")
       test.done()
-      
-      
-  
 
+exports.Views =
+  Panel:
+    "Panel extends View": (test) ->
+      test.ok new AS.Views.Panel instanceof AS.View
+      test.done()
+  
+  Regions:
+    "regions for cardinal directions extend Region": (test) ->
+      test.ok new AS.Views.Region instanceof AS.View
+      test.ok new AS.Views.North instanceof AS.Views.Region
+      test.ok new AS.Views.East instanceof AS.Views.Region
+      test.ok new AS.Views.South instanceof AS.Views.Region
+      test.ok new AS.Views.West instanceof AS.Views.Region
+      test.done()
+
+  # Canvas:
+  #   "Canvas extends Panel": (test) ->
+  #     test.ok new AS.Views.Canvas instanceof AS.Views.Panel
+  #     test.done()
+  # 
+  # Stage:
+  #   "Stage extends Panel": (test) ->
+  #     test.ok new AS.Views.Stage instanceof AS.Views.Panel
+  #     test.done()
+  #   
+  #   "creates a canvas": (test) ->
+  #     console.log (new AS.Views.Stage).el[0].outerHTML
+  #     test.ok (new AS.Views.Stage).el.find(".Canvas").is("div")
+  #     test.done()
+
+jwerty = require("jwerty").jwerty
+exports.Application =
+  setUp: (callback) ->
+    @app = new AS.Application
+    callback()
+      
+  "attaches global key handlers w/jwerty": (test) ->
+    test.expect 1
+    @app.bind "esc", -> test.ok true
+    jwerty.fire "esc"
+    test.done()
+  
+  "initializes views into the application context": (test) ->
+    app_panel = @app.view AS.Views.Panel, key: "value"
+    test.equal app_panel.application, @app
+    test.equal app_panel.key, "value"
+    test.done()
+  
+  "appends views into the app dom element": (test) ->
+    app_panel = @app.view AS.Views.Panel, key: "value"
+    @app.append app_panel 
+    test.equal @app.el.children()[0], app_panel.el[0]
+    test.done()
+    

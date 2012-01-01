@@ -19,7 +19,7 @@
     "underscore.string": ">= 2.0.0",
     "share": "https://github.com/collin/ShareJs/tarball/master",
     "jQuery": ">= 1.6",
-    "jwerty": ">= 0.3",
+    "jwerty": "https://github.com/collin/jwerty/tarball/master",
     "rangy-core": "0.2.2"
   },
   "devDependencies": {
