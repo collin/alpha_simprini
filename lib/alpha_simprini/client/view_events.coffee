@@ -8,7 +8,6 @@ class AS.ViewEvents
     guard = guard.replace(/(\w+):/g, (__, match) -> "\"#{match}\":")
     guard = JSON.parse(guard)
     
-  
   constructor: (@view, events) ->
     @namespace = _.uniqueId ".ve"
     @events = @unify_options(events)
