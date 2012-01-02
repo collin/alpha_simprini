@@ -1,6 +1,7 @@
 # Bootstraps
 require "./alpha_simprini/string"
 require "./alpha_simprini/core/logging"
+_ = require "underscore"
 
 exports.module = (string) ->
   parts = string.split(".")

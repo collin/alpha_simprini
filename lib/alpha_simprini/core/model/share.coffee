@@ -5,6 +5,8 @@ sharejs = require("share").client
 
 AS.Model.Share = new AS.Mixin
   mixed_in: ->
+    @define_callbacks before: ["open"]
+    
     @before_initialize (model) -> 
       model.needs_indexing = true
       model.loaded_data = {}
@@ -13,11 +15,11 @@ AS.Model.Share = new AS.Mixin
         
     @after_initialize (model) ->
       model.share_namespace = ".#{model.attributes.id}-share"
-      
+
   class_methods:
     index: (name, config) ->
       @write_inheritable_value 'indeces', name, config
-      @::[name] = -> @["#{name}_indexr"] ?= @indexer(name)
+      @::[name] = -> @["#{name}_indexer"] ?= @indexer(name)
 
     open: (id=AS.uniq(), indexer=(model) -> model.did_index()) ->
       model = new this(id:id)
@@ -63,7 +65,6 @@ AS.Model.Share = new AS.Mixin
       for name, config of @constructor.indeces
         index = @index(name)
         index.set(new Object) unless index.get()
-        console.log "default of index", name, @share.at(name).get()
       
     index: (index_name) ->
       @share.at("index:#{index_name}")
@@ -89,6 +90,7 @@ AS.Model.Share = new AS.Mixin
       all = {id:@id, _type: @constructor._type}
 
       for name, config of @constructor.fields || {}
+        continue if @attributes[name] is undefined
         all[name] = @attributes[name]
 
       for name, config of @constructor.has_manys || {}
@@ -98,6 +100,7 @@ AS.Model.Share = new AS.Mixin
         all[name] = @attributes[name].map((model) -> model.attributes_for_sharing()).value()
 
       for name, config of @constructor.belongs_tos || {}
+        continue if @attributes[name] is undefined
         all[name] = @attributes[name]
 
       for name, config of @constructor.has_ones || {}
@@ -109,10 +112,9 @@ AS.Model.Share = new AS.Mixin
       return all
           
     set_attributes_from_share: ->
-      console.log "set_attributes_from_share", this, @id
       for name, config of @constructor.fields || {}
         @attributes[name] = @share.at(name).get()
-    
+          
       for name, config of @constructor.has_manys || {}
         collection = @[name]()
         # clone here, or we have shared references which confuses sharejs
@@ -120,7 +122,7 @@ AS.Model.Share = new AS.Mixin
              
       for name, config of @constructor.belongs_tos || {}
         @attributes[name] = @share.at(name).get()
-    
+          
       for name, config of @constructor.has_ones || {}
         console.warn "Model#attributes_for_sharing does not implement has_ones"
        
@@ -146,7 +148,6 @@ AS.Model.Share = new AS.Mixin
       callback() if count is loaded
         
       _callback = (share) =>
-        console.log "load_index _callback, #{loaded}/#{count}"
         @loaded_data[share.at("id").get()] = share
         loaded++
         callback() if count is loaded
@@ -178,7 +179,6 @@ AS.Model.Share = new AS.Mixin
       @trigger("ready")
       
     build_loaded_data: ->
-      console.log this, "build_loaded_data" if _(@loaded_data).keys().length
       for id, share of @loaded_data || {}
         AS.All.byId[id].did_load(share) 
 
@@ -217,7 +217,7 @@ AS.Model.Share = new AS.Mixin
       @bind_indeces()
       
     bind_field_sharing: ->
-      set_from_local = (model, field, value, options) =>
+      set_from_local = (model, field, value, options={}) =>
         model.when_indexed => @share.at(field).set(value) unless options.remote
         
       for name, config of @constructor.fields || {}
@@ -237,50 +237,49 @@ AS.Model.Share = new AS.Mixin
         do (name) =>
           collection = @[name]()
           
-          add_handler = (model, collection, options) =>
+          add_handler = (model, collection, options={}) =>
             return if options.remote is true
             model.when_indexed => 
               @share.at(name).insert(options.at, {id:model.id, _type:model.constructor._type})
             
           collection.bind "add#{@share_namespace}", add_handler, this
             
-          remove_handler = (model, collection, options) =>
+          remove_handler = (model, collection, options={}) =>
             return if options.remote is true
             model.when_indexed => @share.at(name, options.at).remove()
     
           collection.bind "remove#{@share_namespace}", remove_handler, this
           
           @share_binding name, "insert", (position, data) =>
-            console.log "has_many insert", data
             collection.add data, at: position, remote: true
             
           @share_binding name, "delete", (position, data) =>
             collection.remove AS.All.byId[data.id], remote: true
                     
     bind_embeds_many_sharing: ->
-      # for name, config of @constructor.embeds_manys
-      #   do (name) =>
-      #     collection = @[name]()
-      #   
-      #     collection.each (model, index) =>
-      #       model.embedded_binding(@share.at(name, index))
-      #     
-      #     add_handler = (model, collection, options) =>
-      #         return if options.remote is true
-      #         @share.at(name).insert(options.at, model.attributes_for_sharing())
-      #         model.embedded_binding(@share.at(name, options.at))
-      #         
-      #     collection.bind "add#{@share_namespace}", add_handler, this  
-      #     
-      #     remove_handler = (model, collection, options) =>
-      #       return if options.remote is true
-      #       @share.at(name).at(options.at).remov()
-      #       model.revoke_share_bindings()
-      #       
-      #     collection.bind "remove#{@share_namespace}", remove_handler, this
+      for name, config of @constructor.embeds_manys
+        do (name) =>
+          collection = @[name]()
+        
+          collection.each (model, index) =>
+            model.embedded_binding(@share.at(name, index))
+          
+          add_handler = (model, collection, options={}) =>
+              return if options.remote is true
+              @share.at(name).insert(options.at, model.attributes_for_sharing())
+              model.embedded_binding(@share.at(name, options.at))
+              
+          collection.bind "add#{@share_namespace}", add_handler, this  
+          
+          remove_handler = (model, collection, options={}) =>
+            return if options.remote is true
+            @share.at(name).at(options.at).remove()
+            model.revoke_share_bindings()
+            
+          collection.bind "remove#{@share_namespace}", remove_handler, this
         
     bind_belongs_to_sharing: ->
-      set_from_local = (model, field, value, options) =>
+      set_from_local = (model, field, value, options={}) =>
         value = null if value is undefined
         model.when_indexed => 
           @share.at(field).set(value) unless options.remote
@@ -298,14 +297,26 @@ AS.Model.Share = new AS.Mixin
       console.warn "Model#bind_has_one_sharing not implemented"
         
     bind_embeds_one_sharing: ->
-      # for name, config of @constructor.embeds_ones
-      #   do (name) =>
-      #     @[name]().embedded_binding(@share.at(name))
-    
+      for name, config of @constructor.embeds_ones
+        do (name) =>
+          @[name]().embedded_binding(@share.at(name))
+        
+          change_handler = (key, value, options={}) =>
+            return if options.remote is true
+            value = @[name]()
+            if value?.attributes_for_sharing
+              @share.at(name).set(value.attributes_for_sharing())
+              value.embedded_binding(@share.at(name))
+            else
+              @share.at(name).set(null)
+            
+            
+          @bind "change:#{name}#{@share_namespace}", change_handler, this
+        
     bind_indeces: ->
       for index, config of @constructor.indeces || {}
         @share_binding "index:#{index}", "insert", (id, konstructor) =>
-          console.log "index #{index} insert", id
-          AS.module(konstructor).load id, (share) ->
+          loaded = AS.module(konstructor).load id, (share) ->
             @did_load(share)
             @indeces_did_load()
+          @trigger("indexload", loaded)

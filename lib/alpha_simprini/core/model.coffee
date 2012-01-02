@@ -13,7 +13,7 @@ class AS.Model
   AS.InheritableAttrs.extends(this)
   AS.Callbacks.extends(this)
     
-  @define_callbacks(after: ["initialize"], before: ["initialize", "open"])
+  @define_callbacks(after: ["initialize"], before: ["initialize"])
     
   @embeds_many: (name, config={}) ->
     config.relation = true

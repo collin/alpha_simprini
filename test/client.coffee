@@ -608,4 +608,3 @@ exports.Application =
     @app.append app_panel 
     test.equal @app.el.children()[0], app_panel.el[0]
     test.done()
-    

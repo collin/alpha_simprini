@@ -1,5 +1,6 @@
 AS = require "alpha_simprini"
 _ = require "underscore"
+sinon = require "sinon"
 
 exports.setUp = (callback) ->
   AS.All =
@@ -50,10 +51,6 @@ exports.core =
       test.equal sz(Math.pow(1024, index + 1)), "1.0 #{prefix}"
     test.done()
   
-  openSharedObject: (test) ->
-    test.ok false, "Not sure how to mock out sharejs for this test, sorry."
-    test.done()
-
 Target = null
 SubTarget = null
 Source = null
@@ -153,11 +150,11 @@ exports.delegate =
     test.equal "value 2", (new Delegator).property("2")
     test.done()
   
-  methodDelegate: (test) ->
-    test.ok false, "method delegates not used yet"
-    # console.log Object.keys(test)
-    # test.equal "value", (new Delegator).method()
-    test.done()
+  # methodDelegate: (test) ->
+  #   test.ok false, "method delegates not used yet"
+  #   # console.log Object.keys(test)
+  #   # test.equal "value", (new Delegator).method()
+  #   test.done()
 
 class Car
   AS.StateMachine.extends(this)
@@ -454,6 +451,188 @@ exports.Model =
       model.destroy()
       test.done()
 
+class Shared extends AS.Model
+  AS.Model.Share.extends(this)
+  @_type = "Shared"
+  @field "field"
+  @embeds_many "embeds", model: -> SimpleShare
+  @embeds_one "embedded", model: -> SimpleShare
+  @has_many "relations", model: -> SimpleShare
+  @has_one "relation"
+  @belongs_to "owner"
+
+class SimpleShare extends AS.Model
+  @_type = "SimpleShare"
+  AS.Model.Share.extends(this)
+  @field "field"
+
+class IndexShare extends AS.Model
+  @_type = "IndexShare"
+  AS.Model.Share.extends(this)
+  @index "docs"
+  @belongs_to "owner"
+
+makeDoc = (name="document_name", snapshot=null) ->
+  share = require "share"
+  Doc = share.client.Doc
+  doc = new Doc {}, name, 0, share.types.json, null
+  # FIXME: get proper share server running in the tests
+  # as it is we seem to be able to skip over the "pendingOp" stuff
+  # but it'd be nicer to properly test his out.
+  doc.submitOp = (op, callback) ->
+    op = @type.normalize(op) if @type.normalize?
+    @snapshot = @type.apply @snapshot, op
+    #     
+    # # If this throws an exception, no changes should have been made to the doc
+    #     
+    # if pendingOp != null
+    #   pendingOp = @type.compose(pendingOp, op)
+    # else
+    #   pendingOp = op
+    #     
+    pendingCallbacks.push callback if callback
+    #     
+    @emit 'change', op
+    #     
+    # # A timeout is used so if the user sends multiple ops at the same time, they'll be composed
+    # # together and sent together.
+    setTimeout @flush, 0
+    op
+    # console.log op, callback
+  doc
+  
+exports.Model.Share =
+  setUp: (callback) ->
+    @real_open = AS.open_shared_object
+    @real_module = AS.module
+    AS.module = (name) ->
+      return {
+        "SimpleShare": SimpleShare,
+        "Shared": Shared,
+        "IndexShare": IndexShare
+      }[name]
+    AS.open_shared_object = (id, did_open) -> 
+      did_open makeDoc(id)
+    
+    @remote = (operation) ->
+      @model.share.emit "remoteop", operation
+    
+    (@model = Shared.open()).when_indexed callback
+    
+  tearDown: (callback) ->
+    AS.open_shared_object = @real_open
+    AS.module = @real_module
+    callback()
+    
+  "sets initial attribuets when opening an object": (test) -> 
+    test.deepEqual @model.share.get(), @model.attributes_for_sharing()
+    test.done()
+  
+  "updates shared object when model attributes change": (test) ->
+    @model.field("VALUE")
+    test.equal @model.share.at("field").get(), "VALUE"
+      
+    test.done()
+  
+  "adds/removes items to relations in share": (test) ->
+    @model.relations().add SimpleShare.open()
+    @model.embeds().add SimpleShare.open()
+    @model.embedded SimpleShare.open()
+    @model.owner SimpleShare.open()
+    
+    test.deepEqual @model.relations().first().value().attributes_for_sharing(), @model.share.at("relations", 0).get()
+    test.deepEqual @model.embeds().first().value().attributes_for_sharing(), @model.share.at("embeds", 0).get()
+    test.deepEqual @model.embedded().attributes_for_sharing(), @model.share.at("embedded").get()
+    test.equal @model.attributes.owner, @model.share.at("owner").get()
+    test.notEqual @model.owner(), undefined
+      
+    @model.relations().remove @model.relations().first().value()
+    @model.embeds().remove @model.embeds().first().value()
+    @model.embedded null
+    @model.owner null
+    
+    test.equal @model.share.at("relations", 0).get(), undefined
+    test.equal @model.share.at("embeds", 0).get(), undefined
+    test.equal @model.share.at("embedded").get(), undefined
+    test.equal @model.share.at("owner").get(), undefined
+    
+    test.done()
+  
+  "adds items to shared collection at specified index": (test) ->
+    @model.relations().add SimpleShare.open()
+    @model.embeds().add SimpleShare.open()
+
+    @model.relations().add first_relation = SimpleShare.open(), at: 0
+    @model.embeds().add first_embed = SimpleShare.open(), at: 0
+    
+    test.deepEqual first_relation.attributes_for_sharing(), @model.share.at("relations", 0).get()
+    test.deepEqual first_embed.attributes_for_sharing(), @model.share.at("embeds", 0).get()
+      
+    test.done()
+  
+  "updates fields when fields change on share": (test) ->
+    test.expect 2
+    @model.bind "change:field", -> test.ok true
+    @remote @model.share.at("field").set("value")
+    test.equal @model.field(), "value"
+    test.done()
+  
+  "updates fields in embeds_one models when change occurs on share": (test) ->
+    test.expect 5
+    
+    @model.embedded first = SimpleShare.open()    
+    @model.embedded().bind "change:field", -> test.ok true
+    @remote @model.share.at("embedded", "field").set("value")
+    test.equal first.field(), "value"
+
+    # make sure when we swap out embeds the only the newer one is changed
+    @model.embedded second = SimpleShare.open()    
+    @model.embedded().bind "change:field", -> test.ok true
+    @remote @model.share.at("embedded", "field").set("value2")
+    test.notEqual first.field(), "value2"
+    test.equal second.field(), "value2"
+    
+    test.done()
+  
+  "updates fields in embeds_many models when change occurs on share": (test) ->
+    test.expect 2
+    
+    @model.embeds().add first = SimpleShare.open()    
+    first.bind "change:field", -> test.ok true
+    @remote @model.share.at("embeds", 0, "field").set("value")
+    test.equal first.field(), "value"
+
+    test.done()
+  
+  "updates belongs_to in has_many models when change occurs on share": (test) ->
+    test.expect 2
+    owner = SimpleShare.open()
+    @model.bind "change:owner", -> test.ok true
+    @remote @model.share.at("owner").set(owner.id)
+    test.equal @model.owner(), owner
+
+    test.done()
+
+  "loads models when indexes update": (test) ->
+    (@model = IndexShare.open()).when_indexed =>
+      (other = SimpleShare.open()).when_indexed  =>
+        AS.open_shared_object = (id, did_open) -> did_open other.share
+        @model.bind "indexload", (loaded) =>
+          loaded.when_indexed ->
+            test.done()
+        @remote @model.share.at("index:docs", other.id).set("SimpleShare")
+
+  # "loads models in indexes when opened": (test) ->
+  #   index = {}
+  #   index[AS.uniq()] = "SimpleShare"
+  #   snap = {}
+  #   snap["index:docs"] = index
+  #   doc = makeDoc(AS.uniq(), snap)
+  #   @model = new AS.IndexShare
+  #   @model.did_open(doc)
+  #   @model.when_indexed =>
+  #     test.done()
+    
 exports.Collection =
   "inserts item of specified type": (test) ->
     class Thing extends AS.Model

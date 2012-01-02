@@ -1,7 +1,6 @@
 AS = require "alpha_simprini"
 Core = AS.part("Core")
 _ = require "underscore"
-sharejs = require("share").client
 
 Core.require """
   mixin event inheritable_attrs callbacks delegate state_machine
@@ -11,6 +10,8 @@ Core.require """
   
   models/radio_selection_model
 """
+
+AS.share = require("share").client
 
 # # ## Some little utility functions. 
 
@@ -38,8 +39,7 @@ AS.uniq = ->
 
 
 AS.open_shared_object = (id, callback) ->
-  console.log "opening shared object #{id}"
-  sharejs.open id, "json", @sharejs_url, (error, handle) ->
+  @share.open id, "json", @sharejs_url, (error, handle) ->
     if error then console.log(error) else callback(handle)
 
 AS.human_size = (size) ->
