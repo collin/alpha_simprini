@@ -475,7 +475,7 @@ class IndexShare extends AS.Model
 makeDoc = (name="document_name", snapshot=null) ->
   share = require "share"
   Doc = share.client.Doc
-  doc = new Doc {}, name, 0, share.types.json, null
+  doc = new Doc {}, name, 0, share.types.json, snapshot
   # FIXME: get proper share server running in the tests
   # as it is we seem to be able to skip over the "pendingOp" stuff
   # but it'd be nicer to properly test his out.
@@ -511,7 +511,7 @@ exports.Model.Share =
         "Shared": Shared,
         "IndexShare": IndexShare
       }[name]
-    AS.open_shared_object = (id, did_open) -> 
+    AS.open_shared_object = (id, did_open) ->
       did_open makeDoc(id)
     
     @remote = (operation) ->
@@ -622,16 +622,27 @@ exports.Model.Share =
             test.done()
         @remote @model.share.at("index:docs", other.id).set("SimpleShare")
 
-  # "loads models in indexes when opened": (test) ->
-  #   index = {}
-  #   index[AS.uniq()] = "SimpleShare"
-  #   snap = {}
-  #   snap["index:docs"] = index
-  #   doc = makeDoc(AS.uniq(), snap)
-  #   @model = new AS.IndexShare
-  #   @model.did_open(doc)
-  #   @model.when_indexed =>
-  #     test.done()
+  "loads models in indexes when opened": (test) ->
+    indexed = new SimpleShare
+    index = {}
+    index[indexed.id] = "SimpleShare"
+    delete AS.All.byId[indexed.id]
+    delete AS.All.byCid[indexed.cid]
+    snap = {}
+    snap["index:docs"] = index
+    snap["owner"] = indexed.id
+    doc = makeDoc(AS.uniq(), snap)
+
+    @model = new IndexShare
+    
+    AS.open_shared_object = (id, did_open) ->
+      did_open makeDoc(id, indexed.attributes_for_sharing())
+    
+    @model.did_open(doc)
+    @model.when_indexed =>
+      test.notEqual AS.All.byId[indexed.id], undefined
+      test.equal @model.owner(), AS.All.byId[indexed.id]
+      test.done()
     
 exports.Collection =
   "inserts item of specified type": (test) ->
