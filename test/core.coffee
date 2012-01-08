@@ -340,6 +340,98 @@ exports.Model =
     test.ok model.new()
     test.done()
   
+  virtual_properties:
+    "virtual properties trigger change events when pointed to fields": (test) ->
+      test.expect 3
+
+      class Virtuals extends AS.Model
+        @field "firstname"
+        @field "lastname"
+        @virtual_properties "firstname", "lastname",
+          fullname: -> "#{@firstname()} #{@lastname()}"
+      
+      model = new Virtuals firstname: "Collin", lastname: "Miller"
+      
+      test.equal "Collin Miller", model.fullname()
+      model.bind "change:fullname", (name, value, options) -> test.ok true
+    
+      model.firstname "First"
+      model.lastname "Last"
+      
+      test.done()
+    
+    "virtual properties trigger change events when pointed to has_manys": (test) ->
+      test.expect 3
+      
+      class Countable extends AS.Model
+        @has_many "things", model: -> AS.Model
+        
+        @virtual_properties "things",
+          things_count: -> @things().length
+      
+      model = new Countable
+      things  = model.things()
+      things.add()
+      things.add()
+      things.add()
+      
+      test.equal 3, model.things_count()
+      
+      model.bind "change:things_count", -> test.ok true
+      
+      last = things.add()
+      things.remove last
+      
+      test.done()
+
+    "virtual properties trigger change events when pointed to embeds": (test) ->
+      test.expect 3
+      
+      class Countable extends AS.Model
+        @embeds_many "things", model: -> AS.Model
+        
+        @virtual_properties "things",
+          things_count: -> @things().length
+      
+      model = new Countable
+      things  = model.things()
+      things.add()
+      things.add()
+      things.add()
+      
+      test.equal 3, model.things_count()
+      
+      model.bind "change:things_count", -> test.ok true
+      
+      last = things.add()
+      things.remove last
+      
+      test.done()
+    
+    "virtual properties don't trigger if the value hasn't changed": (test) ->
+      test.expect 1
+      
+      class Countable extends AS.Model
+        @embeds_many "things", model: -> AS.Model
+        
+        @virtual_properties "things",
+          things_count: -> "NEVER CHANGES"
+      
+      model = new Countable
+      things  = model.things()
+      things.add()
+      things.add()
+      things.add()
+      
+      test.equal "NEVER CHANGES", model.things_count()
+      
+      model.bind "change:things_count", -> test.ok true
+      
+      last = things.add()
+      things.remove last
+      
+      test.done()
+ 
   field:
     reflection: (test) ->
       test.ok FieldModel.fields.name

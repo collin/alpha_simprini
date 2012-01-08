@@ -122,7 +122,38 @@ class AS.Model
     config.type ?= FieldTypes.String
     @write_inheritable_value("fields", name, config)
     @attribute(name, config)
+  
+  @virtual_properties: (fields..., defs) ->
+    virtual_cache = {}
     
+    # bind to all events for fields
+    @after_initialize (model) ->
+      for field in fields
+        if model.constructor.fields?[field]
+          model.bind "change:#{field}", (name, value, options) ->
+            for name, fn of defs
+              _value = model[name]()
+              continue if _value is virtual_cache[name]
+              virtual_cache[field] = _value
+              model.trigger("change:#{name}", name, _value, options)
+        
+        else if model.constructor.has_manys?[field] or model.constructor.embeds_manys?[field]
+          relation = model[field]()
+          
+          callback = (collection, item, options) ->
+            for name, fn of defs
+              _value = model[name]()
+              continue if _value is virtual_cache[name]
+              virtual_cache[name] = _value
+              model.trigger("change:#{name}", name, _value, options)
+            
+          relation.bind "add", callback
+          relation.bind "remove", callback
+        
+    # set up functions to reat virtual properties
+    for name, fn of defs
+      @::[name] = fn
+  
   @attribute: (name, config={}) ->
     if config.type
       @::[name] = (value, options) ->
