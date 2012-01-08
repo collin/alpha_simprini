@@ -3,7 +3,12 @@ AS.Core.require "model"
 _ = require "underscore"
 sharejs = require("share").client
 
-AS.Model.Share = new AS.Mixin
+class ShareMixin extends AS.Mixin
+  extends: (klass, type) ->
+    klass._type = type
+    super(klass)
+
+AS.Model.Share = new ShareMixin
   mixed_in: ->
     @define_callbacks before: ["open"]
     
@@ -66,7 +71,9 @@ AS.Model.Share = new AS.Mixin
       for name, config of @constructor.indeces
         index = @index(name)
         index.set(new Object) unless index.get()
-      
+    
+    new: -> @share is undefined
+    
     index: (index_name) ->
       @share.at("index:#{index_name}")
         
@@ -91,7 +98,10 @@ AS.Model.Share = new AS.Mixin
       all = {id:@id, _type: @constructor._type}
 
       for name, config of @constructor.fields || {}
-        all[name] = @attributes[name] || ""
+        if @attributes[name] is undefined
+          all[name] = ""
+        else
+          all[name] = @attributes[name]
 
       for name, config of @constructor.has_manys || {}
         all[name] = @attributes[name].map((model) -> model.id).value()

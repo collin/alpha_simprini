@@ -7,7 +7,28 @@ AS.All =
 require_config = (config, key, message) ->
   return if key in config
   throw new Error message
-    
+
+FieldTypes =
+  "Boolean":
+    read: (value) ->
+      return value if _.isBoolean(value)
+      return true if value is "true"
+      return false if value is "false"
+      return false
+        
+    write: (value) ->      
+      return "true" if value is "true" or value is true
+      return "false" if value is "false" or value is false
+      return "false"
+
+  "String":
+    read: (value) -> value
+    write: (value) -> value
+
+  "Number":
+    read: (value) -> value
+    write: (value) -> value
+
 class AS.Model
   AS.Event.extends(this)
   AS.InheritableAttrs.extends(this)
@@ -95,20 +116,32 @@ class AS.Model
     @push_inheritable_item("relations", name)
   
   @field: (name, config={}) ->
+    if config.type?.name
+      config.type = FieldTypes[config.type.name]
+      
+    config.type ?= FieldTypes.String
     @write_inheritable_value("fields", name, config)
-    @attribute(name)
+    @attribute(name, config)
     
-  @attribute: (name) ->
-    @::[name] = (value, options) ->
-      if value is undefined
-        @get_attribute(name)
-      else
-        @set_attribute(name, value, options)
+  @attribute: (name, config={}) ->
+    if config.type
+      @::[name] = (value, options) ->
+        if value is undefined
+          config.type.read @get_attribute(name)
+        else
+          @set_attribute name, config.type.write(value), options
+    else
+      @::[name] = (value, options) ->
+        if value is undefined
+          @get_attribute(name)
+        else
+          @set_attribute(name, value, options)
     
   @initialize_relations: (model)  ->
     
   constructor: (@attributes = {}, options={}) ->        
     @run_callbacks "before_initialize"
+    @set_defaults() if @new()
     @initialize(options)
     @run_callbacks "after_initialize"
   
@@ -127,6 +160,12 @@ class AS.Model
     @initialize_has_one(name, config) for name, config of @constructor.has_ones || {}
     @initialize_belongs_to(name, config) for name, config of @constructor.belongs_tos || {}
 
+  new: -> @attributes.id is undefined
+
+  set_defaults: () ->
+    for name, config of @constructor.fields || {}
+      @[name]() or @[name](config.default)
+
   last: (attr) -> 
     [@attributes, @previous_attributes] = [@previous_attributes, @attributes]
     last = @[attr]()
@@ -143,7 +182,7 @@ class AS.Model
     @set data
     
   initialize_has_many: (name, config) ->
-    @has_manys ||= {}
+    @has_manys ?= {}
     data = {}
     klass = class this["#{name}_collection_klass"] extends AS.Collection
     _.extend klass::, config

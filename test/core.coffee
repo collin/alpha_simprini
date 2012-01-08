@@ -334,6 +334,12 @@ exports.Model =
     test.ok (new AModel).initialized
     test.done()
   
+  "is a new record if has no id in attributes": (test) ->
+    model = new AS.Model
+    delete model.attributes.id
+    test.ok model.new()
+    test.done()
+  
   field:
     reflection: (test) ->
       test.ok FieldModel.fields.name
@@ -364,6 +370,42 @@ exports.Model =
       m.bind "change", -> test.ok true
       m.name "gogogo"
       test.done()
+    
+    "sets default field values": (test) ->
+      class DefaultModel extends AS.Model
+        @field "defaulted", default: "CRAZY AWESOME"
+      
+      test.equal (new DefaultModel).defaulted(), "CRAZY AWESOME"
+        
+      test.done()
+    
+    "but not when the record already exists": (test) ->
+      class DefaultModel extends AS.Model
+        @field "defaulted", default: "CRAZY AWESOME"
+      
+      test.notEqual (new DefaultModel id:"exists").defaulted(), "CRAZY AWESOME"
+        
+      test.done()
+    
+    types:
+      Boolean: (test) ->
+        class BooleanModel extends AS.Model
+          @field "field", type: Boolean
+        
+        model = new BooleanModel
+        
+        model.field true
+        
+        test.equals model.field(), true
+        
+        model.field "false"
+        test.equals model.field(), false
+        
+        test.done()
+      
+      # STUBS
+      # String:
+      # Number:
       
   relation:
     # "requires model configurations": (test) -> 
@@ -452,8 +494,7 @@ exports.Model =
       test.done()
 
 class Shared extends AS.Model
-  AS.Model.Share.extends(this)
-  @_type = "Shared"
+  AS.Model.Share.extends(this, "Shared")
   @field "field"
   @embeds_many "embeds", model: -> SimpleShare
   @embeds_one "embedded", model: -> SimpleShare
@@ -462,8 +503,7 @@ class Shared extends AS.Model
   @belongs_to "owner"
 
 class SimpleShare extends AS.Model
-  @_type = "SimpleShare"
-  AS.Model.Share.extends(this)
+  AS.Model.Share.extends(this, "SimpleShare")
   @field "field"
   @embeds_many "embeds", model: -> SimplerShare
   @embeds_one "embedded", model: -> SimplerShare
@@ -472,13 +512,11 @@ class SimpleShare extends AS.Model
   @belongs_to "owner"
 
 class SimplerShare extends AS.Model
-  @_type = "SimplerShare"
-  AS.Model.Share.extends(this)
+  AS.Model.Share.extends(this, "SimplerShare")
   @field "field"
 
 class IndexShare extends AS.Model
-  @_type = "IndexShare"
-  AS.Model.Share.extends(this)
+  AS.Model.Share.extends(this, "IndexShare")
   @index "docs"
   @belongs_to "owner"
 
@@ -581,7 +619,38 @@ exports.Model.Share =
     AS.open_shared_object = @real_open
     AS.module = @real_module
     callback()
+  
+  "is new if share is undefined": (test) ->
+    delete @model.share
+    test.ok @model.new()
+    test.done()
+  
+  "is new if constructed with new": (test) ->
+    test.ok (new Shared id:"an id").new()
+    test.done()
+  
+  "sets defaults when opening a new model": (test) ->
+    class DefaultShared extends AS.Model
+      AS.Model.Share.extends(this, "DefaultShared")
+      @field "defaulted", default: "value"
+
+    model = DefaultShared.open("someid")
+    test.equal model.defaulted(), "value"
     
+    test.done()
+  
+  "overrides defaults when loading remotely": (test) ->
+    AS.open_shared_object = (id, did_open) ->
+      did_open makeDoc(id, defaulted: "REMOTE VALUE")
+    class DefaultShared extends AS.Model
+      AS.Model.Share.extends(this, "DefaultShared")
+      @field "defaulted", default: "value"
+
+    model = DefaultShared.open("some other id")
+    test.equal model.defaulted(), "REMOTE VALUE"
+    
+    test.done()
+  
   "sets initial attributes when opening an object": (test) -> 
     test.deepEqual @model.share.get(), @model.attributes_for_sharing()
     test.done()

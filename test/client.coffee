@@ -337,8 +337,7 @@ class BoundModel extends AS.Model
   @belongs_to "owner"
 
 class SharedBoundModel extends BoundModel
-  AS.Model.Share.extends this
-  @_type = "SharedBoundModel"
+  AS.Model.Share.extends this, "ShareBoundModel"
 
 class SimpleModel extends AS.Model
   @field "field"

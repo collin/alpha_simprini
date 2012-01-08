@@ -9,6 +9,7 @@ class Todo.Models.List extends AS.Model
   AS.Model.Share.extends(this, "Todo.Models.List")
 
   @field "name", default: "A list of things to do..."
+  @embeds_many "items", model: -> Todo.Models.Item
 
 class Todo.Models.Item extends AS.Model
   AS.Model.Share.extends(this, "Todo.Models.Item")
@@ -16,7 +17,7 @@ class Todo.Models.Item extends AS.Model
   @field "task", default: "Something to do..."
   @field "done", type: Boolean, default: false
 
-class Todo.Views.List extends AS.VIew
+class Todo.Views.List extends AS.View
   events:
     "click .add_item": "add_item"
     "click .remove_item": "remove_item"
@@ -26,16 +27,23 @@ class Todo.Views.List extends AS.VIew
 
     @button class: "add_item", -> "Add Item"
     
-    @list "Things to do:", done: false
-    @list "Things I've done:", done: true
+    @listing "Things to do:", done: false
+    @listing "Things I've done:", done: true
 
-  
-  list: (label, filter) ->
+  listing: (label, filter) ->
     @h2 label
-    @ul -> @list.binding "items", filter: filter, (item) -> @li
-      item.checkbox("done")
-      @p -> item.editline("task")
-      @$(@button class: "remove_item", -> "x").data().item = item
+    @ul -> 
+      @list.binding "items", filter: filter, (item) ->
+        @li ->
+          item.checkbox("done")
+          @p -> item.editline("task")
+          @$(@button class: "remove_item", -> "x").data().item = item
+
+  add_item: (item) ->
+    @list.items().add new Todo.Models.Item
+  
+  remove_item: (event) ->
+    @list.items().remove @$(event.currentTarget).data().item.model
 
 class Todo.Application extends AS.Application
   initialize: ->
@@ -43,4 +51,5 @@ class Todo.Application extends AS.Application
     @list.bind "ready", @listready, this
   
   listready: ->
-    @append @list_view = @view Todo.Views.List list: @list
+    @list_view = @view Todo.Views.List, list: @list
+    @append @list_view
