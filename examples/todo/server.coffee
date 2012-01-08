@@ -5,8 +5,6 @@ express = require "express"
 connect = require "connect"
 pathname = require "path"
 
-
-
 app = express.createServer(connect.logger())
 
 app.set 'view engine', 'coffee'

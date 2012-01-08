@@ -11,6 +11,8 @@ Core.require """
   models/radio_selection_model
 """
 
+AS.sharejs_url = "http://#{window?.location.host or 'localhost'}/sjs"
+
 AS.share = require("share").client
 
 # # ## Some little utility functions. 
