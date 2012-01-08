@@ -37,13 +37,14 @@ class Todo.Views.List extends AS.View
         @li ->
           item.checkbox("done")
           @p -> item.editline("task")
-          @$(@button class: "remove_item", -> "x").data().item = item
+          button = @button class: "remove_item", -> "x"
+          @$(button).data().item = item
 
   add_item: (item) ->
     @list.items().add new Todo.Models.Item
   
   remove_item: (event) ->
-    @list.items().remove @$(event.currentTarget).data().item.model
+    @list.items().remove @$(event.currentTarget).data().item
 
 class Todo.Application extends AS.Application
   initialize: ->

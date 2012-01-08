@@ -139,7 +139,9 @@ class AS.Model
     
   @initialize_relations: (model)  ->
     
-  constructor: (@attributes = {}, options={}) ->        
+  constructor: (@attributes = {}, options={}) ->
+    # @model is @, used for compatibility with wrappers like ViewModel
+    @model = this
     @run_callbacks "before_initialize"
     @set_defaults() if @new()
     @initialize(options)

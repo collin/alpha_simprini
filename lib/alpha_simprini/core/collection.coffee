@@ -26,6 +26,8 @@ class AS.Collection
     @models.value()[index]
   
   add: (model={}, options={}) ->
+    # Allow for passing both Model and ViewModels in
+    model = model.model if model.model and model.model.id
     
     unless model instanceof AS.Model
       model = @build(model)
@@ -53,6 +55,8 @@ class AS.Collection
   #   @filter
   
   remove: (model, options={}) -> 
+    # Allow for passing both Model and ViewModels in
+    model = model.model
     result = @_remove(model, options)
     
     model[@inverse](null) if @inverse
