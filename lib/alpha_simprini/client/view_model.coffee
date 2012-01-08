@@ -65,6 +65,9 @@ class AS.ViewModel
   input: (field, options) ->
     new AS.Binding.Input(@view, @model, field, options)
   
+  checkbox: (field, options) ->
+    new AS.Binding.CheckBox(@view, @model, field, options)
+  
   editline: (field, options) ->
     new AS.Binding.EditLine(@view, @model, field, options)
   

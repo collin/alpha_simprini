@@ -10,6 +10,36 @@ _ = require "underscore"
 
 sinon = require "sinon"
 
+#TODO: move into a test helper module
+makeDoc = (name="document_name", snapshot=null) ->
+  share = require "share"
+  Doc = share.client.Doc
+  doc = new Doc {}, name, 0, share.types.json, snapshot
+  # FIXME: get proper share server running in the tests
+  # as it is we seem to be able to skip over the "pendingOp" stuff
+  # but it'd be nicer to properly test his out.
+  doc.submitOp = (op, callback) ->
+    op = @type.normalize(op) if @type.normalize?
+    @snapshot = @type.apply @snapshot, op
+    #     
+    # # If this throws an exception, no changes should have been made to the doc
+    #     
+    # if pendingOp != null
+    #   pendingOp = @type.compose(pendingOp, op)
+    # else
+    #   pendingOp = op
+    #     
+    pendingCallbacks.push callback if callback
+    #     
+    @emit 'change', op
+    #     
+    # # A timeout is used so if the user sends multiple ops at the same time, they'll be composed
+    # # together and sent together.
+    setTimeout @flush, 0
+    op
+    # console.log op, callback
+  doc
+
 exports.DOM = 
   "creates document fragments": (test) ->
     html = (new AS.DOM).html ->
@@ -303,8 +333,15 @@ exports.BindingGroup =
 
 class BoundModel extends AS.Model
   @field "field"
-  @has_many "items"
+  @has_many "items", model: -> SimpleModel
   @belongs_to "owner"
+
+class SharedBoundModel extends BoundModel
+  AS.Model.Share.extends this
+  @_type = "SharedBoundModel"
+
+class SimpleModel extends AS.Model
+  @field "field"
     
 mock_binding = (binding_class, _options={}) ->
   context = _options.context or new AS.View
@@ -421,7 +458,7 @@ exports.Binding =
     
     "updates content when model changes": (test) ->
       [mocks, binding] = mock_binding(AS.Binding.Field)
-      mocks.model.object.field("new value")
+      binding.model.field("new value")
       test.equal binding.container.find("span").text(), "new value"
       test.done()
     
@@ -455,10 +492,69 @@ exports.Binding =
 
       
   EditLine:
-    "FIXME: figure out how to test rangy": (test) ->
+    setUp: (callback) -> 
+      @rangy_api =
+        getSelection: -> {
+            rangeCount: 0
+            createRange: -> {
+              startOffset: 0
+              endOffset: 0            
+            }
+          }
+        createRange: -> {
+          startOffset: 0
+          endOffset: 0
+        }
       
+      @real_open = AS.open_shared_object
+      AS.open_shared_object = (id, did_open) ->
+        did_open makeDoc(id)
+      
+      @remote = (operation, model = @model) ->
+        if model.share.emit
+          model.share.emit "remoteop", operation
+        else
+          model.share.doc.emit "remoteop", operation
+      
+      AS.Binding.EditLine::rangy = @rangy_api
+      callback()
+    
+    tearDown: (callback) ->
+      AS.open_shared_object = @real_open
+      callback()
+    
+    "contenteditable area responds to all edit events": (test) ->
+      test.expect 8
+      class EditLine extends AS.Binding.EditLine
+        generate_operation: -> test.ok true
+      [mocks, binding] = mock_binding(EditLine)
+      mocks.binding.expects("applyChange").exactly(0)
+      for event in ['textInput', 'keydown', 'keyup', 'select', 'cut', 'paste', 'click', 'focus']
+        binding.content.trigger(event)
+      mocks.verify()
       test.done()
-
+    
+    "applies change if content has changed on edit event": (test) ->
+      model = SharedBoundModel.open()
+      model.field("value")
+      model.when_indexed =>
+        [mocks, binding] = mock_binding(AS.Binding.EditLine, model: model)
+        binding.content[0].innerHTML += " change"
+        binding.generate_operation()
+        test.deepEqual model.share.get(), model.attributes_for_sharing()
+        test.done()
+    
+    "applies change from remote operation": (test) ->
+      model = SharedBoundModel.open()
+      model.field("value")
+      model.when_indexed =>
+        [mocks, binding] = mock_binding(AS.Binding.EditLine, model: model)
+        @remote model.share.at("field").insert(0, "remote "), model
+        test.equal binding.content[0].innerHTML, "remote value"
+        test.equal model.share.at("field").get(), "remote value"
+        test.equal model.field(), "remote value"
+        test.done()
+    
   HasMany:
     setUp: (callback) ->
       model = new BoundModel
@@ -503,6 +599,54 @@ exports.Binding =
       item = @items.at(0)
       @items.remove item
       test.ok @binding.container.find("##{item.cid}")[0] is undefined
+      test.done()
+  
+  HasManyWithFilter:
+    setUp: (callback) ->
+      model = new BoundModel
+      items = model.items()
+      
+      content_fn = (thing) -> @div id: thing.cid
+      
+      [mocks, binding] = mock_binding(
+        AS.Binding.HasMany, 
+          field: 'items', 
+          model: model, 
+          fn: content_fn
+          options: filter: (field: [true, "43"])
+        )
+      
+      @items = items
+      @binding = binding
+      callback()
+
+    "filters items in the collection": (test) ->
+      one = @items.add field: true
+      two = @items.add field: false
+      three = @items.add field: "43"
+      
+      test.equal @binding.container.find("##{one.cid}")[0].id, one.cid
+      test.equal @binding.container.find("##{two.cid}")[0], undefined
+      test.equal @binding.container.find("##{three.cid}")[0].id, three.cid
+      test.done()
+    
+    "moves items into place in the collection when their values change": (test) ->
+      one = @items.add field: true
+      two = @items.add field: false
+      three = @items.add field: true
+      
+      two.field("43")
+      
+      test.equal @binding.container.children()[1].id, two.cid
+      
+      test.done()
+  
+    "removes items when their values change": (test) ->
+      one = @items.add field: true
+      
+      one.field(false)
+      
+      test.equal @binding.container.children().length, 0
       test.done()
   
   Collection:

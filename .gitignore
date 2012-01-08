@@ -1,2 +1,2 @@
-node_modules/*
-!node_modules/*.coffee
+*node_modules/*
+examples/todo/node_modules/

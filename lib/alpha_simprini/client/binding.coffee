@@ -1,6 +1,5 @@
 AS = require("alpha_simprini")
 _ = require "underscore"
-# FIXME: non-module
 
 class AS.Binding  
   constructor: (@context, @model, @field, @options={}, @fn=undefined) ->
@@ -77,7 +76,10 @@ class AS.Binding.Field extends AS.Binding
 
   initialize: ->
     @content = @make_content()
+    @bind_content()
     @set_content()
+  
+  bind_content: ->
     @context.binds @model, "change:#{@field}", @set_content, this
 
   set_content: =>
@@ -90,20 +92,43 @@ class AS.Binding.Field extends AS.Binding
     @context.$ @context.span()
     
 class AS.Binding.Input extends AS.Binding.Field
-
-  make_content: ->
-    input = @context.$ @context.input(@options)
-    @context.binds input, "change", @set_field, this
-    input
+  initialize: ->
+    super()
+    @context.binds @model, "change:#{@field}", @set_content, this
     
-  set_content: () ->
+  make_content: ->
+    @context.$ @context.input(@options)
+
+  bind_content: ->
+    @context.binds @content, "change", @set_field, this
+
+  set_content: () =>
     @content.val @field_value()
   
   set_field: () =>
     @model[@field] @content.val()
 
+class AS.Binding.CheckBox extends AS.Binding.Input
+  set_content: ->
+    @content.attr "checked", @field_value()
+  
+  bind_content: ->
+    @context.binds @content, "change", @set_field, this
+  
+  set_field: =>
+    if @content.is ":checked"
+      @model[@field] true
+    else
+      @model[@field] false
+  
+  initialize: ->
+    @options.type = "checkbox"
+    super
+
 class AS.Binding.EditLine extends AS.Binding
-  applyChange = (doc, oldval, newval) ->
+  rangy: require("rangy-core")
+  
+  applyChange:  (doc, oldval, newval) ->
     return if oldval == newval
     commonStart = 0
     commonStart++ while oldval.charAt(commonStart) == newval.charAt(commonStart)
@@ -145,10 +170,8 @@ class AS.Binding.EditLine extends AS.Binding
     @context.$ @context.span(@options)
   
   replace_text: (new_text="") ->
-    rangy = require("rangy-core")
-    
-    range = rangy.createRange()
-    selection = rangy.getSelection()
+    range = @rangy.createRange()
+    selection = @rangy.getSelection()
     
     scrollTop = @elem.scrollTop
     @elem.innerHTML = new_text
@@ -160,32 +183,36 @@ class AS.Binding.EditLine extends AS.Binding
     selection.setSingleRange(range)
     
   insert: (model, position, text) ->
+    console.log "remote insert", @elem.innerHTML is @previous_value
+    
     @selection.start = transform_insert_cursor(text, position, @selection.start)
     @selection.end = transform_insert_cursor(text, position, @selection.end)
     
     @replace_text @elem.innerHTML[...position] + text + @elem.innerHTML[position..]
     
   delete: (model, position, text) ->
+    console.log "remote delete", @elem.innerHTML is @previous_value
+
     @selection.start = transform_delete_cursor(text, position, @selection.start)
     @selection.end = transform_delete_cursor(text, position, @selection.end)
     
     @replace_text @elem.innerHTML[...position] + @elem.innerHTML[position + text.length..]
     
-  generate_operation: () =>
-    rangy = require("rangy-core")
-    selection = rangy.getSelection()
+  generate_operation: =>
+    selection = @rangy.getSelection()
     if selection.rangeCount
-      range = rangy.getSelection().getRangeAt(0)
+      range = @rangy.getSelection().getRangeAt(0)
     else
-      range = rangy.createRange()
+      range = @rangy.createRange()
     @selection.start = range.startOffset
     @selection.end = range.endOffset
     _.defer =>
-      if @elem.innerHTML isnt @previous_value
-        @previous_value = @elem.innerHTML
-        # IE constantly replaces unix newlines with \r\n. ShareJS docs
-        # should only have unix newlines.
-        applyChange @model.share.at(@field), @model.share.at(@field).getText(), @elem.innerHTML.replace(/\r\n/g, '\n')
+    if @elem.innerHTML isnt @previous_value
+      @previous_value = @elem.innerHTML
+      # IE constantly replaces unix newlines with \r\n. ShareJS docs
+      # should only have unix newlines.
+      @applyChange @model.share.at(@field), @model.share.at(@field).getText(), @elem.innerHTML.replace(/\r\n/g, '\n')
+      @model.attributes[@field] = @model.share.at(@field).getText()
     
 class AS.Binding.HasMany extends AS.Binding
   @will_group_bindings = true
@@ -200,6 +227,7 @@ class AS.Binding.HasMany extends AS.Binding
     
     @context.binds @collection, "add", @insert_item, this
     @context.binds @collection, "remove", @remove_item, this
+    @context.binds @collection, "change", @change_item, this
 
   skip_item: (item) ->
     return false unless @options.filter
@@ -224,13 +252,19 @@ class AS.Binding.HasMany extends AS.Binding
       @context.$(siblings.get(index)).before(content)
     
   remove_item: (item) =>
-    return if @skip_item(item)
-    @contents[item.cid].remove()
-    delete @contents[item.cid]
+    if @contents[item.cid]
+      @contents[item.cid].remove()
+      delete @contents[item.cid]
     
-    @bindings[item.cid].unbind()
-    delete @bindings[item.cid]
+      @bindings[item.cid].unbind()
+      delete @bindings[item.cid]
 
+  change_item: (item) =>
+    if @skip_item(item)
+      @remove_item(item)
+    else if @contents[item.cid] is undefined
+      @insert_item(item)
+    
   make_content: (item) =>
     return if @skip_item(item)
     content = @context.$ []

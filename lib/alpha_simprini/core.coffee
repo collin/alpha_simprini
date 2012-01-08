@@ -19,7 +19,9 @@ AS.ConstructorIdentity = (constructor) -> (object) -> object.constructor is cons
 AS.Identity = (object) -> (other) -> object is other
 
 AS.deep_clone = (it) ->
-  if _.isArray(it)
+  if _.isFunction(it)
+    clone = it
+  else if _.isArray(it)
     clone = _.clone(it)
   else if _.isObject(it)
     clone = {}

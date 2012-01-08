@@ -55,6 +55,7 @@ AS.Model.Share = new AS.Mixin
     did_load_embedded: (@share) ->
       @needs_indexing = false
       @load_embeds()
+
       @bind_share_events()
       # FIXME, DON'T DO THIS BEFORE THE INDEX HAS LOADED!
       @set_attributes_from_share()
@@ -90,8 +91,7 @@ AS.Model.Share = new AS.Mixin
       all = {id:@id, _type: @constructor._type}
 
       for name, config of @constructor.fields || {}
-        continue if @attributes[name] is undefined
-        all[name] = @attributes[name]
+        all[name] = @attributes[name] || ""
 
       for name, config of @constructor.has_manys || {}
         all[name] = @attributes[name].map((model) -> model.id).value()
@@ -218,19 +218,30 @@ AS.Model.Share = new AS.Mixin
       
     bind_field_sharing: ->
       set_from_local = (model, field, value, options={}) =>
-        model.when_indexed => @share.at(field).set(value) unless options.remote
+        return if options.remote is true
+        model.when_indexed => 
+          length = @share.at(field).get().length
+          @share.at(field).del(0, length)
+          @share.at(field).insert(0, value)
+
+      set_from_remote = (key, value, because) =>
+        return unless @constructor.fields?[key]
+        @[key]( @share.at(key).get(), remote: true) unless @share.at(key).get() is @[key]()
         
+      @share_binding null, "insert", (key, value) -> set_from_remote(key, value, "null insert")
+      @share_binding null, "replace", (key, previous, value) -> set_from_remote(key, value, "null replace")
+
       for name, config of @constructor.fields || {}
         do (name) =>
-          @bind "change:#{name}#{@share_namespace}", set_from_local, this
-          @share_binding name, "insert", ((position, text) => @trigger("share:insert:#{name}", position, text)), this
-          @share_binding name, "delete", ((position, text) => @trigger("share:delete:#{name}", position, text)), this
-        
-      set_from_remote = (key, value) =>
-        @[key]( value, remote: true) if @constructor.fields?[key]
-        
-      @share_binding null, "insert", (key, value) -> set_from_remote(key, value)          
-      @share_binding null, "replace", (key, previous, value) -> set_from_remote(key, value)
+          @bind "change:#{name}#{@share_namespace}", set_from_local
+          
+          @share_binding name, "insert", (position, text) =>
+            @trigger("share:insert:#{name}", position, text)
+            set_from_remote name, @share.at(name).get(), "insert"
+            
+          @share_binding name, "delete", (position, text) => 
+            @trigger("share:delete:#{name}", position, text)
+            set_from_remote name, @share.at(name).get(), "delete"
     
     bind_has_many_sharing: ->
       for name, config of @constructor.has_manys
@@ -239,9 +250,9 @@ AS.Model.Share = new AS.Mixin
           
           add_handler = (model, collection, options={}) =>
             return if options.remote is true
-            model.when_indexed => 
-              @share.at(name).insert(options.at, {id:model.id, _type:model.constructor._type})
-            
+            model.when_indexed =>
+              @share.at(name).insert(options.at, id:model.id, _type: model.constructor._type)
+              
           collection.bind "add#{@share_namespace}", add_handler, this
             
           remove_handler = (model, collection, options={}) =>
@@ -261,34 +272,42 @@ AS.Model.Share = new AS.Mixin
         do (name) =>
           collection = @[name]()
         
-          collection.each (model, index) =>
-            model.embedded_binding(@share.at(name, index))
+          # collection.each (model, index) =>
+          #   model.embedded_binding(@share.at(name, index))
           
           add_handler = (model, collection, options={}) =>
-              return if options.remote is true
+            model.did_index()# if options.remote is true# embedded models don't index
+            if options.remote isnt true
               @share.at(name).insert(options.at, model.attributes_for_sharing())
-              model.embedded_binding(@share.at(name, options.at))
-              
+            if model.share is undefined
+              model.embedded_binding(@share.at(name, collection.indexOf(model).value()))
+
           collection.bind "add#{@share_namespace}", add_handler, this  
           
           remove_handler = (model, collection, options={}) =>
+            model.revoke_share_bindings()
             return if options.remote is true
             @share.at(name).at(options.at).remove()
-            model.revoke_share_bindings()
             
           collection.bind "remove#{@share_namespace}", remove_handler, this
+
+          @share_binding name, "insert", (position, data) =>
+            collection.add data, at: position, remote: true
+            
+          @share_binding name, "delete", (position, data) =>
+            collection.remove AS.All.byId[data.id], remote: true
         
     bind_belongs_to_sharing: ->
       set_from_local = (model, field, value, options={}) =>
         value = null if value is undefined
-        model.when_indexed => 
+        model.when_indexed =>
           @share.at(field).set(value) unless options.remote
           
       for name, config of @constructor.belongs_tos || {}
         @bind "change:#{name}#{@share_namespace}", set_from_local, this
         
       set_from_remote = (key, value) =>
-        @[key]( value, remote: true) if @constructor.belongs_tos?[key]
+        @[key](value, remote: true) if @constructor.belongs_tos?[key]
         
       @share_binding null, "insert", (key, value) -> set_from_remote(key, value)          
       @share_binding null, "replace", (key, previous, value) -> set_from_remote(key, value)
@@ -310,8 +329,11 @@ AS.Model.Share = new AS.Mixin
             else
               @share.at(name).set(null)
             
-            
+          set_from_remote = (key, value) =>
+            @[key](value, remote: true) if @constructor.embeds_ones?[key]
+          
           @bind "change:#{name}#{@share_namespace}", change_handler, this
+          @share_binding null, "replace", (key, previous, value) -> set_from_remote(key, value)
         
     bind_indeces: ->
       for index, config of @constructor.indeces || {}
