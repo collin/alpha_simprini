@@ -21,7 +21,8 @@
     "jQuery": ">= 1.6",
     "jwerty": "https://github.com/collin/jwerty/tarball/master",
     "rangy-core": "0.2.2",
-    "socket.io-client": "https://github.com/collin/socket.io-client/tarball/master"
+    "socket.io-client": "https://github.com/collin/socket.io-client/tarball/master",
+    "fleck": "0.5.1"
   },
   "devDependencies": {
     "jsdom": ">= 0.2",

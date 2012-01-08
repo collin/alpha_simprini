@@ -27,7 +27,8 @@
     "knead": "~> 0.2",
     "module_loader": "~> 0.2",
     "jsdom": "latest",
-    "coffeekup": "0.3.0"
+    "coffeekup": "0.3.0",
+    "fleck": "0.5.1"
     
   },
   "devDependencies": {},

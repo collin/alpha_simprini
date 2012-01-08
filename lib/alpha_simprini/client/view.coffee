@@ -1,5 +1,6 @@
 AS = require("alpha_simprini")
-_ = require "underscore"
+_ = require("underscore")
+fleck = require("fleck")
 
 class AS.View extends AS.DOM
   AS.Event.extends(this)
@@ -85,7 +86,12 @@ class AS.View extends AS.DOM
           @trigger("enterstate:#{state}")
           @state_events[state].apply_bindings()
 
-
+  pluralize: (thing, count) ->
+    if count in [-1, 1]
+      "#{count} #{fleck.singularize(thing)}"
+    else
+      "#{count} #{fleck.pluralize(thing)}"
+  
   reset_cycle: (args...) ->
     delete @_cycles[args.join()] if @_cycles
 

@@ -98,6 +98,13 @@ exports.View =
     test.ok (new AS.View).binding_group instanceof AS.BindingGroup
     test.done()
 
+  # "pluralizes text": (test) ->
+  #   view = new AS.View
+  #   test.equal view.pluralize("cat", 4), "4 cats"
+  #   test.equal view.pluralize("person", 0), "0 people"
+  #   test.equal view.pluralize("duck", 1), "1 duck"
+  #   test.done()
+    
 exports.ViewEvents =  
   "delegates events": (test) ->
     test.expect 4
