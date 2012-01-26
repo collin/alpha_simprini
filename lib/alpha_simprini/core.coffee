@@ -5,17 +5,17 @@ _ = require "underscore"
 Core.require """
   mixin event inheritable_attrs callbacks delegate state_machine
   instance_methods
-  
+
   model collection model/share
-  
-  models/radio_selection_model
+
+  models/radio_selection_model models/multiple_selection_model
 """
 
 AS.sharejs_url = "http://#{window?.location.host or 'localhost'}/sjs"
 
 AS.share = require("share").client
 
-# # ## Some little utility functions. 
+# # ## Some little utility functions.
 
 AS.ConstructorIdentity = (constructor) -> (object) -> object.constructor is constructor
 AS.Identity = (object) -> (other) -> object is other
@@ -34,7 +34,7 @@ AS.deep_clone = (it) ->
         clone[key] = value
   else
     clone = it
-  
+
   clone
 # `uniq` generates a probably unique identifier.
 # large random numbers are base32 encoded and combined with the current time base32 encoded
@@ -53,4 +53,7 @@ AS.human_size = (size) ->
     size /= 1024
     ++i
 
-  size.toFixed(1) + ' ' + units[i]
+  if size
+    size.toFixed(1) + ' ' + units[i]
+  else
+    "???"

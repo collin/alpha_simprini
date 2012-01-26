@@ -1,80 +1,95 @@
 AS = require("alpha_simprini")
 _ = require "underscore"
-AS.Event = new AS.Mixin
-  instance_methods: 
-    _eventNamespacer: /\.([\w-_]+)$/
-    bind: (ev, callback, context=this) ->
-      if not (callback and context)
-        AS.error """
-        Attempted to bind an event #{ev} without a callback AND a context.
-        Both are required.
-        callback: #{callback}
-        context: #{context}
-        """
-        
-      if match = ev.match @_eventNamespacer
-        [ev, namespace] = ev.split(".")
-      namespace ?= 'none'
-    
-      calls = @_callbacks ?= {}
-      list = calls[ev] ?= { none: [] }
-    
-      list[namespace] ?= []
-      list[namespace].push [callback, context]
-      this
-    
-    unbind: (ev, callback) ->
-      if !ev
-        delete @_callbacks
-      else if calls = @_callbacks
-        if !callback
-          if ev[0] is "."
-            namespace = ev.slice(1)
-            for event, namespaces of calls
-              namespaces[namespace] = []
-          else
-            return this unless calls[ev.split(".")[0]]
-            if match = ev.match @_eventNamespacer
-              [ev, namespace] = ev.split(".")
-              calls[ev][namespace] = []
-            else
-              calls[ev] = { none: [] }
-        else
-          for key, handlers of calls[ev]
-            calls[ev][key] = _(handlers).reject (handler) -> handler[0] is callback
-            # for handler, index in handlers
-            #   delete handlers[index] if handler[0] is callback
-            #   break
-            # # Delete leaves around [undefined] nonsense
-            # cals[ev][key] = _.compact(handlers)
-            
-      this
 
-    trigger: (eventName) ->
-      return this unless calls = @_callbacks
-      if eventName.match @_eventNamespacer
-        [eventName, namespace] = eventName.split(".")
-      both = 2
-      while both--
-        ev = if both
-          eventName
+UNBIND_ALL = new Object
+NO_PATH = new Object
+
+AS.Event = new AS.Mixin
+  instance_methods:
+    _eventNamespacer: /\.([\w-_]+)$/
+
+    parseSpec: (raw) ->
+     if _.isString(raw)
+        string = raw
+        spec = {}
+
+        if string.match @_eventNamespacer
+          [name, namespace] = string.split(".")
+          spec.path = if name then [name] else NO_PATH
+          spec.namespace = namespace
         else
-          'all'
-        if list = calls[ev]
-          if namespace and ev isnt 'all'
-            if list[namespace]
-              for handler in list[namespace]
-                args = if both
-                  Array::slice.call(arguments, 1)
-                else
-                  arguments
-                handler[0].apply(handler[1] || this, args)            
-          else
-            for key, handlers of list
-              for handler in handlers
-                args = if both
-                  Array::slice.call(arguments, 1)
-                else
-                  arguments
-                handler[0].apply(handler[1] || this, args)
-      this
+          spec.path = [string]
+          spec.namespace = "none"
+      else
+        spec = raw
+        spec.namespace = spec.namespace?.replace(/^\./, "") or "none"
+
+      return spec
+
+    bind: (spec, callback, context=this) ->
+      spec = @parseSpec(spec)
+      spec.context ?= context
+      spec.callback = callback
+
+      calls = @_callbacks ?= {}
+      (calls[spec.namespace] ?= []).push spec
+
+      return this
+
+    recognize_path: (path_to_match, other_path) ->
+      _(path_to_match).isEqual(other_path)
+
+    unbind: (spec=UNBIND_ALL, callback) ->
+      return this unless @_callbacks
+      if spec is UNBIND_ALL
+        delete @_callbacks
+        return this
+
+      spec = @parseSpec(spec)
+
+      calls = @_callbacks
+
+      # ISSUE, not possible to .unbind(".none")
+      spec.path
+
+      spec_filter = (_spec) ->
+        if spec.path isnt NO_PATH
+          # Don't use recognize_path here, we want to test against literally bound paths
+          return false unless _(_spec.path).isEqual(spec.path)
+        return false if callback and _spec.callback isnt callback
+        return true
+
+      if spec.namespace is "none"
+        for key, value of calls
+          calls[key] = _(calls[key]).reject(spec_filter)
+      else if spec.path is NO_PATH
+        delete calls[spec.namespace]
+      else
+        calls[spec.namespace] = _(calls[spec.namespace]).reject(spec_filter)
+
+      return this
+
+    trigger: (spec) ->
+      return this unless @_callbacks
+      spec = @parseSpec(spec)
+      args = Array::slice.call(arguments, 1)
+      for namespace, specs of @_callbacks
+        continue if spec.namespace isnt "none" and spec.namespace isnt namespace
+        for _spec in specs
+          continue unless @recognize_path(_spec.path, spec.path)
+          _spec.callback.apply(_spec.context, args)
+
+      @trigger_all.call(this, spec, args)
+
+    trigger_all: (spec, args) ->
+      # # FIXME: DOWNSTREAM SHOULD BE RECEIVING PATH, NOT JUST PATH[0]
+      args.unshift(spec.path[0])
+      spec = AS.deep_clone(spec)
+      spec.path = ["all"]
+
+      for namespace, specs of @_callbacks
+        continue if spec.namespace isnt "none" and spec.namespace isnt namespace
+        for _spec in specs
+          continue unless @recognize_path(_spec.path, spec.path)
+          _spec.callback.apply(_spec.context, args)
+

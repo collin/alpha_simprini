@@ -15,8 +15,14 @@ class AS.Models.Targets
   LEFT: LEFT
   RIGHT: RIGHT
 
+  @TOP: TOP
+  @MIDDLE: MIDDLE
+  @BOTTOM: BOTTOM
+  @LEFT: LEFT
+  @RIGHT: RIGHT
+
   constructor: ->
-    @targets = $ []
+    @gather()
 
   gather: ->
     @targets = $(@selector).map (i, el) ->
@@ -33,14 +39,15 @@ class AS.Models.Targets
   dropend: () ->
     @trigger("dropend")
 
-  drop: () ->
+  drop: (event) ->
 
-  dragend: (data) ->
+  dragend: (event) ->
     return unless @current_hit?.rect
-    @drop(data)
+    @drop(event)
     @trigger("drop", @current_hit)
 
   transition_hit: (hit) ->
+    return @dropend() if hit is null
     @current_hit ?= new AS.Models.Targets.Hit
     # Nothin' changed, eh?
     return if @current_hit.equals(hit) or hit.rect is undefined
@@ -48,7 +55,7 @@ class AS.Models.Targets
     @current_hit = hit
     @dropstart()
 
-  drag: (data) ->
+  drag: (event) ->
     throw "Drag unimplimented in base class!"
 
 class AS.Models.Targets.Edge extends AS.Models.Targets
@@ -60,13 +67,13 @@ class AS.Models.Targets.Edge extends AS.Models.Targets
     {clientX, clientY} = event["jquery/event"].originalEvent
     for target in @targets
       rect = target.rect
-      withinX = rect.left - @edge < clientX < rect.right + @edge
-      withinY = rect.top < clientY <= rect.bottom
+      withinX = rect.left - @edge <= clientX <= rect.right + @edge
+      withinY = rect.top <= clientY <= rect.bottom
       continue unless withinX and withinY
 
-      edge = if rect.left - @edge < clientX < rect.left + @edge
+      edge = if rect.left - @edge <= clientX <= rect.left + @edge
         @LEFT
-      else if rect.left + @edge < clientX > rect.right - @edge
+      else if rect.left + @edge <= clientX >= rect.right - @edge
         @RIGHT
       break
 
@@ -79,13 +86,13 @@ class AS.Models.Targets.Edge extends AS.Models.Targets
 
     for target in @targets
       rect = target.rect
-      withinX = rect.left - @edge < clientX < rect.right + @edge
-      withinY = rect.top - @edge < clientY < rect.bottom + @edge
+      withinX = rect.left <= clientX <= rect.right
+      withinY = rect.top - @edge <= clientY <= rect.bottom + @edge
       continue unless withinX and withinY
 
-      edge = if rect.top - @edge < clientY < rect.top + @edge
+      edge = if rect.top - @edge <= clientY <= rect.top + @edge
         @TOP
-      else if rect.bottom - @edge < clientY < rect.bottom + @edge
+      else if rect.bottom - @edge <= clientY <= rect.bottom + @edge
         @BOTTOM
       break
 
@@ -96,7 +103,7 @@ class AS.Models.Targets.Edge extends AS.Models.Targets
 class AS.Models.Targets.Thirds extends AS.Models.Targets
 
   within_vertically: (y, rect) ->
-    rect.top < y < rect.bottom
+    rect.top <= y <= rect.bottom
 
   which_third: (y, rect) ->
     # pre-supposes within_vertically is true
@@ -111,13 +118,12 @@ class AS.Models.Targets.Thirds extends AS.Models.Targets
       @BOTTOM
 
   target: (event) ->
-    console.log "TARGET"
     {clientY} = event["jquery/event"].originalEvent
     for target in @targets
       if @within_vertically(clientY, target.rect)
         hit = new AS.Models.Targets.Hit(target.rect, target.el, @which_third(clientY, target.rect), event)
         return hit if @validate(hit)
-    return new AS.Models.Targets.Hit
+    return null
 
   drag: (event) ->
     @transition_hit @target(event)

@@ -2,7 +2,11 @@ AS = require("alpha_simprini")
 _ = require "underscore"
 
 class AS.Binding
-  constructor: (@context, @model, @field, @options={}, @fn=undefined) ->
+  constructor: (@context, @model, @path, @options={}, @fn=undefined) ->
+    @path = [@path] unless _.isArray(@path)
+    @binding_path = AS.deep_clone(@path)
+    @binding_path.splice @path.length - 1, 1, "change:#{_(@path).last()}"
+
     if _.isFunction(@options)
       [@fn, @options] = [@options, {}]
 
@@ -21,7 +25,7 @@ class AS.Binding
   will_group_bindings: ->
     @constructor.will_group_bindings or _.isFunction(@fn)
 
-  field_value: -> @model[@field]()
+  path_value: -> @model.read_path @path
 
   require_option: (name) ->
     return unless @options[name] is undefined
@@ -39,35 +43,50 @@ class AS.Binding.Model
   css: (properties) ->
     for property, options of properties
       do (property, options) =>
-        @styles[property] = =>
-          options.fn(@model)
+        if _.isArray(options)
+          @styles[property] = => @model.read_path(options)
+          painter = ->
+            value = @styles[property]()
+            @content.css property, value
 
-        painter = -> @content.css property, @styles[property]()
-
-        for field in options.field.split(" ")
-          @context.binds @model, "change:#{field}", painter, this
+          binding_path = AS.deep_clone(options)
+          binding_path[options.length - 1] = "change:#{_(options).last()}"
+          @context.binds @model, binding_path, painter, this
+        else
+          @styles[property] = => options.fn(@model)
+          painter = -> @content.css property, @styles[property]()
+          for field in options.field.split(" ")
+            @context.binds @model, "change:#{field}", painter, this
 
   attr: (attrs) ->
      for property, options of attrs
        do (property, options) =>
-          @attrs[property] = =>
-            if options.fn
-              options.fn(@model)
-            else
-              if @model[options.field]() then "yes" else "no"
+          if _.isArray(options)
+            @attrs[property] = =>
+              value = @model.read_path(options)
+              if value is true
+                "yes"
+              else if value is false
+                "no"
+              else
+                value
 
-          painter = -> @content.attr property, @attrs[property]()
+            painter = -> @content.attr property, @attrs[property]()
 
-          for field in options.field.split(" ")
-            @context.binds @model, "change:#{field}", painter, this
+            binding_path = AS.deep_clone(options)
+            binding_path[options.length - 1] = "change:#{_(options).last()}"
+            @context.binds @model, binding_path, painter, this
+          else
+            @attrs[property] = =>
+              if options.fn
+                options.fn(@model)
+              else
+                if @model[options.field]() then "yes" else "no"
 
-  # width: (fn) ->
-  #   @width_fn = =>
-  #     fn(@model)
-  #
-  # height: (fn) ->
-  #   @height_fn = =>
-  #     fn(@model)
+            painter = -> @content.attr property, @attrs[property]()
+
+            for field in options.field.split(" ")
+              @context.binds @model, "change:#{field}", painter, this
 
   paint: =>
     attrs = {}
@@ -89,7 +108,7 @@ class AS.Binding.Field extends AS.Binding
     @set_content()
 
   bind_content: ->
-    @context.binds @model, "change:#{@field}", @set_content, this
+    @context.binds @model, @binding_path, @set_content, this
 
   set_content: =>
     if @fn
@@ -99,7 +118,7 @@ class AS.Binding.Field extends AS.Binding
         @context.within_node @container, =>
           @fn.call(@context)
     else
-      @content.text @field_value()
+      @content.text @path_value()
 
   make_content: ->
     if @fn
@@ -110,7 +129,7 @@ class AS.Binding.Field extends AS.Binding
 class AS.Binding.Input extends AS.Binding.Field
   initialize: ->
     super
-    @context.binds @model, "change:#{@field}", @set_content, this
+    @context.binds @model, @binding_path, @set_content, this
 
   make_content: ->
     @context.$ @context.input(@options)
@@ -119,10 +138,10 @@ class AS.Binding.Input extends AS.Binding.Field
     @context.binds @content, "change", @set_field, this
 
   set_content: () =>
-    @content.val @field_value()
+    @content.val @path_value()
 
   set_field: () =>
-    @model[@field] @content.val()
+    @model.write_path @path, @content.val()
 
 class AS.Binding.Select extends AS.Binding.Input
   constructor: ->
@@ -139,26 +158,31 @@ class AS.Binding.Select extends AS.Binding.Input
         for key, value of options
           @option value: value, -> key
 
+  set_content: () =>
+    path_value = @path_value()
+    path_value = @path_value.id if path_value?.id
+    @content.val path_value
+
   set_field: =>
     value = @select.val()
     if _.isArray value
-      @model[@field] value[0]
+      @model.write_path @path, value[0]
     else
-    @model[@field] value
+      @model.write_path @path, value
 
 
 class AS.Binding.CheckBox extends AS.Binding.Input
   set_content: ->
-    @content.attr "checked", @field_value()
+    @content.attr "checked", @path_value()
 
   bind_content: ->
     @context.binds @content, "change", @set_field, this
 
   set_field: =>
     if @content.is ":checked"
-      @model[@field] true
+      @model.write_path @path, true
     else
-      @model[@field] false
+      @model.write_path @path, false
 
   initialize: ->
     @options.type = "checkbox"
@@ -195,15 +219,23 @@ class AS.Binding.EditLine extends AS.Binding
     @options.contentEditable = true
     @content = @make_content()
     @elem = @content[0]
-    @elem.innerHTML = @field_value()
-    @previous_value = @field_value()
+    @elem.innerHTML = @path_value()
+    @previous_value = @path_value()
     @selection = start: 0, end: 0
 
-    @context.binds @model, "share:insert:#{@field}", @insert, this
-    @context.binds @model, "share:delete:#{@field}", @delete, this
+    @context.binds @model, "share:insert:#{_(@path).last()}", @insert, this
+    @context.binds @model, "share:delete:#{_(@path).last()}", @delete, this
+
+    @context.binds @model, "change:#{_(@path).last()}", @updateUnlessFocused, this
 
     for event in ['textInput', 'keydown', 'keyup', 'select', 'cut', 'paste', 'click', 'focus']
       @context.binds @content, event, @generate_operation, this
+
+  updateUnlessFocused: (event) ->
+    # Defer this because we want text input to feel fluid!
+    _.defer =>
+      return if @context.$(this.elem).closest(":focus")[0]
+      @elem.innerHTML = @path_value()
 
   make_content: ->
     @context.$ @context.span(@options)
@@ -241,19 +273,18 @@ class AS.Binding.EditLine extends AS.Binding
       range = @rangy.createRange()
     @selection.start = range.startOffset
     @selection.end = range.endOffset
-    _.defer =>
     if @elem.innerHTML isnt @previous_value
       @previous_value = @elem.innerHTML
       # IE constantly replaces unix newlines with \r\n. ShareJS docs
       # should only have unix newlines.
-      @applyChange @model.share.at(@field), @model.share.at(@field).getText(), @elem.innerHTML.replace(/\r\n/g, '\n')
-      @model.attributes[@field] = @model.share.at(@field).getText()
+      @applyChange @model.share.at(@path), @model.share.at(@path).getText(), @elem.innerHTML.replace(/\r\n/g, '\n')
+      @model[@path] @model.share.at(@path).getText(), remote: true
 
 class AS.Binding.HasMany extends AS.Binding
   @will_group_bindings = true
 
   initialize: ->
-    @collection = @field_value()
+    @collection = @path_value()
 
     @contents = {}
     @bindings = {}
@@ -326,7 +357,7 @@ class AS.Binding.HasOne extends AS.Binding.Field
   @will_group_bindings = true
 
 class AS.Binding.Collection extends AS.Binding.HasMany
-  field_value: -> @model
+  path_value: -> @model
 
 # use case: RadioSelectionModel
 # ala-BAM-a
@@ -342,7 +373,7 @@ class AS.Binding.BelongsTo extends AS.Binding
   initialize: ->
     @make_content()
     @context.within_binding_group @binding_group, =>
-      @context.binds @model, "change:#{@field}", @changed, this
+      @context.binds @model, @binding_path, @changed, this
 
   changed: =>
     @content.remove()
@@ -350,7 +381,7 @@ class AS.Binding.BelongsTo extends AS.Binding
     @initialize()
 
   make_content: ->
-    item = @field_value()
+    item = @path_value()
     if item
       @context.within_binding_group @binding_group, =>
         @context.within_node @container, =>

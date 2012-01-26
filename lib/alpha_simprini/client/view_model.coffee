@@ -66,17 +66,17 @@ class AS.ViewModel
 
     new @constructor.bindables[field](@view, @model, field, options, fn)
 
-  input: (field, options) ->
-    new AS.Binding.Input(@view, @model, field, options)
+  input: (path, options) ->
+    new AS.Binding.Input(@view, @model, path, options)
 
-  checkbox: (field, options) ->
-    new AS.Binding.CheckBox(@view, @model, field, options)
+  checkbox: (path, options) ->
+    new AS.Binding.CheckBox(@view, @model, path, options)
 
-  select: (field, options) ->
-    new AS.Binding.Select(@view, @model, field, options)
+  select: (path, options) ->
+    new AS.Binding.Select(@view, @model, path, options)
 
-  editline: (field, options) ->
-    new AS.Binding.EditLine(@view, @model, field, options)
+  editline: (path, options) ->
+    new AS.Binding.EditLine(@view, @model, path, options)
 
   element: (tagname, fn) ->
     element = @context[tagname] class: @model.constructor.name, fn

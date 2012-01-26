@@ -10,7 +10,7 @@ class ShareMixin extends AS.Mixin
 
 AS.Model.Share = new ShareMixin
   mixed_in: ->
-    @define_callbacks before: ["open"]
+    @define_callbacks before: ["open"], after: ["open", "load"]
 
     @before_initialize (model) ->
       model.needs_indexing = true
@@ -27,22 +27,23 @@ AS.Model.Share = new ShareMixin
       @::[name] = -> @["#{name}_indexer"] ?= @indexer(name)
 
     open: (id=AS.uniq(), indexer=(model) -> model.did_index()) ->
-      model = new this(id:id)
+      model = AS.All.byId[id] or new this(id:id)
       model.run_callbacks("before_open")
       AS.open_shared_object id, (share) ->
         model.did_open(share)
+        model.run_callbacks("after_open")
         indexer(model)
       model
 
     load: (id, callback) ->
       unless model = AS.All.byId[id]
-        model = new this(id:id)
+        model = AS.All.byId[id] or new this(id:id)
       callback ?= model.did_load
       AS.open_shared_object id, _.bind(callback, model)
       model
 
     embedded: (id, share) ->
-      model = new this(id:id)
+      model = AS.All.byId[id] or new this(id:id)
       model.did_load_embedded(share)
       model
 
@@ -55,15 +56,17 @@ AS.Model.Share = new ShareMixin
 
     did_load: (@share) ->
       @bind_share_events()
+      @run_callbacks("after_load")
       @load_embeds()
 
     did_load_embedded: (@share) ->
       @needs_indexing = false
-      @load_embeds()
 
+      @load_embeds()
       @bind_share_events()
       # FIXME, DON'T DO THIS BEFORE THE INDEX HAS LOADED!
       @set_attributes_from_share()
+      @did_index()
 
     ensure_defaults: ->
       @share.at().set(@attributes_for_sharing()) unless @share.get()
@@ -163,7 +166,8 @@ AS.Model.Share = new ShareMixin
         callback() if count is loaded
 
       for id, _type of index
-        AS.module(_type).load(id, _callback)
+        model = AS.module(_type).load(id, _callback)
+        model.bind "destroy", => @index(name).at(id).del()
 
     load_embeds: ->
       for name, config of @constructor.embeds_manys || {}
@@ -230,7 +234,7 @@ AS.Model.Share = new ShareMixin
       set_from_local = (model, field, value, options={}) =>
         return if options.remote is true
         model.when_indexed =>
-          if @share.at(field).get()?
+          if _.isString(@share.at(field).get())
             length = @share.at(field).get().length
             @share.at(field).del(0, length)
             @share.at(field).insert(0, value)

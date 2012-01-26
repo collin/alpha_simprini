@@ -22,8 +22,7 @@ class AS.Application
 
     _(handlers).each (trigger, key) =>
       jwerty.key key, (event) =>
-        event.preventDefault()
-        @trigger(trigger)
+        @trigger(trigger, event)
 
   view: (constructor, options={}) ->
     options.application = this
