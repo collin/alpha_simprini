@@ -1,7 +1,7 @@
 AS = require("alpha_simprini")
 _ = require "underscore"
 jQuery = require "jQuery"
-console.warn "DEBUG CODE IN PLACE"
+AS.warn "DEBUG CODE IN PLACE"
 
 class AS.DOM
   @elements: _('a abbr address article aside audio b bdi bdo blockquote body button

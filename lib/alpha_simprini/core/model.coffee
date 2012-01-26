@@ -125,6 +125,8 @@ class AS.Model
   
   @virtual_properties: (fields..., defs) ->
     virtual_cache = {}
+    for name, fn of defs
+      @write_inheritable_value("virtuals", name, fields)
     
     # bind to all events for fields
     @after_initialize (model) ->
@@ -149,6 +151,7 @@ class AS.Model
             
           relation.bind "add", callback
           relation.bind "remove", callback
+          relation.bind "change", callback
         
     # set up functions to reat virtual properties
     for name, fn of defs

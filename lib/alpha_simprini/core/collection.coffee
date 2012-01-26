@@ -5,7 +5,7 @@ class AS.Collection
   AS.Delegate.extends(this)
   AS.Event.extends(this)
   
-  @delegate "first", "rest", "last", "compact", "flatten", "without", "union", 
+  @delegate "first", "rest", "last", "compact", "flatten", "without", "union", "filter",
             "intersection", "difference", "uniq", "zip", "indexOf", "find", "detect", "at",
             "lastIndexOf", "range", "include",  "each", "map", "reject","all", "toArray", to: "models"
   
@@ -89,6 +89,7 @@ class AS.Collection
     return if (event is "add" or event is "remove") and (this isnt collection)
     @_remove(model, options) if event is "destroy"
     @trigger.apply(this, arguments)
-
+  
+  pluck: (name) -> @map (item) -> item[name]()
 
 class AS.EmbeddedCollection extends AS.Collection

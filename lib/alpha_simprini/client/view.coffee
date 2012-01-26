@@ -88,9 +88,9 @@ class AS.View extends AS.DOM
 
   pluralize: (thing, count) ->
     if count in [-1, 1]
-      "#{count} #{fleck.singularize(thing)}"
+      fleck.singularize(thing)
     else
-      "#{count} #{fleck.pluralize(thing)}"
+      fleck.pluralize(thing)
   
   reset_cycle: (args...) ->
     delete @_cycles[args.join()] if @_cycles

@@ -1,4 +1,5 @@
 AS = require "alpha_simprini"
+AS.suppress_logging()
 _ = require "underscore"
 sinon = require "sinon"
 
@@ -341,6 +342,19 @@ exports.Model =
     test.done()
   
   virtual_properties:
+    "reflection": (test) ->
+      class Virtuals extends AS.Model
+        @field "fieldname"
+        @virtual_properties "fieldname",
+          one: ->
+          two: ->
+      
+      test.deepEqual Virtuals.virtuals,
+        one: ["fieldname"]
+        two: ["fieldname"]
+      
+      test.done()
+      
     "virtual properties trigger change events when pointed to fields": (test) ->
       test.expect 3
 
@@ -672,7 +686,10 @@ exports.Model.Share =
           
       model.embeds().add added_embed = new SimpleShare
       test.deepEqual model.share.at("embeds", 0).get(), added_embed.attributes_for_sharing(), "embeds_many model->share"
-          
+      
+      model.embeds().remove added_embed
+      test.deepEqual model.share.at("embeds").get(), [], "embeds_many remove->share"
+      
       model.embedded set_embedded = new SimpleShare
       test.deepEqual model.share.at("embedded").get(), set_embedded.attributes_for_sharing(), "embeds_one model->share"
           

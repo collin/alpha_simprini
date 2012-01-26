@@ -16,11 +16,14 @@ new ModuleLoader
   server: app
   module_root: pathname.resolve("./node_modules")
   ignorefile: pathname.resolve("./.stitchignore")
-  packages: "jquery underscore underscore.string jwerty socket.io-client share rangy-core alpha_simprini todo".split(" ")
+  packages: "jquery underscore underscore.string jwerty socket.io-client share rangy-core alpha_simprini fleck todo".split(" ")
 
 
 app.get "/list/:id", (req, res) ->
   res.render "list", id: req.params.id, layout: false
 
 app.listen 3210 || process.env.PORT
-console.log "AlphaSimprini TODO running... http://#{app.address().address}:#{app.address().port}/list/one"
+console.log """
+  AlphaSimprini Todo example running... 
+  http://#{app.address().address}:#{app.address().port}/list/one
+"""
