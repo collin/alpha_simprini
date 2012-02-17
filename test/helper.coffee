@@ -41,6 +41,17 @@ exports.makeDoc = (name="document_name", snapshot=null) ->
   doc
 
 
+class exports.FieldModel extends AS.Model
+  @field "name"
+
+class exports.RelationModel extends AS.Model
+  @embeds_many "embeds"
+  @embeds_one "embed"
+  @has_many "relations"
+  @has_one "relation"
+  @belongs_to "owner"
+
+
 global.document = $("body")[0]._ownerDocument
 global.window = document._parentWindow
 

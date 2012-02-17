@@ -1,15 +1,6 @@
-{AS, _, sinon, coreSetUp} = require require("path").resolve("./test/helper")
+helper = require require("path").resolve("./test/helper")
+{AS, _, sinon, coreSetUp, FieldModel, RelationModel} = helper
 exports.setUp = coreSetUp
-
-class FieldModel extends AS.Model
-  @field "name"
-
-class RelationModel extends AS.Model
-  @embeds_many "embeds"
-  @embeds_one "embed"
-  @has_many "relations"
-  @has_one "relation"
-  @belongs_to "owner"
 
 class Evented
   AS.Event.extends(this)

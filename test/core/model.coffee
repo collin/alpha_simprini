@@ -1,4 +1,5 @@
-{AS, _, sinon, coreSetUp} = require require("path").resolve("./test/helper")
+helper = require require("path").resolve("./test/helper")
+{AS, _, sinon, coreSetUp, RelationModel, FieldModel} = helper
 exports.setUp = coreSetUp
 
 exports.Model =
