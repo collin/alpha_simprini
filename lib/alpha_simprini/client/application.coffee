@@ -1,7 +1,7 @@
 AS = require("alpha_simprini")
 _ = require "underscore"
 jwerty = require("jwerty").jwerty
-domready = $ = require("jQuery")
+domready = $ = require("jquery")
 
 class AS.Application
   AS.Event.extends(this)

@@ -1,17 +1,26 @@
 def run_all_tests
   print `clear`
   puts "Tests run #{Time.now.strftime('%Y-%m-%d %H:%M:%S')}"
-  puts `nodeunit test/`
+  test_files = `find test |grep coffee | tr "\\n" " "`
+  cleaned = test_files.split(" ").reject{|path| path["helper"]}.join(" ")
+  puts "nodeunit #{cleaned}"
+  puts `nodeunit #{cleaned}`
 end
 
 def run_tests(m)
+  return if m.to_s["helper"]
   print `clear`
   puts "Tests run @ #{m} an #{Time.now.strftime('%Y-%m-%d %H:%M:%S')}"
   puts `nodeunit #{m}`
 end
 
 run_all_tests
-watch("(lib)(/.*)+.coffee") { |m| run_all_tests }
+watch("(lib)(/.*)+.coffee") { |m|
+  hit = m.to_s
+  console.log hit
+  hit.gsub!(/^lib\/alpha_simprini/, "test")
+  run_tests(hit)
+}
 watch("(test)(/.*)+.coffee") { |m| run_tests(m) }
 
 @interrupted = false

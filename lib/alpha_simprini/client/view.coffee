@@ -5,11 +5,11 @@ fleck = require("fleck")
 class AS.View extends AS.DOM
   AS.Event.extends(this)
   AS.StateMachine.extends(this)
-    
+
   tag_name: "div"
-    
+
   _ensure_element: -> @el ?= @$(@build_element())
-    
+
   constructor: (config={}) ->
     @cid = _.uniqueId("c")
 
@@ -23,11 +23,11 @@ class AS.View extends AS.DOM
     @_ensure_element()
     @delegateEvents()
     @initialize()
-    
+
   initialize: ->
-    
+
   append: (view) -> @el.append view.el
-    
+
   process_attr: (node, key, value) ->
     if value instanceof Function
       # switch value
@@ -37,19 +37,19 @@ class AS.View extends AS.DOM
       #   false
     else
       node.setAttribute(key, value)
-    
+
   group_bindings: (fn) ->
     @within_binding_group @binding_group.add_child(), fn
-      
+
   within_binding_group: (binding_group, fn) ->
     current_group = @binding_group
     @binding_group = binding_group
     content = fn.call(this, binding_group)
     @binding_group = current_group
     content
-    
+
   binds: -> @binding_group.binds.apply(@binding_group, arguments)
-    
+
   klass_string: (parts=[]) ->
     if @constructor is AS.View
       # parts.push "ASView"
@@ -61,28 +61,28 @@ class AS.View extends AS.DOM
   base_attributes: ->
     attrs =
       class: @klass_string()
-      
+
   build_element: ->
     @current_node = @[@tag_name](@base_attributes())
-  
+
   delegateEvents: () ->
     if @events
       @standard_events = new AS.ViewEvents(this, @events)
       @standard_events.apply_bindings()
-      
-    state_events = _(@constructor::).chain().keys().filter (key) -> 
+
+    state_events = _(@constructor::).chain().keys().filter (key) ->
       _(key).endsWith("_events")
     @state_events = {}
     for key in state_events.value()
       state = key.replace(/_events$/, '')
       do (key, state) =>
         @state_events[state] = new AS.ViewEvents(this, @[key])
-          
+
         @["exit_#{state}"] = ->
           @trigger("exitstate:#{state}")
           @state_events[state].revoke_bindings()
-          
-        @["enter_#{state}"] = -> 
+
+        @["enter_#{state}"] = ->
           @trigger("enterstate:#{state}")
           @state_events[state].apply_bindings()
 
@@ -91,7 +91,7 @@ class AS.View extends AS.DOM
       fleck.singularize(thing)
     else
       fleck.pluralize(thing)
-  
+
   reset_cycle: (args...) ->
     delete @_cycles[args.join()] if @_cycles
 
@@ -104,22 +104,22 @@ class AS.View extends AS.DOM
   toggle: ->
     @button class:"toggle expand"
     @button class:"toggle collapse"
-        
+
   field: (_label, options = {}, fn = ->) ->
     if _.isFunction options
       fn = options
       options = {}
-        
+
     @div ->
       @label _label
       @input(options)
       fn?.call(this)
-        
+
   choice: (_label, options = {}, fn = ->) ->
     if _.isFunction options
       fn = options
       options = {}
     options.type = "checkbox"
-      
+
     @field _label, options, fn
 

@@ -45,7 +45,7 @@ class AS.Binding.Model
       do (property, options) =>
         if _.isArray(options)
           @styles[property] = => @model.read_path(options)
-          painter = ->
+          painter = -> _.defer =>
             value = @styles[property]()
             @content.css property, value
 
@@ -54,7 +54,7 @@ class AS.Binding.Model
           @context.binds @model, binding_path, painter, this
         else
           @styles[property] = => options.fn(@model)
-          painter = -> @content.css property, @styles[property]()
+          painter = -> _.defer => @content.css property, @styles[property]()
           for field in options.field.split(" ")
             @context.binds @model, "change:#{field}", painter, this
 
@@ -71,7 +71,8 @@ class AS.Binding.Model
               else
                 value
 
-            painter = -> @content.attr property, @attrs[property]()
+            painter = -> _.defer =>
+              @content.attr property, @attrs[property]()
 
             binding_path = AS.deep_clone(options)
             binding_path[options.length - 1] = "change:#{_(options).last()}"
@@ -83,7 +84,8 @@ class AS.Binding.Model
               else
                 if @model[options.field]() then "yes" else "no"
 
-            painter = -> @content.attr property, @attrs[property]()
+            painter = -> _.defer =>
+              @content.attr property, @attrs[property]()
 
             for field in options.field.split(" ")
               @context.binds @model, "change:#{field}", painter, this
@@ -160,7 +162,7 @@ class AS.Binding.Select extends AS.Binding.Input
 
   set_content: () =>
     path_value = @path_value()
-    path_value = @path_value.id if path_value?.id
+    path_value = path_value.id if path_value?.id
     @content.val path_value
 
   set_field: =>
@@ -288,12 +290,22 @@ class AS.Binding.HasMany extends AS.Binding
 
     @contents = {}
     @bindings = {}
+    @sorting = @sorted_models()
 
-    @collection.each @make_content
+    @initial_content()
 
     @context.binds @collection, "add", @insert_item, this
     @context.binds @collection, "remove", @remove_item, this
     @context.binds @collection, "change", @change_item, this
+
+  initial_content: ->
+    @sorted_models().each @make_content
+
+  sorted_models: ->
+    if sort_field = @options.order_by
+      @collection.models.sortBy((item) -> item[sort_field]())
+    else
+      @collection.models
 
   skip_item: (item) ->
     return false unless @options.filter
@@ -309,13 +321,15 @@ class AS.Binding.HasMany extends AS.Binding
   insert_item: (item) =>
     return if @skip_item(item)
     content = @context.dangling_content => @make_content(item)
-    index = @collection.indexOf(item).value?()
+    index = @sorted_models().indexOf(item).value?()
     index ?= 0
     siblings = @container.children()
     if siblings.get(0) is undefined or siblings.get(index) is undefined
       @container.append(content)
     else
       @context.$(siblings.get(index)).before(content)
+
+    @sorting = @sorted_models()
 
   remove_item: (item) =>
     if @contents[item.cid]
@@ -325,7 +339,24 @@ class AS.Binding.HasMany extends AS.Binding
       @bindings[item.cid].unbind()
       delete @bindings[item.cid]
 
+    @sorting = @sorted_models()
+
+  move_item: (item) ->
+    content = @contents[item.cid]
+    current_index = content.index()
+    new_index = @sorted_models().indexOf(item).value()
+    siblings = content.parent().children()
+
+    if current_index < new_index
+      @context.$(siblings[new_index]).after(content)
+    else if new_index < current_index
+      @context.$(siblings[new_index]).before(content)
+
   change_item: (item) =>
+    if @options.order_by and @sorting.indexOf(item).value() isnt @sorted_models().indexOf(item).value()
+      @move_item(item)
+      @sorting = @sorted_models()
+
     if @skip_item(item)
       @remove_item(item)
     else if @contents[item.cid] is undefined

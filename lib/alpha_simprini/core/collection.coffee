@@ -5,7 +5,7 @@ class AS.Collection
   AS.Delegate.extends(this)
   AS.Event.extends(this)
 
-  @delegate "first", "rest", "last", "compact", "flatten", "without", "union", "filter",
+  @delegate "first", "rest", "last", "compact", "flatten", "without", "union", "filter", "reverse",
             "intersection", "difference", "uniq", "zip", "indexOf", "find", "detect", "at",
             "lastIndexOf", "range", "include",  "each", "map", "reject","all", "toArray", to: "models"
 

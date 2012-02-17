@@ -1,6 +1,6 @@
 AS = require("alpha_simprini")
 _ = require "underscore"
-jQuery = require "jQuery"
+$ = require "jquery"
 
 SVG =
   ns: "http://www.w3.org/2000/svg"
@@ -32,7 +32,7 @@ class AS.DOM
   constructor: (args) ->
     # body...
 
-  $: jQuery
+  $: $
 
   text: (text_content) ->
     # createTextNode creates a text node, no DOM injection here

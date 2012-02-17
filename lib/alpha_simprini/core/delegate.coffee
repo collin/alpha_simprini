@@ -10,14 +10,19 @@ AS.Delegate = new AS.Mixin
           fn_or_object.apply(object, args)
         else
           object
-          
+
       _(delegated_methods).chain().flatten().each (method) =>
         if _.isString(delegatee)
-          @::[method] = -> 
+          @::[method] = ->
             _delegatee = @[delegatee]
-            callOrReturn _delegatee, _delegatee[method], arguments
+            _delegatee = _delegatee.call(this) if _delegatee.call
+            if _delegatee[method].apply
+              _delegatee[method].apply(_delegatee, arguments)
+            else
+              _delegatee[method]
+
         else if _.isFunction(delegatee)
-          @::[method] = -> 
+          @::[method] = ->
             _delegatee = delegatee()
             callOrReturn _delegatee, _delegatee[method], arguments
         else

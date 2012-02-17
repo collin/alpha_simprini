@@ -19,6 +19,7 @@ AS.share = require("share").client
 
 AS.ConstructorIdentity = (constructor) -> (object) -> object.constructor is constructor
 AS.Identity = (object) -> (other) -> object is other
+AS.IdentitySort = (object) -> object
 
 AS.deep_clone = (it) ->
   if _.isFunction(it)

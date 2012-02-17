@@ -48,14 +48,8 @@ class AS.Model
     @attribute(name)
     @write_inheritable_value("has_manys", name, config)
 
-  @embeds_one: (name, config={}) ->
-    # require_config config, 'model', "for @embeds_one '#{name}, must specify the 'model' option. (Provide a function that returns a model constructor.)"
-
-    config.relation = true
-    @relation(name)
-    @write_inheritable_value("embeds_ones", name, config)
-
-    @::[name] = (value) ->
+  @EmbedsOneMethod = (name) ->
+    return (value) ->
       unless value is undefined
         if value is null
           @set_attribute(name, undefined)
@@ -78,6 +72,15 @@ class AS.Model
       embedded?.embedded_in ?= this
       # We always want to return the embedded object
       embedded
+
+  @embeds_one: (name, config={}) ->
+    # require_config config, 'model', "for @embeds_one '#{name}, must specify the 'model' option. (Provide a function that returns a model constructor.)"
+
+    config.relation = true
+    @relation(name)
+    @write_inheritable_value("embeds_ones", name, config)
+
+    @::[name] = @EmbedsOneMethod(name)
 
   @has_one: (name, config={}) ->
     config.relation = true

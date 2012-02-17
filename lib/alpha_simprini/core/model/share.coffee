@@ -58,6 +58,7 @@ AS.Model.Share = new ShareMixin
       @bind_share_events()
       @run_callbacks("after_load")
       @load_embeds()
+      @did_index()
 
     did_load_embedded: (@share) ->
       @needs_indexing = false
@@ -110,7 +111,9 @@ AS.Model.Share = new ShareMixin
         all[name] = @attributes[name].map((model) -> model.id).value()
 
       for name, config of @constructor.embeds_manys || {}
-        all[name] = @attributes[name].map((model) -> model.attributes_for_sharing()).value()
+        value = @attributes[name].map((model) -> model.attributes_for_sharing()).value()
+        continue unless value
+        all[name] = value
 
       for name, config of @constructor.belongs_tos || {}
         continue if @attributes[name] is undefined
@@ -120,7 +123,8 @@ AS.Model.Share = new ShareMixin
         AS.warn "Model#attributes_for_sharing does not implement has_ones"
 
       for name, config of @constructor.embeds_ones || {}
-        all[name] = @[name]().attributes_for_sharing()
+        continue unless value = @[name]().attributes_for_sharing()
+        all[name] = value
 
       return all
 
@@ -130,8 +134,12 @@ AS.Model.Share = new ShareMixin
 
       for name, config of @constructor.has_manys || {}
         collection = @[name]()
-        # clone here, or we have shared references which confuses sharejs
-        collection.add(AS.deep_clone(data), remote:true) for data in @share.at(name).get() || []
+        for data in @share.at(name).get() || []
+          # clone here, or we have shared references which confuses sharejs
+          data = AS.deep_clone(data)
+          # We might have created this model ourselves.
+          continue if collection.include(AS.All.byId[data]).value()
+          collection.add(data, remote:true)
 
       for name, config of @constructor.belongs_tos || {}
         @attributes[name] = @share.at(name).get()
