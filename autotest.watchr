@@ -17,7 +17,6 @@ end
 run_all_tests
 watch("(lib)(/.*)+.coffee") { |m|
   hit = m.to_s
-  console.log hit
   hit.gsub!(/^lib\/alpha_simprini/, "test")
   run_tests(hit)
 }

@@ -6,7 +6,7 @@ AS.InheritableAttrs = new AS.Mixin
     @class_inheritable_attrs = []
 
   class_methods:
-    extended: ->
+      extended: ->
       @class_inheritable_attrs = _.clone(@class_inheritable_attrs)
       for attr in @class_inheritable_attrs
         @[attr] = AS.deep_clone(@[attr])

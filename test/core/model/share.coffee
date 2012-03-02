@@ -102,6 +102,17 @@ exports["Model.Share"] =
     AS.module = @real_module
     callback()
 
+  "Lifecycle State Machine":
+    "share models have a Lifecycle SM": (test) ->
+      test.ok @model.lifecycle instanceof AS.Models.Share.Lifecycle
+
+    "#open":
+
+    "#load":
+    "#embedded"
+
+
+
   "is new if share is undefined": (test) ->
     delete @model.share
     test.ok @model.new()

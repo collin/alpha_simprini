@@ -9,6 +9,9 @@ class ShareMixin extends AS.Mixin
     super(klass)
 
 AS.Model.Share = new ShareMixin
+  LifeCycle: class LifeCycle
+    AS.StateMachine.extends(this)
+
   mixed_in: ->
     @define_callbacks before: ["open"], after: ["open", "load"]
 
