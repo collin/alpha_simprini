@@ -38,6 +38,8 @@ MyApp.ThingyView = AS.View.extend
 When the data changes, the DOM will be updated to reflect those changes automatically.
 All event handlers are cleaned up as objects are removed too.
 
+## Models
+
 #### Domain Modeling
 
 Model your domain with fields, and relationships: hasMany, hasOne, belongsTo.
@@ -58,3 +60,30 @@ CookBook.Recipe.hasMany "ingredients",
   inverse: "recipe"
 ```
 
+#### Real Time Collaboration
+
+Alpha Simprini ships with support for real-time collaboration with [ShareJS](https://github.com/josephg/ShareJS/)
+
+1. Configure the connection between Alpha Simprini and ShareJS
+
+```coffee
+# The default ShareJsURL looks like this:
+AS.ShareJsURL = "http://#{window?.location.host or 'localhost'}/sjs"
+# Set it as neccessary for your server configuration.
+```
+
+2. Mixin ShareJS support
+
+```coffee
+Editor.Document = AS.Model.extend()
+AS.Model.Share.extend(Editor.Document)
+```
+
+3. Load your document by ID
+
+```coffee
+document = Editor.Document.load("documentid")
+```
+
+At this point you can use the model as usual. You don't have to wait for the object to properly connect to
+the ShareJS server. Any chanegs you make to the object will be properly applied when the connection is made.
