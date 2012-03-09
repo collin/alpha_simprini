@@ -82,8 +82,46 @@ AS.Model.Share.extend(Editor.Document)
 3) Load your document by ID
 
 ```coffee
-document = Editor.Document.load("documentid")
+document = Editor.Document.open("documentid")
 ```
 
 At this point you can use the model as usual. You don't have to wait for the object to properly connect to
 the ShareJS server. Any chanegs you make to the object will be properly applied when the connection is made.
+
+
+## Application
+
+## Serving Assets/Packages
+### This is mostly terrible and will be replaced with an bmp based solution
+
+AlphaSimprini currently uses [module_loader](https://github.com/collin/module_loader) to server node modules
+and provide an implementation of 'require' in the browser.
+
+module_loader requires a node server and can be set-up like this:
+
+```coffee
+pathname = require("path")
+ModuleLoader = require("../lib/module_loader")
+
+# see https://github.com/collin/module_loader for complete
+# configuration options (including specifying your own http server)
+new ModuleLoader 
+  module_root: pathname.resolve("./node_modules")
+  packages: ["underscore", "underscore.string", "project"]
+```
+
+To include your project, you must specify a package.json and install that package. If your project was called
+'project' you could use npm like so in development.
+
+```
+npm link project && npm link
+```
+
+Then in your application:
+
+```html
+<script src="//localhost:2334/node_modules.js"></src>
+<script> 
+  require("project").boot()
+</script>
+```
