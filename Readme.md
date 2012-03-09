@@ -92,7 +92,7 @@ the ShareJS server. Any chanegs you make to the object will be properly applied 
 ## Application
 
 ## Serving Assets/Packages
-### This is mostly terrible and will be replaced with an bmp based solution
+### This is mostly terrible and will be replaced with a [bpm](https://github.com/bpm/bpm) based solution
 
 AlphaSimprini currently uses [module_loader](https://github.com/collin/module_loader) to server node modules
 and provide an implementation of 'require' in the browser.
