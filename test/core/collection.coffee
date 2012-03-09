@@ -1,20 +1,21 @@
 {AS, _, sinon, coreSetUp} = require require("path").resolve("./test/helper")
 exports.setUp = coreSetUp
 
+C = AS.Namespace.create("Collections")
+
 exports.Collection =
   "inserts item of specified type": (test) ->
-    class Thing extends AS.Model
-    class ThingCollection extends AS.Collection
-      model: -> Thing
+    C.Thing = AS.Model.extend()
+    C.ThingCollection = AS.Collection.extend model: -> C.Thing
 
-    things = new ThingCollection
+    things = C.ThingCollection.create()
     things.add()
 
-    # test.ok things.first().value() instanceof Thing
+    test.ok things.first().value() instanceof C.Thing
     test.done()
 
   "inserts item at a specified index": (test)->
-    things = new AS.Collection
+    things = AS.Collection.create()
 
     things.add()
     things.add()
@@ -27,7 +28,7 @@ exports.Collection =
     test.done()
 
   "remove item from collection": (test) ->
-    things = new AS.Collection
+    things = AS.Collection.create()
     thing = things.add()
     things.remove(thing)
     test.equal things.length, 0
@@ -36,14 +37,14 @@ exports.Collection =
   Events:
     "add event": (test) ->
       test.expect 1
-      collection = new AS.Collection
+      collection = AS.Collection.create()
       collection.bind "add", -> test.ok true
       collection.add()
       test.done()
 
     "remove event": (test) ->
       test.expect 1
-      collection = new AS.Collection
+      collection = AS.Collection.create()
       thing = collection.add()
       collection.bind "remove", -> test.ok true
       collection.remove(thing)
@@ -51,7 +52,7 @@ exports.Collection =
 
     "model change events bubble through collection": (test) ->
       test.expect 2
-      collection = new AS.Collection
+      collection = AS.Collection.create()
       thing = collection.add()
       collection.bind "all", -> test.ok true
       collection.bind "modelevent", -> test.ok true
@@ -60,10 +61,10 @@ exports.Collection =
 
       test.done()
 
-    "add/remove evends capture on collection": (test) ->
+    "add/remove events capture on collection": (test) ->
       test.expect 2
-      thing = new AS.Model
-      collection = new AS.Collection
+      thing = AS.Model.create()
+      collection = AS.Collection.create()
       thing.bind "add", -> test.ok true
       thing.bind "remove", -> test.ok true
 

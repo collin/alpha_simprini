@@ -3,15 +3,18 @@ Core = AS.part("Core")
 _ = require "underscore"
 
 Core.require """
-  mixin event inheritable_attrs callbacks delegate state_machine
+  callbacks state_machine
   instance_methods
 
-  model collection model/share
+  model 
+  properties/field properties/has_many properties/has_one
+
+  collection model/share
 
   models/radio_selection_model models/multiple_selection_model
 """
 
-AS.sharejs_url = "http://#{window?.location.host or 'localhost'}/sjs"
+AS.ShareJsURL = "http://#{window?.location.host or 'localhost'}/sjs"
 
 AS.share = require("share").client
 
@@ -21,7 +24,7 @@ AS.ConstructorIdentity = (constructor) -> (object) -> object.constructor is cons
 AS.Identity = (object) -> (other) -> object is other
 AS.IdentitySort = (object) -> object
 
-AS.deep_clone = (it) ->
+AS.deepClone = (it) ->
   if _.isFunction(it)
     clone = it
   else if _.isArray(it)
@@ -30,7 +33,7 @@ AS.deep_clone = (it) ->
     clone = {}
     for key, value of it
       if _.isArray(value) or _.isObject(value)
-        clone[key] = AS.deep_clone(value)
+        clone[key] = AS.deepClone(value)
       else
         clone[key] = value
   else
@@ -43,11 +46,11 @@ AS.uniq = ->
   (Math.floor Math.random() * 100000000000000000).toString(32) + "-" + (Math.floor Math.random() * 100000000000000000).toString(32) + "-" + (new Date).getTime().toString(32)
 
 
-AS.open_shared_object = (id, callback) ->
-  @share.open id, "json", @sharejs_url, (error, handle) ->
+AS.openSharedObject = (id, callback) ->
+  @share.open id, "json", @ShareJsURL, (error, handle) ->
     if error then console.log(error) else callback(handle)
 
-AS.human_size = (size) ->
+AS.humanSize = (size) ->
   units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
   i = 0;
   while size >= 1024

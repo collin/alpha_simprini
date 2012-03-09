@@ -2,10 +2,7 @@ AS = require("alpha_simprini")
 _ = require("underscore")
 fleck = require("fleck")
 
-class AS.View extends AS.DOM
-  AS.Event.extends(this)
-  AS.StateMachine.extends(this)
-
+AS.View = AS.DOM.extend
   tag_name: "div"
 
   _ensure_element: -> @el ?= @$(@build_element())

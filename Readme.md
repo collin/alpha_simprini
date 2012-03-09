@@ -9,6 +9,10 @@ Alpha Simprini is a browser application framework. It is a terrible awful mish-m
 Alpha Simprini uses [Pathology](https://github.com/collin/pathology) and [Taxi](https://github.com/collin/taxi)
 to power the underlying Object model and event/databinding systems.
 
+Also present are [jwerty](https://github.com/keithamus/jwerty), [jQuery](https://github.com/jquery/jquery), [underscore](https://underscorejs.org), [ShareJS](https://github.com/josephg/ShareJS), [rangy](http://code.google.com/p/rangy/) and [fleck](https://github.com/trek/fleck)
+
+Tests are written in nodeunit.
+
 ## Views
 
 #### No Templating Language
@@ -91,6 +95,20 @@ the ShareJS server. Any chanegs you make to the object will be properly applied 
 
 ## Application
 
+In your application initialize function construct your models and views.
+
+```coffee
+Todo = AS.Namespace.create("Todo")
+Todo.Application = AS.Application.extend
+  initialize: ->
+    @list = Todo.Models.List.open(@params.list_id)
+    @list_view = @view Todo.Views.List, list: @list
+    @append @list_view
+
+```
+
+Now you're off to the races
+
 ## Serving Assets/Packages
 ### This is mostly terrible and will be replaced with a [bpm](https://github.com/bpm/bpm) based solution
 
@@ -120,7 +138,7 @@ npm link project && npm link
 Then in your application:
 
 ```html
-<script src="//localhost:2334/node_modules.js"></src>
+<script src="//localhost:2334/node_modules.js"></script>
 <script> 
   require("project").boot()
 </script>

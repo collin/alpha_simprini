@@ -7,19 +7,12 @@ BOTTOM = name:"BOTTOM"
 LEFT = name: "LEFT"
 RIGHT = name: "RIGHT"
 
-class AS.Models.Targets
-  AS.Event.extends(this)
+AS.Models.Targets = AS.Object.extend
   TOP: TOP
   MIDDLE: MIDDLE
   BOTTOM: BOTTOM
   LEFT: LEFT
   RIGHT: RIGHT
-
-  @TOP: TOP
-  @MIDDLE: MIDDLE
-  @BOTTOM: BOTTOM
-  @LEFT: LEFT
-  @RIGHT: RIGHT
 
   constructor: ->
     @gather()
@@ -57,6 +50,12 @@ class AS.Models.Targets
 
   drag: (event) ->
     throw "Drag unimplimented in base class!"
+
+AS.Models.Targets.TOP = TOP
+AS.Models.Targets.MIDDLE = MIDDLE
+AS.Models.Targets.BOTTOM = BOTTOM
+AS.Models.Targets.LEFT = LEFT
+AS.Models.Targets.RIGHT = RIGHT
 
 class AS.Models.Targets.Edge extends AS.Models.Targets
   constructor: (options={}) ->

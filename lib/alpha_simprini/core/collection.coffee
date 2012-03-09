@@ -1,29 +1,17 @@
 AS = require("alpha_simprini")
-_ = require "underscore"
+Taxi = require("taxi")
+{extend, chain, isString} = require("underscore")
 
-class AS.Collection
-  AS.Delegate.extends(this)
-  AS.Event.extends(this)
-
-  @delegate "first", "rest", "last", "compact", "flatten", "without", "union", "filter", "reverse",
-            "intersection", "difference", "uniq", "zip", "indexOf", "find", "detect", "at",
-            "lastIndexOf", "range", "include",  "each", "map", "reject","all", "toArray", to: "models"
-
-  @model: -> AS.Model
-
-  constructor: (@models=[]) ->
-    @initialize()
-
-  initialize: () ->
-    given_models = @models
+AS.Collection = AS.Object.extend
+  initialize: (@models=[], options = {}) ->
+    extend this, options
     @length = 0
     @byId = {}
     @byCid = {}
-    @models = _([]).chain()
-    @add(model) for model in given_models
+    @models = chain([])
+    @add(model) for model in @models
 
-  at: (index) ->
-    @models.value()[index]
+  model: -> AS.Model
 
   add: (model={}, options={}) ->
     # Allow for passing both Model and ViewModels in
@@ -32,7 +20,6 @@ class AS.Collection
     unless model instanceof AS.Model
       model = @build(model)
 
-    # console.log "adding", model, "to", this if model.constructor.name is "Box"
     model[@inverse](@source) if @inverse and @source
 
     throw new Error("Cannot add model to collection twice.") if @models.include(model).value()
@@ -40,20 +27,34 @@ class AS.Collection
 
     model
 
+  build: (model) ->
+    if isString(model)
+      AS.All.byId[model]
+    else
+      if model.id and AS.All.byId[model.id]
+        return AS.All.byId[model.id]
+      else if model._type
+        ctor = AS.module(model._type)
+      else
+        ctor = @model()
+      ctor.create(model)
+
   _add: (model, options={}) ->
     options.at ?= this.length
     index = options.at
     @byCid[model.cid] = @byId[model.id] = model
     @models._wrapped.splice index, 0, model
     @length++
-    model.bind("all", @_on_model_event, this)
+    model.bind
+      event: "all"
+      namespace: @objectId()
+      handler: @_on_model_event
+      context: this
+
     model.trigger "add", this, options
 
-  # filter: (options) ->
-  #   @filter ?= new AS.Collection.Filter(this)
-  #   @filter.reset()
-  #   @filter.on(options)
-  #   @filter
+  at: (index) ->
+    @models.value()[index]
 
   remove: (model, options={}) ->
     # Allow for passing both Model and ViewModels in
@@ -71,28 +72,44 @@ class AS.Collection
     delete @byCid[model.cid]
     @models = @models.without(model)
     model.trigger("remove", this, options)
-    model.unbind("all", @_on_model_event)
+    model.unbind
+      event: "all"
+      namespace: @objectId()
 
-  build: (model) ->
-    if _.isString(model)
-      AS.All.byId[model]
-    else
-      if model.id and AS.All.byId[model.id]
-        return AS.All.byId[model.id]
-      else if model._type
-        ctor = AS.module(model._type)
-      else
-        ctor = @constructor.model()
-      new ctor(model)
-
-  # When an event is triggered from a model, it is bubbled up through the collection.
+  # # When an event is triggered from a model, it is bubbled up through the collection.
   _on_model_event: (event, model, collection, options) ->
-    # FIXME: should be looking for an event [path]
-    return unless _.isString(event)
-    return if (event is "add" or event is "remove") and (this isnt collection)
+    return unless isString(event)
+    return if (event is "add" or event is "remove") and (this isnt collection[0])
     @_remove(model, options) if event is "destroy"
     @trigger.apply(this, arguments)
 
-  pluck: (name) -> @map (item) -> item[name]()
+#   pluck: (name) -> @map (item) -> item[name]()
 
-class AS.EmbeddedCollection extends AS.Collection
+AS.Collection.delegate AS.COLLECTION_DELEGATES, to: "models"
+
+Taxi.Mixin.extends(AS.Collection)
+# class AS.Collection
+#   AS.Delegate.extends(this)
+#   AS.Event.extends(this)
+
+
+#   @model: -> AS.Model
+
+#   constructor: (@models=[]) ->
+#     @initialize()
+
+#   initialize: () ->
+#     given_models = @models
+
+
+
+#   # filter: (options) ->
+#   #   @filter ?= new AS.Collection.Filter(this)
+#   #   @filter.reset()
+#   #   @filter.on(options)
+#   #   @filter
+
+
+
+
+# class AS.EmbeddedCollection extends AS.Collection

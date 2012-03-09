@@ -1,10 +1,10 @@
 AS = require("alpha_simprini")
 _ = require "underscore"
 
-class AS.Binding
-  constructor: (@context, @model, @path, @options={}, @fn=undefined) ->
+AS.Binding = AS.Object.extend
+  initialize: (@context, @model, @path, @options={}, @fn=undefined) ->
     @path = [@path] unless _.isArray(@path)
-    @binding_path = AS.deep_clone(@path)
+    @binding_path = AS.deepClone(@path)
     @binding_path.splice @path.length - 1, 1, "change:#{_(@path).last()}"
 
     if _.isFunction(@options)
@@ -25,7 +25,7 @@ class AS.Binding
   will_group_bindings: ->
     @constructor.will_group_bindings or _.isFunction(@fn)
 
-  path_value: -> @model.read_path @path
+  path_value: -> @model.readPath @path
 
   require_option: (name) ->
     return unless @options[name] is undefined
@@ -44,12 +44,12 @@ class AS.Binding.Model
     for property, options of properties
       do (property, options) =>
         if _.isArray(options)
-          @styles[property] = => @model.read_path(options)
+          @styles[property] = => @model.readPath(options)
           painter = -> _.defer =>
             value = @styles[property]()
             @content.css property, value
 
-          binding_path = AS.deep_clone(options)
+          binding_path = AS.deepClone(options)
           binding_path[options.length - 1] = "change:#{_(options).last()}"
           @context.binds @model, binding_path, painter, this
         else
@@ -63,7 +63,7 @@ class AS.Binding.Model
        do (property, options) =>
           if _.isArray(options)
             @attrs[property] = =>
-              value = @model.read_path(options)
+              value = @model.readPath(options)
               if value is true
                 "yes"
               else if value is false
@@ -74,7 +74,7 @@ class AS.Binding.Model
             painter = -> _.defer =>
               @content.attr property, @attrs[property]()
 
-            binding_path = AS.deep_clone(options)
+            binding_path = AS.deepClone(options)
             binding_path[options.length - 1] = "change:#{_(options).last()}"
             @context.binds @model, binding_path, painter, this
           else

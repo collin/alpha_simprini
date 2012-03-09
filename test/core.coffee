@@ -12,19 +12,19 @@ exports.utilities =
     test.done()
 
   deepClone: (test) ->
-    test.notEqual AS.deep_clone(it = []), it
-    test.notEqual AS.deep_clone(it = {}), it
+    test.notEqual AS.deepClone(it = []), it
+    test.notEqual AS.deepClone(it = {}), it
 
-    test.deepEqual AS.deep_clone(it = []), it
-    test.deepEqual AS.deep_clone(it = {}), it
+    test.deepEqual AS.deepClone(it = []), it
+    test.deepEqual AS.deepClone(it = {}), it
 
     it = [
       {a: 134, 3: [2, {}, [], [], "FOO"]},
       23
       "BAR"
     ]
-    test.deepEqual AS.deep_clone(it), it
-    not_it = AS.deep_clone(it)
+    test.deepEqual AS.deepClone(it), it
+    not_it = AS.deepClone(it)
     not_it.push "BAZ"
     test.notDeepEqual it, not_it
 

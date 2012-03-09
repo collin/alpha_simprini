@@ -15,6 +15,8 @@
   },
   "main": "lib/alpha_simprini.coffee",
   "dependencies": {
+    "pathology": "latest",
+    "taxi": "latest",
     "underscore": ">= 1.2.0",
     "underscore.string": ">= 2.0.0",
     "share": "https://github.com/collin/ShareJs/tarball/master",
