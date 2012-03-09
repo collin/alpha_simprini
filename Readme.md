@@ -64,7 +64,7 @@ CookBook.Recipe.hasMany "ingredients",
 
 Alpha Simprini ships with support for real-time collaboration with [ShareJS](https://github.com/josephg/ShareJS/)
 
-1. Configure the connection between Alpha Simprini and ShareJS
+1) Configure the connection between Alpha Simprini and ShareJS
 
 ```coffee
 # The default ShareJsURL looks like this:
@@ -72,14 +72,14 @@ AS.ShareJsURL = "http://#{window?.location.host or 'localhost'}/sjs"
 # Set it as neccessary for your server configuration.
 ```
 
-2. Mixin ShareJS support
+2) Mixin ShareJS support
 
 ```coffee
 Editor.Document = AS.Model.extend()
 AS.Model.Share.extend(Editor.Document)
 ```
 
-3. Load your document by ID
+3) Load your document by ID
 
 ```coffee
 document = Editor.Document.load("documentid")
