@@ -2,8 +2,11 @@ AS = require("alpha_simprini")
 Taxi = require("taxi")
 {extend, chain, isString} = require("underscore")
 
-AS.Collection = AS.Object.extend
-  initialize: (@models=[], options = {}) ->
+AS.Collection = AS.Object.extend ({def, include, delegate}) ->
+  include Taxi.Mixin
+  delegate AS.COLLECTION_DELEGATES, to: "models"
+
+  def initialize: (@models=[], options = {}) ->
     extend this, options
     @length = 0
     @byId = {}
@@ -11,9 +14,9 @@ AS.Collection = AS.Object.extend
     @models = chain([])
     @add(model) for model in @models
 
-  model: -> AS.Model
+  def model: -> AS.Model
 
-  add: (model={}, options={}) ->
+  def add: (model={}, options={}) ->
     # Allow for passing both Model and ViewModels in
     model = model.model if model.model and model.model.id
 
@@ -27,7 +30,7 @@ AS.Collection = AS.Object.extend
 
     model
 
-  build: (model) ->
+  def build: (model) ->
     if isString(model)
       AS.All.byId[model]
     else
@@ -37,9 +40,10 @@ AS.Collection = AS.Object.extend
         ctor = AS.module(model._type)
       else
         ctor = @model()
-      ctor.create(model)
+        
+      ctor.new(model)
 
-  _add: (model, options={}) ->
+  def _add: (model, options={}) ->
     options.at ?= this.length
     index = options.at
     @byCid[model.cid] = @byId[model.id] = model
@@ -48,15 +52,15 @@ AS.Collection = AS.Object.extend
     model.bind
       event: "all"
       namespace: @objectId()
-      handler: @_on_model_event
+      handler: @_onModelEvent
       context: this
 
     model.trigger "add", this, options
 
-  at: (index) ->
+  def at: (index) ->
     @models.value()[index]
 
-  remove: (model, options={}) ->
+  def remove: (model, options={}) ->
     # Allow for passing both Model and ViewModels in
     model = model.model
     result = @_remove(model, options)
@@ -65,7 +69,7 @@ AS.Collection = AS.Object.extend
 
     result
 
-  _remove: (model, options={}) ->
+  def _remove: (model, options={}) ->
     options.at = @models.indexOf(model).value()
     @length--
     delete @byId[model.id]
@@ -77,39 +81,10 @@ AS.Collection = AS.Object.extend
       namespace: @objectId()
 
   # # When an event is triggered from a model, it is bubbled up through the collection.
-  _on_model_event: (event, model, collection, options) ->
+  def _onModelEvent: (event, model, collection, options) ->
     return unless isString(event)
-    return if (event is "add" or event is "remove") and (this isnt collection[0])
+    return if (event is "add" or event is "remove") and (this isnt collection)
     @_remove(model, options) if event is "destroy"
     @trigger.apply(this, arguments)
 
-#   pluck: (name) -> @map (item) -> item[name]()
-
-AS.Collection.delegate AS.COLLECTION_DELEGATES, to: "models"
-
-Taxi.Mixin.extends(AS.Collection)
-# class AS.Collection
-#   AS.Delegate.extends(this)
-#   AS.Event.extends(this)
-
-
-#   @model: -> AS.Model
-
-#   constructor: (@models=[]) ->
-#     @initialize()
-
-#   initialize: () ->
-#     given_models = @models
-
-
-
-#   # filter: (options) ->
-#   #   @filter ?= new AS.Collection.Filter(this)
-#   #   @filter.reset()
-#   #   @filter.on(options)
-#   #   @filter
-
-
-
-
-# class AS.EmbeddedCollection extends AS.Collection
+#  def pluck: (name) -> @map (item) -> item[name]()

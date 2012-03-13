@@ -36,7 +36,7 @@ exports.utilities =
     test.done()
 
   humanSize: (test) ->
-    sz = AS.human_size
+    sz = AS.humanSize
 
     test.equal sz(100), "100.0 B"
 

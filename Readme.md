@@ -99,7 +99,7 @@ the ShareJS server. Any chanegs you make to the object will be properly applied 
 In your application initialize function construct your models and views.
 
 ```coffee
-Todo = AS.Namespace.create("Todo")
+Todo = AS.Namespace.new("Todo")
 Todo.Application = AS.Application.extend
   initialize: ->
     @list = Todo.Models.List.open(@params.list_id)

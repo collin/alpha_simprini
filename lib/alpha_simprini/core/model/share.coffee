@@ -50,7 +50,7 @@
 #       model.did_load_embedded(share)
 #       model
 
-#   instance_methods:
+#   instanceMethods:
 #     did_open: (@share) ->
 #       @ensure_defaults()
 #       @bind_share_events()

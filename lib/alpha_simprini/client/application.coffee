@@ -4,8 +4,10 @@ Taxi = require("taxi")
 jwerty = require("jwerty").jwerty
 domready = $ = require("jquery")
 
-AS.Application =  AS.Object.extend
-  initialize: () ->
+AS.Application =  AS.Object.extend ({def, include}) ->
+  include Taxi.Mixin
+
+  def initialize: () ->
     @params = AS.params
     @god_given_key_handlers()
     domready =>
@@ -13,9 +15,9 @@ AS.Application =  AS.Object.extend
 
     @el ?= $("body")
 
-  boot: ->
+  def boot: ->
 
-  god_given_key_handlers: ->
+  def god_given_key_handlers: ->
     handlers =
       '⎋': 'esc'
       '⌘+↩': 'accept'
@@ -25,11 +27,10 @@ AS.Application =  AS.Object.extend
       jwerty.key key, (event) =>
         @trigger(trigger, event)
 
-  view: (constructor, options={}) ->
+  def view: (constructor, options={}) ->
     options.application = this
-    constructor.create options
+    constructor.new options
 
-  append: (view) ->
+  def append: (view) ->
     @el.append view.el
 
-Taxi.Mixin.extends AS.Application

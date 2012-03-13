@@ -4,17 +4,17 @@ Taxi = require "taxi"
 require "./alpha_simprini/string"
 require "./alpha_simprini/core/logging"
 
-AS = module.exports = Pathology.Namespace.create("AlphaSimprini")
+AS = module.exports = Pathology.Namespace.new("AlphaSimprini")
 
 AS.part = (name) -> 
   exports[name] = require: (libraries) -> AS.require name.toLowerCase(), libraries
 
 # Namespaces
-AS.Models = Pathology.Namespace.create()
-AS.Views = Pathology.Namespace.create()
+AS.Models = Pathology.Namespace.new()
+AS.Views = Pathology.Namespace.new()
 
 AS.Object = Pathology.Object
-AS.Mixin = Pathology.Mixin
+AS.Module = Pathology.Module
 AS.Namespace = Pathology.Namespace
 AS.Property = Taxi.Property
 

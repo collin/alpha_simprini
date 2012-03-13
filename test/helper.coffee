@@ -1,6 +1,6 @@
 AS = exports.AS = require "alpha_simprini"
 
-exports.NS = AS.Namespace.create("NS")
+exports.NS = AS.Namespace.new("NS")
 _ = exports._ = require "underscore"
 sinon = exports.sinon = require "sinon"
 $ = exports.$ = require "jquery"

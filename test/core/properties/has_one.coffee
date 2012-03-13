@@ -9,31 +9,31 @@ NS.Other.field "name"
 
 exports.HasOne = 
   "property is a HasOne": (test) ->
-    o = NS.Parent.create()
+    o = NS.Parent.new()
     test.ok o.other instanceof AS.Model.HasOne.Instance
     test.done()
 
   "is set when constructing the model": 
     "with a model": (test) ->
-      o = NS.Parent.create other: other = AS.Model.create()
+      o = NS.Parent.new other: other = AS.Model.new()
       test.equal other, o.other.get()
       test.done()
 
     "with a raw abject": (test) ->
-      o = NS.Parent.create other: name: "Linus"
+      o = NS.Parent.new other: name: "Linus"
       test.equal "Linus", o.other.get().name.get()
       test.done()
 
   "collection events trigger on property": (test) ->
     test.expect 1
-    o = NS.Parent.create other: name: "Juliet"
+    o = NS.Parent.new other: name: "Juliet"
     o.other.get().name.bind "change", -> test.ok true
     o.other.get().name.set "Julio"
     test.done()
 
   "change event triggers when model is set": (test) ->
     test.expect 3, "fix field pass-through binding"
-    o = NS.Parent.create()
+    o = NS.Parent.new()
     o.bind "change", -> test.ok true
     o.bind "change:other", -> test.ok true
     console.warn "FIXME: WE EXPECT TO PROPERLY BIND TO FIELD EVENTS!"

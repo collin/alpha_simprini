@@ -27,37 +27,38 @@ SVG_ELEMENTS = _('
   glyph missing-glyph hkern vkern font-face-src font-face-uri font-face-format
   font-face-name definition-src foreignObject
 '.split(" ")).chain().compact()
-AS.DOM = AS.Object.extend
 
-  constructor: (args) ->
-    # body...
+AS.DOM = AS.Object.extend ({def}) ->
 
-  $: $
+  # def constructor: (args) ->
+  #   # body...
 
-  text: (text_content) ->
+  def $: $
+
+  def text: (textContent) ->
     # createTextNode creates a text node, no DOM injection here
     # TODO: DOUBLE EXPRESS VERIFY THIS ASSUMPTION AND PASTE
     #   LINKS TO SUPPORTING EVIDENCE IN THE CODE.
-    @current_node.appendChild document.createTextNode(text_content)
+    @currentNode.appendChild document.createTextNode(textContent)
 
-  raw: (html) ->
+  def raw: (html) ->
     @$(@span()).html(html)
 
-  tag: (name, attrs, content) ->
+  def tag: (name, attrs, content) ->
     node = document.createElement(name)
     return @_tag node, attrs, content
 
-  svg_tag: (name, attrs, content) ->
+  def svgTag: (name, attrs, content) ->
     node = document.createElementNS(SVG.ns, name)
     return @_tag node, attrs, content
 
-  _tag: (node, attrs, content) ->
-    @current_node ?= document.createDocumentFragment()
+  def _tag: (node, attrs, content) ->
+    @currentNode ?= document.createDocumentFragment()
     if _.isFunction(attrs)
       content = attrs
       attrs = undefined
     if _.isString(attrs)
-      text_content = attrs
+      textContent = attrs
       attrs = undefined
 
     # TODO: use jQuery for better compatibility / less performance
@@ -67,37 +68,37 @@ AS.DOM = AS.Object.extend
       else
         node.setAttribute(key, value)
 
-    @current_node.appendChild node
+    @currentNode.appendChild node
 
-    if text_content
-      @$(node).text text_content
+    if textContent
+      @$(node).text textContent
     else if content
-      @within_node node, ->
+      @withinNode node, ->
         last = content.call(this)
         if _.isString(last)
           @text(last)
 
     return node
 
-  within_node: (node, fn) ->
+  def withinNode: (node, fn) ->
     node = node[0] if node?.jquery
-    prior_node = @current_node
-    @current_node = node
+    priorNode = @currentNode
+    @currentNode = node
     content = fn.call(this)
-    @current_node = prior_node
+    @currentNode = priorNode
     content
 
-  dangling_content: (fn) -> @within_node(null, fn)
+  def danglingContent: (fn) -> @withinNode(null, fn)
 
 DOM_ELEMENTS.each (element) ->
   AS.DOM::[element] = -> @tag.apply this, _(arguments).unshift(element)
 
 SVG_ELEMENTS.each (element) ->
   # Be wary of conflicts with regular HTML elements
-  html_svg_conflict = ~DOM_ELEMENTS.value().indexOf(element)
-  method_conflict = AS.DOM::[element]?
-  if html_svg_conflict or method_conflict
+  htmlSvgConflict = ~DOM_ELEMENTS.value().indexOf(element)
+  methodConflict = AS.DOM::[element]?
+  if htmlSvgConflict or methodConflict
     element = "svg_#{element}"
 
-  AS.DOM::[element] = -> @svg_tag.apply this, _(arguments).unshift(element)
+  AS.DOM::[element] = -> @svgTag.apply this, _(arguments).unshift(element)
 

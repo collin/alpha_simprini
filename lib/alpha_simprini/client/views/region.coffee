@@ -3,26 +3,27 @@ _ = require "underscore"
 
 sum = (array) -> _.reduce(array, ((memo, num) -> memo + num), 0)
 
-class AS.Views.Region extends AS.View
-  initialize: ->
+AS.Views.Region = AS.View.extend ({def}) ->
+  def initialize: ->
+    @_super.apply this, arguments
     @application?.bind "resize", => @layout()
-  layout: ->
-class AS.Views.North extends AS.Views.Region
-class AS.Views.East extends AS.Views.Region
-  layout: ->
+  def layout: ->
+AS.Views.North = AS.Views.Region.extend ({def}) ->
+AS.Views.East = AS.Views.Region.extend ({def}) ->
+  def layout: ->
     @el.css
       top: @el.siblings(".North").outerHeight() or 0
       bottom: @el.siblings(".South").outerHeight() or 0
 
-class AS.Views.South extends AS.Views.Region
-class AS.Views.West extends AS.Views.Region
-  layout: ->
+AS.Views.South = AS.Views.Region.extend ({def}) ->
+AS.Views.West = AS.Views.Region.extend ({def}) ->
+  def layout: ->
     @el.css
       top: @el.siblings(".North").outerHeight() or 0
       bottom: @el.siblings(".South").outerHeight() or 0
 
-class AS.Views.Center extends AS.Views.Region
-  layout: ->
+AS.Views.Center = AS.Views.Region.extend ({def}) ->
+  def layout: ->
     @el.css
       top: @el.siblings(".North").outerHeight() or 0
       bottom: @el.siblings(".South").outerHeight() or 0

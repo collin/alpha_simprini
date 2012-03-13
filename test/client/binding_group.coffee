@@ -1,22 +1,22 @@
 {AS, $, _, sinon} = require require("path").resolve("./test/client_helper")
 exports.BindingGroup =
   "has a unique namespace": (test) ->
-    bg1 = new AS.BindingGroup
-    bg2 = new AS.BindingGroup
+    bg1 = AS.BindingGroup.new()
+    bg2 = AS.BindingGroup.new()
 
     test.notEqual bg1.namespace, bg2.namespace
-    test.equal bg1.namespace[0], "."
+    test.equal bg1.namespace[0], "b"
 
     test.done()
 
   "binds to jquery objects": (test) ->
-    bg = new AS.BindingGroup
+    bg = AS.BindingGroup.new()
 
     object = jquery: true, bind: ->
     mock = sinon.mock(object)
     handler = ->
 
-    mock.expects("bind").withExactArgs("event#{bg.namespace}", handler)
+    mock.expects("bind").withExactArgs("event.#{bg.namespace}", handler)
     bg.binds object, "event", handler
 
     mock.verify()
@@ -24,19 +24,23 @@ exports.BindingGroup =
     test.done()
 
   "binds to AS.Event event model": (test) ->
-    bg = new AS.BindingGroup
+    bg = AS.BindingGroup.new()
 
     object = bind: ->
     mock = sinon.mock(object)
     handler = ->
-    mock.expects("bind").withExactArgs({path: ["event"], namespace: bg.namespace}, handler, object)
+    mock.expects("bind").withExactArgs
+        event: "event"
+        namespace: bg.namespace
+        handler: handler
+        context: object
     bg.binds object, "event", handler, object
     mock.verify()
 
     test.done()
 
   "unbinds bound objects": (test) ->
-    bg = new AS.BindingGroup
+    bg = AS.BindingGroup.new()
 
     object =
       bind: ->
@@ -53,8 +57,8 @@ exports.BindingGroup =
 
 
   "unbinds bound objects in nested binding groups": (test) ->
-    parent = new AS.BindingGroup()
-    child = parent.add_child()
+    parent = AS.BindingGroup.new()
+    child = parent.addChild()
 
     object =
       bind: ->

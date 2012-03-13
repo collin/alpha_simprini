@@ -1,27 +1,29 @@
 AS = require("alpha_simprini")
 
 AS.Model.HasMany = AS.Model.Field.extend()
-AS.Model.HasMany.Instance = AS.Model.HasMany.Instance.extend
+AS.Model.HasMany.Instance = AS.Model.HasMany.Instance.extend ({def, delegate}) ->
+  delegate AS.COLLECTION_DELEGATES, to: "backingCollection"
   
-  initialize: (@object, @options={}) ->
-    @backingCollection = AS.Collection.create(undefined, @options)
+  def initialize: (@object, @options={}) ->
+    @backingCollection = AS.Collection.new(undefined, @options)
 
-  set: (models) ->
+  def set: (models) ->
     @backingCollection.add models
 
-  add: (models) -> @backingCollection.add(models)
+  def add: (models) -> @backingCollection.add.apply(@backingCollection, arguments)
 
-  remove: (models) -> @backingCollection.remove(models)
+  def at: (models) -> @backingCollection.at.apply(@backingCollection, arguments)
 
-  bind: -> @backingCollection.bind.apply(@backingCollection, arguments)
+  def remove: (models) -> @backingCollection.remove.apply(@backingCollection, arguments)
 
-  trigger: -> @backingCollection.trigger.apply(@backingCollection, arguments)
+  def bind: -> @backingCollection.bind.apply(@backingCollection, arguments)
 
-  unbind: -> @backingCollection.unbind.apply(@backingCollection, arguments)
+  def trigger: -> @backingCollection.trigger.apply(@backingCollection, arguments)
 
-AS.Model.HasMany.Instance.delegate AS.COLLECTION_DELEGATES, to: "backingCollection"
+  def unbind: -> @backingCollection.unbind.apply(@backingCollection, arguments)
+
 #FIXME: this should have worked
 # AS.Model.HasMany.Instance.delegate "add", "remove", "bind", "unbind", "trigger", to: "backingCollection"
 
-AS.Model.hasMany = (name, options) -> 
-  AS.Model.HasMany.create(name, this, options)
+AS.Model.defs hasMany: (name, options) -> 
+  AS.Model.HasMany.new(name, this, options)

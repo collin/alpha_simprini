@@ -10,17 +10,17 @@ Model.field "boolean", type: Boolean
 
 exports.Field =
   "is a property": (test) ->
-    o = Model.create()
+    o = Model.new()
     test.equal "AlphaSimprini.Model.Field.Instance", o.name.constructor.path()
     test.done()
 
   "is set when constructing a model": (test) ->
-    o = Model.create name: "Herb Alpert"
+    o = Model.new name: "Herb Alpert"
     test.equal "Herb Alpert", o.name.get()
     test.done()
 
   "may specify a default value for a field": (test) ->
-    o = Model.create()
+    o = Model.new()
     test.equal "the Tijuana Brass", o.band.get()
     test.done()
 
@@ -29,14 +29,14 @@ exports.Field =
     test.done()
 
   "number fields are cast as numbers": (test) ->
-    o = Model.create( number: "44.89" )
+    o = Model.new( number: "44.89" )
     test.equal 44.89, o.number.get()
     o.number.set "44"
     test.equal 44, o.number.get()
     test.done()
 
   "boolean fields are cast as booleans": (test) ->
-    o = Model.create( boolean: "true" )
+    o = Model.new( boolean: "true" )
     test.equal true, o.boolean.get()
     o.boolean.set "false"
     test.equal false, o.boolean.get()
@@ -44,7 +44,7 @@ exports.Field =
 
   "change event triggers on model and field": (test) ->
     test.expect 4
-    o = Model.create()
+    o = Model.new()
     o.bind "change", -> test.ok true
     o.bind "change:boolean", -> test.ok true
     o.boolean.bind "change", -> test.ok true

@@ -1,21 +1,21 @@
 {AS, _, sinon, coreSetUp} = require require("path").resolve("./test/helper")
 exports.setUp = coreSetUp
 
-C = AS.Namespace.create("Collections")
+C = AS.Namespace.new("Collections")
 
 exports.Collection =
   "inserts item of specified type": (test) ->
     C.Thing = AS.Model.extend()
-    C.ThingCollection = AS.Collection.extend model: -> C.Thing
+    C.ThingCollection = AS.Collection.extend -> @def model: -> C.Thing
 
-    things = C.ThingCollection.create()
+    things = C.ThingCollection.new()
     things.add()
 
     test.ok things.first().value() instanceof C.Thing
     test.done()
 
   "inserts item at a specified index": (test)->
-    things = AS.Collection.create()
+    things = AS.Collection.new()
 
     things.add()
     things.add()
@@ -28,7 +28,7 @@ exports.Collection =
     test.done()
 
   "remove item from collection": (test) ->
-    things = AS.Collection.create()
+    things = AS.Collection.new()
     thing = things.add()
     things.remove(thing)
     test.equal things.length, 0
@@ -37,14 +37,14 @@ exports.Collection =
   Events:
     "add event": (test) ->
       test.expect 1
-      collection = AS.Collection.create()
+      collection = AS.Collection.new()
       collection.bind "add", -> test.ok true
       collection.add()
       test.done()
 
     "remove event": (test) ->
       test.expect 1
-      collection = AS.Collection.create()
+      collection = AS.Collection.new()
       thing = collection.add()
       collection.bind "remove", -> test.ok true
       collection.remove(thing)
@@ -52,7 +52,7 @@ exports.Collection =
 
     "model change events bubble through collection": (test) ->
       test.expect 2
-      collection = AS.Collection.create()
+      collection = AS.Collection.new()
       thing = collection.add()
       collection.bind "all", -> test.ok true
       collection.bind "modelevent", -> test.ok true
@@ -63,8 +63,8 @@ exports.Collection =
 
     "add/remove events capture on collection": (test) ->
       test.expect 2
-      thing = AS.Model.create()
-      collection = AS.Collection.create()
+      thing = AS.Model.new()
+      collection = AS.Collection.new()
       thing.bind "add", -> test.ok true
       thing.bind "remove", -> test.ok true
 

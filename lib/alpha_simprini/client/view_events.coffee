@@ -1,35 +1,30 @@
 AS = require("alpha_simprini")
 _ = require "underscore"
 
-class AS.ViewEvents
-  EVENT_SPLITTER = /^(@?[\w:]+)(\{.*\})?\s*(.*)$/
+AS.ViewEvents = AS.Object.extend ({def}) ->
+  EVENT_SPLITTER = /^(@?[\w:]+)\s*(.*)$/
 
-  PARSE_GUARD = (guard="{}") ->
-    guard = guard.replace(/(\w+):/g, (__, match) -> "\"#{match}\":")
-    guard = JSON.parse(guard)
-
-  constructor: (@view, events) ->
+  def initialize: (@view, events) ->
     @namespace = _.uniqueId ".ve"
     @events = @unify_options(events)
     @validate_options()
     @cache_handlers()
 
-  unify_options: (events) ->
+  def unify_options: (events) ->
     for key, options of events
       if _.isString options
         options = events[key] = method_name: options
 
-      [__, event_name, guard, selector] = key.match EVENT_SPLITTER
+      [__, event_name, selector] = key.match EVENT_SPLITTER
 
       options.event_name = event_name + @namespace
-      options.guard = PARSE_GUARD(guard)
       options.selector = selector
       options.method = @view[options.method_name]
 
 
     return events
 
-  validate_options: ->
+  def validate_options: ->
     for key, options of @events
       if options.method and options.transition
         throw new Error """
@@ -54,22 +49,20 @@ class AS.ViewEvents
         Specify only a function as a method for an event handler.
         """
 
-  cache_handlers: ->
+  def cache_handlers: ->
     for key, options of @events
       do (key, options) =>
-        options.handler = (event) =>
-          for key, value of options.guard
-            return unless event[key] is value
+        options.handler = (_, event) =>
 
           if options.method
             options.method.apply(@view, arguments)
           else if options.transition
             @view.transition_state options.transition
 
-  revoke_bindings: ->
+  def revoke_bindings: ->
     @revoke_binding(options) for key, options of @events
 
-  revoke_binding: (options) ->
+  def revoke_binding: (options) ->
     [selector, event_name] = [options.selector, options.event_name]
     if selector is ''
       @view.el.unbind @namespace
@@ -82,10 +75,10 @@ class AS.ViewEvents
       target.die @namespace
       target.click() # bug with drag/drop allows for one last drag after revoking bindings :(
 
-  apply_bindings: ->
+  def apply_bindings: ->
     @apply_binding(options) for key, options of @events
 
-  apply_binding: (options) ->
+  def apply_binding: (options) ->
     [selector, event_name, handler] = [options.selector, options.event_name, options.handler]
     if selector is ''
       @view.el.bind event_name, handler

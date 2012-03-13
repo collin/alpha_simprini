@@ -2,12 +2,12 @@ AS = require("alpha_simprini")
 _ = require("underscore")
 fleck = require("fleck")
 
-AS.View = AS.DOM.extend
-  tag_name: "div"
+AS.View = AS.DOM.extend ({def}) ->
+  def tagName: "div"
 
-  _ensure_element: -> @el ?= @$(@build_element())
+  def _ensureElement: -> @el ?= @$(@build_element())
 
-  constructor: (config={}) ->
+  def initialize: (config={}) ->
     @cid = _.uniqueId("c")
 
     for key, value of config
@@ -16,55 +16,46 @@ AS.View = AS.DOM.extend
       else
         @[key] = value
 
-    @binding_group = new AS.BindingGroup
-    @_ensure_element()
+    @bindingGroup = AS.BindingGroup.new()
+    @_ensureElement()
     @delegateEvents()
-    @initialize()
 
-  initialize: ->
+  def append: (view) -> @el.append view.el
 
-  append: (view) -> @el.append view.el
+  def process_attr: (node, key, value) ->
+  #   if value instanceof Function
+  #     # switch value
+  #     # when AS.Binding.Field
+  #     #   false
+  #     # else
+  #     #   false
+  #   else
+    node.setAttribute(key, value)
 
-  process_attr: (node, key, value) ->
-    if value instanceof Function
-      # switch value
-      # when AS.Binding.Field
-      #   false
-      # else
-      #   false
-    else
-      node.setAttribute(key, value)
+  def groupBindings: (fn) ->
+    @withinBindingGroup @bindingGroup.addChild(), fn
 
-  group_bindings: (fn) ->
-    @within_binding_group @binding_group.add_child(), fn
-
-  within_binding_group: (binding_group, fn) ->
-    current_group = @binding_group
-    @binding_group = binding_group
-    content = fn.call(this, binding_group)
-    @binding_group = current_group
+  def withinBindingGroup: (bindingGroup, fn) ->
+    current_group = @bindingGroup
+    @bindingGroup = bindingGroup
+    content = fn.call(this, bindingGroup)
+    @bindingGroup = current_group
     content
 
-  binds: -> @binding_group.binds.apply(@binding_group, arguments)
+  def binds: -> @bindingGroup.binds.apply(@bindingGroup, arguments)
 
-  klass_string: (parts=[]) ->
-    if @constructor is AS.View
-      # parts.push "ASView"
-      parts.reverse().join " "
-    else
-      parts.push @constructor.name
-      @constructor.__super__.klass_string.call @constructor.__super__, parts
+  def klassString: -> @constructor.path().replace /\./g, " "
 
-  base_attributes: ->
+  def baseAttributes: ->
     attrs =
-      class: @klass_string()
+      class: @klassString()
 
-  build_element: ->
-    @current_node = @[@tag_name](@base_attributes())
+  def build_element: ->
+    @currentNode = @[@tagName](@baseAttributes())
 
-  delegateEvents: () ->
+  def delegateEvents: () ->
     if @events
-      @standard_events = new AS.ViewEvents(this, @events)
+      @standard_events = AS.ViewEvents.new(this, @events)
       @standard_events.apply_bindings()
 
     state_events = _(@constructor::).chain().keys().filter (key) ->
@@ -73,7 +64,7 @@ AS.View = AS.DOM.extend
     for key in state_events.value()
       state = key.replace(/_events$/, '')
       do (key, state) =>
-        @state_events[state] = new AS.ViewEvents(this, @[key])
+        @state_events[state] = AS.ViewEvents.new(this, @[key])
 
         @["exit_#{state}"] = ->
           @trigger("exitstate:#{state}")
@@ -83,26 +74,26 @@ AS.View = AS.DOM.extend
           @trigger("enterstate:#{state}")
           @state_events[state].apply_bindings()
 
-  pluralize: (thing, count) ->
+  def pluralize: (thing, count) ->
     if count in [-1, 1]
       fleck.singularize(thing)
     else
       fleck.pluralize(thing)
 
-  reset_cycle: (args...) ->
+  def reset_cycle: (args...) ->
     delete @_cycles[args.join()] if @_cycles
 
-  cycle: (args...) ->
+  def cycle: (args...) ->
     @_cycles ?= {}
     @_cycles[args.join()] ?= 0
     count = @_cycles[args.join()] += 1
     args[count % args.length]
 
-  toggle: ->
+  def toggle: ->
     @button class:"toggle expand"
     @button class:"toggle collapse"
 
-  field: (_label, options = {}, fn = ->) ->
+  def field: (_label, options = {}, fn = ->) ->
     if _.isFunction options
       fn = options
       options = {}
@@ -112,7 +103,7 @@ AS.View = AS.DOM.extend
       @input(options)
       fn?.call(this)
 
-  choice: (_label, options = {}, fn = ->) ->
+  def choice: (_label, options = {}, fn = ->) ->
     if _.isFunction options
       fn = options
       options = {}

@@ -1,20 +1,19 @@
 # AS = require "alpha_simprini"
-# class AS.Models.MultipleSelectionModel extends AS.Model
-#   @has_many 'selected'
+# AS.Models.MultipleSelectionModel = AS.Model.extend ({def}) ->
+#   @hasMany "items"
 
-#   initialize: ->
-#     super
+#   def initialize: ->
+#     @_super()
 #     @items = @selected()
 
 #     @items.bind "add", (item) => @trigger("add", item)
 #     @items.bind "remove", (item) => @trigger("remove", item)
 
-#   select: (item) ->
+#   def select: (item) ->
 #     @items.add(item)
 
-#   deselect: (item) ->
+#   def deselect: (item) ->
 #     @items.remove(item)
 
-#   clear: ->
+#   def clear: ->
 #     @items.each @items.remove, @items
-

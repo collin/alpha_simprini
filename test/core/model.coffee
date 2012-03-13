@@ -8,7 +8,7 @@ exports.Model =
     test.done()
 
   "puts new models in that place": (test) ->
-    model = AS.Model.create()
+    model = AS.Model.new()
     test.equal AS.All.byCid[model.cid], model, "puts model in AS.All.byCid"
     test.equal AS.All.byId[model.id], model, "puts model in AS.All.byId"
     test.done()

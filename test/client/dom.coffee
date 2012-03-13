@@ -1,7 +1,7 @@
 {AS, $, _, sinon} = require require("path").resolve("./test/client_helper")
 exports.DOM =
   "creates document fragments": (test) ->
-    html = (new AS.DOM).html ->
+    html = AS.DOM.new().html ->
       @head ->
         @title "This is the Title"
       @body ->
@@ -18,11 +18,11 @@ exports.DOM =
     test.done()
 
   "appends raw (scary html) content": (test) ->
-    raw = (new AS.DOM).raw("<html>")
+    raw = AS.DOM.new().raw("<html>")
     test.ok $(raw).find("html").is("html")
     test.done()
 
   "appends escaped (non-scary html) content": (test)->
-    raw = (new AS.DOM).span -> @text("<html>")
+    raw = AS.DOM.new().span -> @text("<html>")
     test.equal $(raw).find("html")[0], undefined
     test.done()

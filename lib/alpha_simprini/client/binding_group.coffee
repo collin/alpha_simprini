@@ -1,33 +1,33 @@
 AS = require("alpha_simprini")
 _ = require "underscore"
 
-class AS.BindingGroup
+AS.BindingGroup = AS.Object.extend ({def}) ->
 
-  constructor: ->
-    @namespace = _.uniqueId(".bg")
-    @initialize()
-
-  initialize: ->
+  def initialize: ->
+    @namespace = _.uniqueId("bg")
     @children = []
-    @bound_objects = []
+    @boundObjects = []
 
   # Unbind all bindings, and then unbind all children binding groups
-  unbind: ->
-    object.unbind(@namespace) for object in @bound_objects
+  def unbind: ->
+    object.unbind(@namespace) for object in @boundObjects
     child.unbind() for child in @children
     @initialize()
 
-  binds: (object, event, handler, context) ->
-    @bound_objects.push object
+  def binds: (object, event, handler, context) ->
+    @boundObjects.push object
     if object.jquery
-      object.bind "#{event}#{@namespace}", handler
+      object.bind "#{event}.#{@namespace}", handler
     else
-      event = [event] unless _.isArray(event)
-      object.bind {path: event, namespace: @namespace}, handler, context
+      object.bind 
+        event: event
+        namespace: @namespace
+        handler: handler
+        context: context
 
-  add_child: ->
-    child = new AS.BindingGroup
+  def addChild: ->
+    child = AS.BindingGroup.new()
     @children.push child
     return child
 
-  remove_child: (binding_group) -> @children = _(@children).without(binding_group)
+  def remove_child: (bindingGroup) -> @children = _(@children).without(bindingGroup)

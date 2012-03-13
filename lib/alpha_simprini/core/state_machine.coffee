@@ -9,7 +9,7 @@
 # #   @event "stop_now"
 # #   @event ""
 # AS.StateMachine = new AS.Mixin
-#   instance_methods:
+#   instanceMethods:
 #     transition_state: (options) ->
 #       if @state is options.from
 #         @["exit_#{@state}"]?(options) if @state # default state comes from nowhere

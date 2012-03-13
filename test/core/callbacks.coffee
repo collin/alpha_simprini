@@ -1,27 +1,8 @@
 {AS, _, sinon, coreSetUp} = require require("path").resolve("./test/helper")
 exports.setUp = coreSetUp
 
-exports.InstanceMethods =
-  discoversInstanceMethods: (test) ->
-    class HasMethods
-      a: 1
-      b: 2
-
-      test.deepEqual AS.instance_methods(HasMethods), ["a", "b"]
-      test.done()
-
-  traversesClasses: (test) ->
-    class A
-      a: 1
-
-    class B extends A
-      b: 2
-
-      test.deepEqual AS.instance_methods(B), ["b", "a"]
-      test.done()
-
-class WithCallbacks
-  AS.Callbacks.extends(this)
+WithCallbacks = AS.Object.extend ({include}) ->
+  include AS.Callbacks
   @define_callbacks
     before: "this that".split(" ")
 
@@ -40,7 +21,7 @@ exports.Callbacks =
     it.before_this cb
     it.before_that cb
 
-    one = new WithCallbacks
+    one = WithCallbacks.new()
     one.run_callbacks "before_this"
     one.run_callbacks "before_that"
 

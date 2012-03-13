@@ -1,7 +1,7 @@
-{AS, $, _, sinon} = require require("path").resolve("./test/client_helper")
+{AS, NS, $, _, sinon} = require require("path").resolve("./test/client_helper")
 
-class SomeTargets extends AS.Models.Targets
-  selector: "target"
+NS.SomeTargets = AS.Models.Targets.extend ({def}) ->
+  def selector: "target"
 
 class ClientRect
   top: 0
@@ -39,7 +39,7 @@ exports.Targets =
     callback()
 
   "gathers targets": (test) ->
-    targets = (new SomeTargets).targets
+    targets = NS.SomeTargets.new().targets
     test.equal targets.length, 3
     test.equal targets[1].el[0], @t2
     test.equal targets[1].rect.top, 50, 'top'
@@ -51,14 +51,14 @@ exports.Targets =
     test.done()
 
   "dropend triggers dropend event": (test) ->
-    targets = new SomeTargets
+    targets = NS.SomeTargets.new()
     test.expect 1
     targets.bind "dropend", -> test.ok true
     targets.dropend()
     test.done()
 
   "dropstart triggers dropstart event if current hit has a rect": (test) ->
-    targets = new SomeTargets
+    targets = NS.SomeTargets.new()
     hit = rect: true
     targets.current_hit = hit
     test.expect 1
@@ -67,14 +67,14 @@ exports.Targets =
     test.done()
 
   "dropstart is a noop if current hit lacks a rect": (test) ->
-    targets = new SomeTargets
+    targets = NS.SomeTargets.new()
     test.expect 0
     targets.bind "dropstart", -> test.ok true
     targets.dropstart()
     test.done()
 
   "dragend calls drop and triggers drop if current hit has a rect": (test) ->
-    targets = new SomeTargets
+    targets = NS.SomeTargets.new()
     hit = rect: true
     data = new Object
     targets.current_hit = hit
@@ -85,7 +85,7 @@ exports.Targets =
     test.done()
 
   "dragend is a noop if current hit lacks a rect": (test) ->
-    targets = new SomeTargets
+    targets = NS.SomeTargets.new()
     data = new Object
     test.expect 0
     targets.bind "drop", (thehit) -> test.equal hit, thehit
@@ -95,14 +95,14 @@ exports.Targets =
 
   "transition_hit()":
     "noop if hit has no rect": (test) ->
-      targets = new SomeTargets
+      targets = NS.SomeTargets.new()
       targets.dropend = -> test.ok true
       test.expect 0
       targets.transition_hit {}
       test.done()
 
     "noop if currenth hit equals hit": (test) ->
-      targets = new SomeTargets
+      targets = NS.SomeTargets.new()
       targets.current_hit = equals: -> true
       targets.dropend = -> test.ok true
       test.expect 0
@@ -110,7 +110,7 @@ exports.Targets =
       test.done()
 
     "transitions if current hit does not equal hit": (test) ->
-      targets = new SomeTargets
+      targets = NS.SomeTargets.new()
       targets.current_hit = equals: -> false
       hit = rect: true
       test.expect 2
@@ -130,7 +130,7 @@ target_event = (x, y) ->
 
 exports.Targets.Edge =
   setUp: (callback) ->
-    @targets = new AS.Models.Targets.Edge
+    @targets = AS.Models.Targets.Edge.new()
     @el = {}
     @rect = new ClientRect width: 100, height: 50
     @targets.targets = [
@@ -194,7 +194,7 @@ exports.Targets.Edge =
 
 exports.Targets.Thirds =
   setUp: (callback) ->
-    @targets = new AS.Models.Targets.Thirds
+    @targets = AS.Models.Targets.Thirds.new()
     @el = {}
     @rect = new ClientRect width: 100, height: 50
     @targets.targets = [
