@@ -5,7 +5,7 @@ exports.setUp = coreSetUp
 Car = NS.Car = AS.Object.extend ({include, def}) ->
   include AS.StateMachine
 
-  def initialize: -> @default_state "off"
+  def initialize: -> @defaultState "off"
 
 exports.StateMachine =
   hasDefaultState: (test) ->
@@ -14,7 +14,7 @@ exports.StateMachine =
 
   "will not transition from the wrong state": (test) ->
     car = Car.new()
-    car.transition_state from: "wrongstate", to: "on"
+    car.transitionState from: "wrongstate", to: "on"
     test.equal car.state, "off"
     test.done()
 
@@ -27,7 +27,7 @@ exports.StateMachine =
     car.enter_on = (options) ->
       test.deepEqual from: "off", to: "on", options
 
-    car.transition_state from: "off", to: "on"
+    car.transitionState from: "off", to: "on"
 
     test.done()
 

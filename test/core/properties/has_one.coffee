@@ -36,7 +36,7 @@ exports.HasOne =
     o = NS.Parent.new()
     o.bind "change", -> test.ok true
     o.bind "change:other", -> test.ok true
-    console.warn "FIXME: WE EXPECT TO PROPERLY BIND TO FIELD EVENTS!"
+    # RED FLAG: can't bind to this :(
     # o.other.bind "change", -> test.ok true
     o.other.set {}
     test.done()

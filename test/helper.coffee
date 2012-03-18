@@ -1,6 +1,6 @@
 AS = exports.AS = require "alpha_simprini"
 
-exports.NS = AS.Namespace.new("NS")
+NS = exports.NS = AS.Namespace.new("NS")
 _ = exports._ = require "underscore"
 sinon = exports.sinon = require "sinon"
 $ = exports.$ = require "jquery"
@@ -23,6 +23,46 @@ exports.coreSetUp = (callback) ->
     byCid: {}
     byId: {}
   callback()
+
+BoundModel = exports.BoundModel = NS.BoundModel = AS.Model.extend()
+
+BoundModel.field "field"
+BoundModel.field "maybe", type: Boolean
+BoundModel.hasMany "items", model: -> SimpleModel
+BoundModel.hasOne "owner"
+
+# class SharedBoundModel extends BoundModel
+#   AS.Model.Share.extends this, "ShareBoundModel"
+
+SimpleModel = exports.SimpleModel = NS.SimpleModel = AS.Model.extend()
+SimpleModel.field "field"
+
+exports.mock_binding = (binding_class, _options={}) ->
+  context = _options.context or AS.View.new()
+  model = _options.model or BoundModel.new field: "value"
+  field = _options.field or model["field"]
+  options = _options.options or {}
+  fn = _options.fn or undefined
+
+  binding = binding_class.new context, model, field, options, fn
+
+  mocks =
+    binding: sinon.mock binding
+    context: sinon.mock context
+    model: sinon.mock model
+    field: sinon.mock field
+    options: sinon.mock options
+    fn: sinon.mock options
+    verify: ->
+      @binding.verify()
+      @context.verify()
+      @model.verify()
+      @field.verify()
+      @options.verify()
+      @fn.verify()
+
+   [mocks, binding]
+
 
 # exports.makeDoc = (name="document_name", snapshot=null) ->
 #   share = require "share"

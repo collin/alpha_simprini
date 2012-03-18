@@ -5,7 +5,7 @@ fleck = require("fleck")
 AS.View = AS.DOM.extend ({def}) ->
   def tagName: "div"
 
-  def _ensureElement: -> @el ?= @$(@build_element())
+  def _ensureElement: -> @el ?= @$(@buildElement())
 
   def initialize: (config={}) ->
     @cid = _.uniqueId("c")
@@ -22,7 +22,7 @@ AS.View = AS.DOM.extend ({def}) ->
 
   def append: (view) -> @el.append view.el
 
-  def process_attr: (node, key, value) ->
+  def processAttr: (node, key, value) ->
   #   if value instanceof Function
   #     # switch value
   #     # when AS.Binding.Field
@@ -36,10 +36,10 @@ AS.View = AS.DOM.extend ({def}) ->
     @withinBindingGroup @bindingGroup.addChild(), fn
 
   def withinBindingGroup: (bindingGroup, fn) ->
-    current_group = @bindingGroup
+    currentGroup = @bindingGroup
     @bindingGroup = bindingGroup
     content = fn.call(this, bindingGroup)
-    @bindingGroup = current_group
+    @bindingGroup = currentGroup
     content
 
   def binds: -> @bindingGroup.binds.apply(@bindingGroup, arguments)
@@ -50,30 +50,31 @@ AS.View = AS.DOM.extend ({def}) ->
     attrs =
       class: @klassString()
 
-  def build_element: ->
+  def buildElement: ->
     @currentNode = @[@tagName](@baseAttributes())
 
   def delegateEvents: () ->
     if @events
-      @standard_events = AS.ViewEvents.new(this, @events)
-      @standard_events.apply_bindings()
+      @standardEvents = AS.ViewEvents.new(this, @events)
+      @standardEvents.applyBindings()
 
-    state_events = _(@constructor::).chain().keys().filter (key) ->
+    stateEvents = _(@constructor::).chain().keys().filter (key) ->
       _(key).endsWith("_events")
-    @state_events = {}
-    for key in state_events.value()
+    @stateEvents = {}
+    for key in stateEvents.value()
       state = key.replace(/_events$/, '')
       do (key, state) =>
-        @state_events[state] = AS.ViewEvents.new(this, @[key])
+        @stateEvents[state] = AS.ViewEvents.new(this, @[key])
 
         @["exit_#{state}"] = ->
           @trigger("exitstate:#{state}")
-          @state_events[state].revoke_bindings()
+          @stateEvents[state].revokeBindings()
 
         @["enter_#{state}"] = ->
           @trigger("enterstate:#{state}")
-          @state_events[state].apply_bindings()
+          @stateEvents[state].applyBindings()
 
+  # TODO: put these into modules or something.
   def pluralize: (thing, count) ->
     if count in [-1, 1]
       fleck.singularize(thing)

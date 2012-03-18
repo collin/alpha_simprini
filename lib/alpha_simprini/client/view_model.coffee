@@ -55,15 +55,3 @@ AS.ViewModel = AS.Object.extend ({def, defs}) ->
 
   def editline: (path, options) ->
     new AS.Binding.EditLine(@view, @model, path, options)
-
-  def element: (tagname, fn) ->
-    element = @context[tagname] class: @model.constructor.name, fn
-    @view.$(element).data().model = @model
-    element
-
-  def component: (ctor) ->
-    if component = @model.component(ctor)
-      AS.ViewModel.build(@view, component)
-    else
-      null
-

@@ -30,4 +30,4 @@ AS.BindingGroup = AS.Object.extend ({def}) ->
     @children.push child
     return child
 
-  def remove_child: (bindingGroup) -> @children = _(@children).without(bindingGroup)
+  def removeChild: (bindingGroup) -> @children = _(@children).without(bindingGroup)

@@ -18,7 +18,7 @@ AS.Model.HasOne.Instance = AS.Model.Field.Instance.extend ({def}) ->
 
     @object.trigger("change")
     @object.trigger("change:#{@options.name}")
-    # @trigger("change")
+    @trigger("change")
 
 
   def bind: -> @value.bind.apply(@value, arguments)

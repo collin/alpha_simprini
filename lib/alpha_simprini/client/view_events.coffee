@@ -6,25 +6,25 @@ AS.ViewEvents = AS.Object.extend ({def}) ->
 
   def initialize: (@view, events) ->
     @namespace = _.uniqueId ".ve"
-    @events = @unify_options(events)
-    @validate_options()
-    @cache_handlers()
+    @events = @unifyOptions(events)
+    @validateOptions()
+    @cacheHandlers()
 
-  def unify_options: (events) ->
+  def unifyOptions: (events) ->
     for key, options of events
       if _.isString options
-        options = events[key] = method_name: options
+        options = events[key] = methodName: options
 
-      [__, event_name, selector] = key.match EVENT_SPLITTER
+      [__, eventName, selector] = key.match EVENT_SPLITTER
 
-      options.event_name = event_name + @namespace
+      options.eventName = eventName + @namespace
       options.selector = selector
-      options.method = @view[options.method_name]
+      options.method = @view[options.methodName]
 
 
     return events
 
-  def validate_options: ->
+  def validateOptions: ->
     for key, options of @events
       if options.method and options.transition
         throw new Error """
@@ -38,7 +38,7 @@ AS.ViewEvents = AS.Object.extend ({def}) ->
         Event Binding Error in #{@view.constructor.name}!
         Specified neither method or transition for event #{key}.
         Specify what to do when handling this error.
-        Do you need to define the method: `#{options.method_name}'?
+        Do you need to define the method: `#{options.methodName}'?
         """
 
       if options.method and !_.isFunction(options.method)
@@ -49,7 +49,7 @@ AS.ViewEvents = AS.Object.extend ({def}) ->
         Specify only a function as a method for an event handler.
         """
 
-  def cache_handlers: ->
+  def cacheHandlers: ->
     for key, options of @events
       do (key, options) =>
         options.handler = (_, event) =>
@@ -57,13 +57,13 @@ AS.ViewEvents = AS.Object.extend ({def}) ->
           if options.method
             options.method.apply(@view, arguments)
           else if options.transition
-            @view.transition_state options.transition
+            @view.transitionState options.transition
 
-  def revoke_bindings: ->
-    @revoke_binding(options) for key, options of @events
+  def revokeBindings: ->
+    @revokeBinding(options) for key, options of @events
 
-  def revoke_binding: (options) ->
-    [selector, event_name] = [options.selector, options.event_name]
+  def revokeBinding: (options) ->
+    [selector, eventName] = [options.selector, options.eventName]
     if selector is ''
       @view.el.unbind @namespace
     else if selector is '@'
@@ -75,22 +75,22 @@ AS.ViewEvents = AS.Object.extend ({def}) ->
       target.die @namespace
       target.click() # bug with drag/drop allows for one last drag after revoking bindings :(
 
-  def apply_bindings: ->
-    @apply_binding(options) for key, options of @events
+  def applyBindings: ->
+    @applyBinding(options) for key, options of @events
 
-  def apply_binding: (options) ->
-    [selector, event_name, handler] = [options.selector, options.event_name, options.handler]
+  def applyBinding: (options) ->
+    [selector, eventName, handler] = [options.selector, options.eventName, options.handler]
     if selector is ''
-      @view.el.bind event_name, handler
+      @view.el.bind eventName, handler
     else if selector is '@'
-      @view.bind event_name, handler, @view
+      @view.bind eventName, handler, @view
     else if selector[0] is '@'
       emitter = @view[selector.slice(1)]
       if emitter is undefined
         AS.error "Attempted to bind to #{selector}, no such member on #{this}"
       if emitter instanceof AS.ViewModel
-        emitter.model?.bind event_name, handler, @view
+        emitter.model?.bind eventName, handler, @view
       else
-        emitter.bind event_name, handler, @view
+        emitter.bind eventName, handler, @view
     else
-      @view.el.delegate selector, event_name, handler
+      @view.el.delegate selector, eventName, handler

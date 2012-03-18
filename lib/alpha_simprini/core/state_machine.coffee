@@ -9,12 +9,12 @@ _ = require "underscore"
 #   @event "stop_now"
 #   @event ""
 AS.StateMachine = AS.Module.extend ({def}) ->
-  def transition_state: (options) ->
+  def transitionState: (options) ->
     if @state is options.from
       @["exit_#{@state}"]?(options) if @state # default state comes from nowhere
       @state = options.to
       @["enter_#{options.to}"]?(options)
 
-  def default_state: (state) ->
-    @transition_state from:undefined, to:state
+  def defaultState: (state) ->
+    @transitionState from:undefined, to:state
 
