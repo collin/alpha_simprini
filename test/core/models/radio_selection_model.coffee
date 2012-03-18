@@ -2,7 +2,7 @@
 exports.setUp = coreSetUp
 
 exports["AS.Models.RadioSelectionModel belongs_to selected"] = (test) ->
-  test.ok AS.Models.RadioSelectionModel.belongs_tos.selected
-  model = new AS.Models.RadioSelectionModel
-  test.equal model.selected(), null
+  test.ok AS.Models.RadioSelectionModel.properties.selected
+  model = AS.Models.RadioSelectionModel.new()
+  test.equal model.selected.get(), null
   test.done()

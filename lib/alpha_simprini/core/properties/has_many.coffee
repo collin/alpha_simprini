@@ -1,7 +1,7 @@
 AS = require("alpha_simprini")
 
 AS.Model.HasMany = AS.Model.Field.extend()
-AS.Model.HasMany.Instance = AS.Model.HasMany.Instance.extend ({def, delegate}) ->
+AS.Model.HasMany.Instance = AS.Model.Field.Instance.extend ({def, delegate}) ->
   delegate AS.COLLECTION_DELEGATES, to: "backingCollection"
   
   def initialize: (@object, @options={}) ->

@@ -7,8 +7,8 @@ exports.InstanceMethods =
       def a: 1
       def b: 2
 
-      test.deepEqual AS.instanceMethods(HasMethods), ["a", "b"]
-      test.done()
+    test.deepEqual AS.instanceMethods(HasMethods), ["a", "b"]
+    test.done()
 
   traversesClasses: (test) ->
     A = AS.Object.extend ({def}) ->
@@ -17,5 +17,5 @@ exports.InstanceMethods =
     B = A.extend ({def}) ->
       def b: 2
 
-      test.deepEqual AS.instanceMethods(B), ["b", "a"]
-      test.done()
+    test.deepEqual AS.instanceMethods(B), ["b", "a"]
+    test.done()

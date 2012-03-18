@@ -1,10 +1,10 @@
-# AS = require "alpha_simprini"
-# class AS.Models.RadioSelectionModel extends AS.Model
-#   @belongs_to 'selected'
+AS = require "alpha_simprini"
+AS.Models.RadioSelectionModel = AS.Model.extend ({def}) ->
+  @hasOne 'selected'
   
-#   initialize: ->
-#     super
-#     @select undefined
+  def initialize: ->
+    @_super()
+    @select undefined
   
-#   select: (item) ->
-#     @selected(item)
+  def select: (item) ->
+    @selected.set(item)

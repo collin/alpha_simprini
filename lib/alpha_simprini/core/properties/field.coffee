@@ -28,7 +28,7 @@ AS.Model.Field = AS.Property.extend ({def}) ->
 
   def instance: (object) -> @constructor.Instance.new(object, @options)
 
-  @Instance = @Instance.extend ({def}) ->
+  @Instance = AS.Property.Instance.extend ({def}) ->
     def initialize: (@object, @options={}) ->
       @options.type ?= String
       @set(@options.default) if @options.default

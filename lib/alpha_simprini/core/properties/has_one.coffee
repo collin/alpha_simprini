@@ -1,7 +1,7 @@
 AS = require("alpha_simprini")
 
 AS.Model.HasOne = AS.Model.Field.extend()
-AS.Model.HasOne.Instance = AS.Model.HasOne.Instance.extend ({def}) ->
+AS.Model.HasOne.Instance = AS.Model.Field.Instance.extend ({def}) ->
   def initialize: (@object, @options) ->
     @options.model ?= -> AS.Model
 

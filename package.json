@@ -11,7 +11,7 @@
     "node": "~0.6"
   },
   "scripts": {
-    "test": "watchr autotest.watchr"
+    "test": "nodeunit $(find test |grep coffee | tr '\\n' ' ')"
   },
   "main": "lib/alpha_simprini.coffee",
   "dependencies": {
