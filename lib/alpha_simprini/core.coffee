@@ -7,7 +7,8 @@ Core.require """
   instance_methods
 
   model 
-  properties/field properties/has_many properties/has_one
+  properties/field properties/has_many properties/has_one properties/virtual_properties
+  properties/embeds_many properties/embeds_one
 
   collection model/share
 

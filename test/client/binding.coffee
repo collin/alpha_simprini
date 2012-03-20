@@ -22,16 +22,6 @@ exports.Binding =
 
     test.done()
 
-
-
-
-
-
-
- 
-
-  
-
   # Collection:
   #   "field_value is the model": (test) ->
   #     [mocks, binding] = mock_binding(AS.Binding.Collection, model: new AS.Collection)

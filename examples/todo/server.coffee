@@ -16,7 +16,7 @@ new ModuleLoader
   server: app
   module_root: pathname.resolve("./node_modules")
   ignorefile: pathname.resolve("./.stitchignore")
-  packages: "jquery underscore underscore.string jwerty socket.io-client share rangy-core alpha_simprini fleck todo".split(" ")
+  packages: "jquery underscore underscore.string jwerty socket.io-client share rangy-core pathology taxialpha_simprini fleck todo".split(" ")
 
 
 app.get "/list/:id", (req, res) ->

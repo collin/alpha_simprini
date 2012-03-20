@@ -2,6 +2,8 @@ AS = require("alpha_simprini")
 {uniqueId, toArray} = _ = require("underscore")
 Taxi = require("taxi")
 
+AS.All = byCid: {}, byId: {}
+
 AS.Model = AS.Object.extend ({def, include}) ->
   include Taxi.Mixin
 

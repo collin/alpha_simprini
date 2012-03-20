@@ -1,12 +1,9 @@
-# AS = require "alpha_simprini"
+AS = require "alpha_simprini"
 # AS.Core.require "model"
 # _ = require "underscore"
 # sharejs = require("share").client
 
-# class ShareMixin extends AS.Mixin
-#   extends: (klass, type) ->
-#     klass._type = type
-#     super(klass)
+AS.Model.Share = AS.Module.extend()
 
 # AS.Model.Share = new ShareMixin
 #   LifeCycle: class LifeCycle

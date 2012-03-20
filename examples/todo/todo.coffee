@@ -43,7 +43,7 @@ class Todo.Models.List extends AS.Model
   # When the 'items' collection changes, these functions are ran and the reluts
   # are compared to previous values. If the value is different a change event is
   # triggered.
-  @virtual_properties "items",
+  @virtualProperties "items",
     items_length: ->
       @items().length
 

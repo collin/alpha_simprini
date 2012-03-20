@@ -12,7 +12,7 @@ NS.Viewed = AS.Model.extend ({def}) ->
   # @has_one "relation"
   # @belongs_to "owner"
 
-  # @virtual_properties "field"
+  # @virtualProperties "field"
   #   one: ->
   #   two: ->
 

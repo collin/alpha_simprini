@@ -36,11 +36,11 @@ exports.Model =
   #   test.ok model.new()
   #   test.done()
 
-  # virtual_properties:
+  # virtualProperties:
   #   "reflection": (test) ->
   #     class Virtuals extends AS.Model
   #       @field "fieldname"
-  #       @virtual_properties "fieldname",
+  #       @virtualProperties "fieldname",
   #         one: ->
   #         two: ->
 
@@ -56,7 +56,7 @@ exports.Model =
   #     class Virtuals extends AS.Model
   #       @field "firstname"
   #       @field "lastname"
-  #       @virtual_properties "firstname", "lastname",
+  #       @virtualProperties "firstname", "lastname",
   #         fullname: -> "#{@firstname()} #{@lastname()}"
 
   #     model = new Virtuals firstname: "Collin", lastname: "Miller"
@@ -75,7 +75,7 @@ exports.Model =
   #     class Countable extends AS.Model
   #       @has_many "things", model: -> AS.Model
 
-  #       @virtual_properties "things",
+  #       @virtualProperties "things",
   #         things_count: -> @things().length
 
   #     model = new Countable
@@ -99,7 +99,7 @@ exports.Model =
   #     class Countable extends AS.Model
   #       @embeds_many "things", model: -> AS.Model
 
-  #       @virtual_properties "things",
+  #       @virtualProperties "things",
   #         things_count: -> @things().length
 
   #     model = new Countable
@@ -123,7 +123,7 @@ exports.Model =
   #     class Countable extends AS.Model
   #       @embeds_many "things", model: -> AS.Model
 
-  #       @virtual_properties "things",
+  #       @virtualProperties "things",
   #         things_count: -> "NEVER CHANGES"
 
   #     model = new Countable
