@@ -1,7 +1,7 @@
 {AS, _, sinon, coreSetUp} = require require("path").resolve("./test/helper")
 exports.setUp = coreSetUp
 
-exports["AS.Models.RadioSelectionModel belongs_to selected"] = (test) ->
+exports["AS.Models.RadioSelectionModel belongsTo selected"] = (test) ->
   test.ok AS.Models.RadioSelectionModel.properties.selected
   model = AS.Models.RadioSelectionModel.new()
   test.equal model.selected.get(), null

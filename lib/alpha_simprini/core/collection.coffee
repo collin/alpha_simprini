@@ -1,6 +1,7 @@
 AS = require("alpha_simprini")
 Taxi = require("taxi")
-{extend, chain, isString} = require("underscore")
+_ = require("underscore")
+{extend, isString} = _
 
 AS.Collection = AS.Object.extend ({def, include, delegate}) ->
   include Taxi.Mixin
@@ -11,7 +12,7 @@ AS.Collection = AS.Object.extend ({def, include, delegate}) ->
     @length = 0
     @byId = {}
     @byCid = {}
-    @models = chain([])
+    @models = _([]).chain()
     @add(model) for model in @models
 
   def model: -> AS.Model

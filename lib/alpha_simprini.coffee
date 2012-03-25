@@ -6,6 +6,10 @@ require "./alpha_simprini/core/logging"
 
 AS = module.exports = Pathology.Namespace.new("AlphaSimprini")
 
+AS.unimplemented = (method) ->
+  return ->
+    throw new Error ["you MUST implement the method '#{method}' on", this.toString()]
+
 AS.part = (name) -> 
   exports[name] = require: (libraries) -> AS.require name.toLowerCase(), libraries
 

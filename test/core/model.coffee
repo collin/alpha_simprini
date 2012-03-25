@@ -218,7 +218,7 @@ exports.Model =
   #     test.deepEqual RelationModel.embeds_ones, embed: relation: true
   #     test.deepEqual RelationModel.has_manys, relations: relation: true
   #     test.deepEqual RelationModel.has_ones, relation: relation: true
-  #     test.deepEqual RelationModel.belongs_tos, owner: relation: true
+  #     test.deepEqual RelationModel.belongsTos, owner: relation: true
 
   #     test.done()
 

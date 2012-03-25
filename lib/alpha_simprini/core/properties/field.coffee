@@ -1,4 +1,5 @@
 AS = require("alpha_simprini")
+_ = require("underscore")
 {isBoolean} = require "underscore"
 
 casters =
@@ -31,10 +32,19 @@ AS.Model.Field = AS.Property.extend ({def}) ->
   @Instance = AS.Property.Instance.extend ({def}) ->
     def initialize: (@object, @options={}) ->
       @options.type ?= String
-      @set(@options.default) if @options.default
+
+    def syncWith: (share) ->
+      synapse = @constructor.Synapse.new(this)
+      shareSynapse = @constructor.ShareSynapse.new(share, @options.name)
+
+      synapse.observe(shareSynapse, field: @options.name)
+      synapse.notify(shareSynapse)
 
     def get: ->
-      casters[@options.type.name].read(@value)
+      if @value isnt undefined
+        value = casters[@options.type.name].read(@value)
+      else
+        @options.default
 
     def set: (value) ->
       writeValue = casters[@options.type.name].write(value)
@@ -44,6 +54,46 @@ AS.Model.Field = AS.Property.extend ({def}) ->
       @object.trigger("change:#{@options.name}")
       @trigger("change")
       value
+
+    @Synapse = AS.Model.Synapse.extend ({delegate, include, def, defs}) ->
+      delegate 'get', 'set', to: 'raw'
+
+      def binds: (interface, event, callback) ->
+        @raw.bind "change", callback
+
+      def unbind: (interface, event, callback) ->
+        @raw.unbind "change", callback
+
+    @ShareSynapse = AS.Model.Synapse.extend ({delegate, include, def, defs}) ->
+
+      def initialize: (@raw, @path...) ->
+        @_super.apply(this, arguments)
+
+      def get: ->
+        @raw.at(@path).get()
+
+      def set: (value) ->
+        raw = @raw.at(@path)
+        if _.isString(current = raw.get())
+          length = current.length
+          raw.del(0, length)
+          raw.insert(0, value)
+        else
+          raw.set(value)          
+
+      def binds: (interface, event, callback) ->
+        @listeners = [
+          @raw.at().on("insert", callback)
+          @raw.at().on("replace", callback)
+          @raw.at(@path).on("insert", callback)
+          @raw.at(@path).on("delete", callback)
+        ]
+
+      def unbind: (interface, event, callback) ->
+        @raw.removeListener(listener) for listener in @listeners
+        @listeners = []
+
+
 
 
 AS.Model.defs field: (name, options) -> 

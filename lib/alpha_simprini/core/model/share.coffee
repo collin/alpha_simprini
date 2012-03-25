@@ -1,9 +1,167 @@
 AS = require "alpha_simprini"
-# AS.Core.require "model"
-# _ = require "underscore"
-# sharejs = require("share").client
+_ = require "underscore"
 
-AS.Model.Share = AS.Module.extend()
+AS.Model.Field.Instance.open ({def}) ->
+  def shareBinding: (path, event, callback) ->
+    @shareBindings ?= []
+    if path
+      @shareBindings.push @share.at(path).on event, callback
+    else
+      @shareBindings.push @share.at().on event, callback
+
+  def attributesForSharing: ->
+    @get() or ""
+
+  # def bindShareEvents: (@share) ->
+  #   name = @options.name
+  #   set_from_local = (model, xfield, value, options={}) =>
+  #     return if options.remote is true
+  #     model.whenIndexed =>
+  #       value = @get()
+  #       if _.isString(@share.at(name).get())
+  #         length = @share.at(name).get().length
+  #         @share.at(name).del(0, length)
+  #         @share.at(name).insert(0, value)
+  #       else
+  #         console.log "set", name, value
+  #         @share.at(name).set(value)
+
+  #   set_from_remote = (key, value, because) =>
+  #     return unless @constructor.properties?[key]
+  #     @set( @share.at(key).get() ) unless @share.at(key).get() is @get()
+
+  #   @shareBinding null, "insert", (key, value) -> 
+  #     set_from_remote(key, value, "null insert")
+  #   @shareBinding null, "replace", (key, previous, value) -> 
+  #     set_from_remote(key, value, "null replace")
+
+  #   @bind "change#{@shareNamespace}", set_from_local
+
+  #   @shareBinding name, "insert", (position, text) =>
+  #     @trigger("share:insert:#{name}", position, text)
+  #     set_from_remote name, @share.at(name).get(), "insert"
+
+  #   @shareBinding name, "delete", (position, text) =>
+  #     @trigger("share:delete:#{name}", position, text)
+  #     set_from_remote name, @share.at(name).get(), "delete"
+
+
+AS.Model.HasMany.Instance.open ({def}) ->
+  def attributesForSharing: ->
+    (@backingCollection.map (model) -> model.id).value()
+
+
+AS.Model.Share = AS.Module.extend ({delegate, include, def, defs}) ->
+  defs index: (name, config) ->
+    @writeInheritableValue 'indeces', name, config
+
+  defs shared: (id=AS.uniq(), indexer=(model) -> model.didIndex()) ->
+    model = AS.All.byId[id] or @new(id:id)
+    AS.openSharedObject id, (share) ->
+      model.didOpen(share)
+      indexer(model)
+    model
+  
+  def initialize: ->
+    @_super.apply(this, arguments)
+
+  def new: ->
+    @share is undefined
+    
+  def whenIndexed: (fn) ->
+    if @hasIndexed
+      fn.call(this)
+    else
+      (@whenIndexedCallbacks ?= []).push fn
+
+  def didIndex: ->
+    return if @hasIndexed
+    @hasIndexed = true
+    for fn in @whenIndexedCallbacks ? []
+      fn.call(this)
+
+  def didOpen: (@share) ->
+    @ensureDefaults()
+    @bindShareEvents()
+    @setAttributesFromShare()
+    # @loadEmbeds()
+    # @loadIndeces()
+
+
+  def bindShareEvents: ->
+    # @neuron = for name, property of @constructor.properties
+    #   if synapse = AS.Model.Synapse.create(@[name])
+    #     shareSynapse = synapse.constructor.ShareSynapse.new(@share.at(name))
+    #     synapse.observe(shareSynapse)
+    #     synapse.notify(shareSynapse)
+    #     synapse
+
+  def setAttributesFromShare: ->
+    for name, property of @constructor.properties || {}
+      switch property.constructor
+        when AS.Model.Field
+          if value = @share.at(name).get()
+            @[name].set value 
+        else
+          true
+
+#       for name, config of @constructor.fields || {}
+#         @attributes[name] = @share.at(name).get()
+
+#       for name, config of @constructor.has_manys || {}
+#         collection = @[name]()
+#         for data in @share.at(name).get() || []
+#           # clone here, or we have shared references which confuses sharejs
+#           data = AS.deepClone(data)
+#           # We might have created this model ourselves.
+#           continue if collection.include(AS.All.byId[data]).value()
+#           collection.add(data, remote:true)
+
+#       for name, config of @constructor.belongsTos || {}
+#         @attributes[name] = @share.at(name).get()
+
+#       for name, config of @constructor.has_ones || {}
+#         AS.warn "Model#attributes_for_sharing does not implement has_ones"
+    
+
+  def attributesForSharing: ->
+    all = {id: @id, _type: @constructor.path()}
+    for name, property of @constructor.properties
+      all[name] = @[name].attributesForSharing?()
+    all
+
+  def ensureDefaults: ->
+    @share.at().set @attributesForSharing() unless @share.get()
+
+
+#       for name, config of @constructor.fields || {}
+#         if @attributes[name] is undefined
+#           all[name] = ""
+#         else
+#           all[name] = @attributes[name]
+
+#       for name, config of @constructor.has_manys || {}
+#         all[name] = @attributes[name].map((model) -> model.id).value()
+
+#       for name, config of @constructor.embeds_manys || {}
+#         value = @attributes[name].map((model) -> model.attributes_for_sharing()).value()
+#         continue unless value
+#         all[name] = value
+
+#       for name, config of @constructor.belongsTos || {}
+#         continue if @attributes[name] is undefined
+#         all[name] = @attributes[name]
+
+#       for name, config of @constructor.has_ones || {}
+#         AS.warn "Model#attributes_for_sharing does not implement has_ones"
+
+#       for name, config of @constructor.embeds_ones || {}
+#         continue unless value = @[name]().attributes_for_sharing()
+#         all[name] = value
+
+#       return all
+
+    
 
 # AS.Model.Share = new ShareMixin
 #   LifeCycle: class LifeCycle
@@ -16,7 +174,7 @@ AS.Model.Share = AS.Module.extend()
 #       model.needs_indexing = true
 #       model.loaded_data = {}
 #       model.embedded_data = {}
-#       model.share_bindings = []
+#       model.shareBindings = []
 
 #     @after_initialize (model) ->
 #       model.share_namespace = ".#{model.attributes.id}-share"
@@ -115,7 +273,7 @@ AS.Model.Share = AS.Module.extend()
 #         continue unless value
 #         all[name] = value
 
-#       for name, config of @constructor.belongs_tos || {}
+#       for name, config of @constructor.belongsTos || {}
 #         continue if @attributes[name] is undefined
 #         all[name] = @attributes[name]
 
@@ -141,7 +299,7 @@ AS.Model.Share = AS.Module.extend()
 #           continue if collection.include(AS.All.byId[data]).value()
 #           collection.add(data, remote:true)
 
-#       for name, config of @constructor.belongs_tos || {}
+#       for name, config of @constructor.belongsTos || {}
 #         @attributes[name] = @share.at(name).get()
 
 #       for name, config of @constructor.has_ones || {}
@@ -204,17 +362,17 @@ AS.Model.Share = AS.Module.extend()
 #       for id, share of @loaded_data || {}
 #         AS.All.byId[id].did_load(share)
 
-#     share_binding: (path, event, callback) ->
+#     shareBinding: (path, event, callback) ->
 #       if path
-#         @share_bindings.push @share.at(path).on event, callback
+#         @shareBindings.push @share.at(path).on event, callback
 #       else
-#         @share_bindings.push @share.at().on event, callback
+#         @shareBindings.push @share.at().on event, callback
 
 #     embedded_binding: (@share) -> @bind_share_events()
 
-#     revoke_share_bindings: ->
-#       @share.removeListener(it) for it in @share_bindings
-#       @share_bindings = []
+#     revoke_shareBindings: ->
+#       @share.removeListener(it) for it in @shareBindings
+#       @shareBindings = []
 #       @unbind_share_events()
 
 #     unbind_share_events: ->
@@ -225,14 +383,14 @@ AS.Model.Share = AS.Module.extend()
 #       for name, config of @constructor.embeds_manys
 #         @[name]().each (model) =>
 #           model.unbind(@share_namespace)
-#           model.revoke_share_bindings()
+#           model.revoke_shareBindings()
 
 #       AS.warn "unbind_share_events does not unbind has_one/embeds_one"
 
 #     bind_share_events: ->
 #       @bind_field_sharing()
 #       @bind_has_many_sharing()
-#       @bind_belongs_to_sharing()
+#       @bind_belongsTo_sharing()
 #       @bind_has_one_sharing()
 #       @bind_embeds_many_sharing()
 #       @bind_embeds_one_sharing()
@@ -253,18 +411,18 @@ AS.Model.Share = AS.Module.extend()
 #         return unless @constructor.fields?[key]
 #         @[key]( @share.at(key).get(), remote: true) unless @share.at(key).get() is @[key]()
 
-#       @share_binding null, "insert", (key, value) -> set_from_remote(key, value, "null insert")
-#       @share_binding null, "replace", (key, previous, value) -> set_from_remote(key, value, "null replace")
+#       @shareBinding null, "insert", (key, value) -> set_from_remote(key, value, "null insert")
+#       @shareBinding null, "replace", (key, previous, value) -> set_from_remote(key, value, "null replace")
 
 #       for name, config of @constructor.fields || {}
 #         do (name) =>
 #           @bind "change:#{name}#{@share_namespace}", set_from_local
 
-#           @share_binding name, "insert", (position, text) =>
+#           @shareBinding name, "insert", (position, text) =>
 #             @trigger("share:insert:#{name}", position, text)
 #             set_from_remote name, @share.at(name).get(), "insert"
 
-#           @share_binding name, "delete", (position, text) =>
+#           @shareBinding name, "delete", (position, text) =>
 #             @trigger("share:delete:#{name}", position, text)
 #             set_from_remote name, @share.at(name).get(), "delete"
 
@@ -286,10 +444,10 @@ AS.Model.Share = AS.Module.extend()
 
 #           collection.bind "remove#{@share_namespace}", remove_handler, this
 
-#           @share_binding name, "insert", (position, data) =>
+#           @shareBinding name, "insert", (position, data) =>
 #             collection.add data, at: position, remote: true
 
-#           @share_binding name, "delete", (position, data) =>
+#           @shareBinding name, "delete", (position, data) =>
 #             collection.remove AS.All.byId[data.id], remote: true
 
 #     bind_embeds_many_sharing: ->
@@ -310,32 +468,32 @@ AS.Model.Share = AS.Module.extend()
 #           collection.bind "add#{@share_namespace}", add_handler, this
 
 #           remove_handler = (model, collection, options={}) =>
-#             model.revoke_share_bindings()
+#             model.revoke_shareBindings()
 #             return if options.remote is true
 #             @share.at(name).at(options.at).remove()
 
 #           collection.bind "remove#{@share_namespace}", remove_handler, this
 
-#           @share_binding name, "insert", (position, data) =>
+#           @shareBinding name, "insert", (position, data) =>
 #             collection.add data, at: position, remote: true
 
-#           @share_binding name, "delete", (position, data) =>
+#           @shareBinding name, "delete", (position, data) =>
 #             collection.remove AS.All.byId[data.id], remote: true
 
-#     bind_belongs_to_sharing: ->
+#     bind_belongsTo_sharing: ->
 #       set_from_local = (model, field, value, options={}) =>
 #         value = null if value is undefined
 #         model.when_indexed =>
 #           @share.at(field).set(value) unless options.remote
 
-#       for name, config of @constructor.belongs_tos || {}
+#       for name, config of @constructor.belongsTos || {}
 #         @bind "change:#{name}#{@share_namespace}", set_from_local, this
 
 #       set_from_remote = (key, value) =>
-#         @[key](value, remote: true) if @constructor.belongs_tos?[key]
+#         @[key](value, remote: true) if @constructor.belongsTos?[key]
 
-#       @share_binding null, "insert", (key, value) -> set_from_remote(key, value)
-#       @share_binding null, "replace", (key, previous, value) -> set_from_remote(key, value)
+#       @shareBinding null, "insert", (key, value) -> set_from_remote(key, value)
+#       @shareBinding null, "replace", (key, previous, value) -> set_from_remote(key, value)
 
 #     bind_has_one_sharing: ->
 #       AS.warn "Model#bind_has_one_sharing not implemented"
@@ -358,11 +516,11 @@ AS.Model.Share = AS.Module.extend()
 #             @[key](value, remote: true) if @constructor.embeds_ones?[key]
 
 #           @bind "change:#{name}#{@share_namespace}", change_handler, this
-#           @share_binding null, "replace", (key, previous, value) -> set_from_remote(key, value)
+#           @shareBinding null, "replace", (key, previous, value) -> set_from_remote(key, value)
 
 #     bind_indeces: ->
 #       for index, config of @constructor.indeces || {}
-#         @share_binding "index:#{index}", "insert", (id, konstructor) =>
+#         @shareBinding "index:#{index}", "insert", (id, konstructor) =>
 #           loaded = AS.module(konstructor).load id, (share) ->
 #             @did_load(share)
 #             @indeces_did_load()

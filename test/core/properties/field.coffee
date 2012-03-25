@@ -1,8 +1,8 @@
 helper = require require("path").resolve("./test/helper")
-{AS, _, sinon, coreSetUp, RelationModel, FieldModel} = helper
+{NS, AS, _, sinon, makeDoc, coreSetUp, RelationModel, FieldModel} = helper
 exports.setUp = coreSetUp
 
-Model = AS.Model.extend()
+Model = NS.Model = AS.Model.extend()
 Model.field "name"
 Model.field "band", default: "the Tijuana Brass"
 Model.field "number", type: Number
@@ -51,3 +51,33 @@ exports.Field =
     o.boolean.set(true)
     o.number.set 43
     test.done()
+
+  "Sharing":
+    setUp: (callback) ->
+      @o = Model.new()
+      @share = makeDoc()
+      @share.at().set {}
+      @o.name.syncWith(@share)
+      callback()
+
+    "field updates when share is set": (test) ->
+      @share.emit "remoteop", @share.at('name').set("SET VALUE")
+      test.equal "SET VALUE", @o.name.get()
+      test.done()
+
+    "share updates when field is set": (test) ->
+      @o.name.set("NOTIFIED")
+      test.equal "NOTIFIED", @share.at('name').get()
+      test.done()
+
+    "field updates on share insert": (test) ->
+      @o.name.set("abc")
+      @share.emit "remoteop", @share.at('name').insert(0, "123")
+      test.equal "123abc", @o.name.get()
+      test.done()
+
+    "field updates on share delete": (test) ->
+      @o.name.set("Co123llin")
+      @share.emit "remoteop", @share.at('name').del(2, 3)
+      test.equal "Collin", @o.name.get()
+      test.done()

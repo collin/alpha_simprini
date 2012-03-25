@@ -6,9 +6,9 @@ Core.require """
   callbacks state_machine
   instance_methods
 
-  model 
+  model model/synapse model/dendrite
   properties/field properties/has_many properties/has_one properties/virtual_properties
-  properties/embeds_many properties/embeds_one
+  properties/embeds_many properties/embeds_one properties/belongs_to
 
   collection model/share
 

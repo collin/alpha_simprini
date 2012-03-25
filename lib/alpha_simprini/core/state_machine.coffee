@@ -3,8 +3,8 @@ _ = require "underscore"
 
 # Example:
 #
-# class StopLight
-#   AS.StateMachine.extends(this)
+# StopLight = AS.Model.extend ({delegate, include, def, defs}) ->
+#   include AS.StateMachine.extends(this)
 #   @event "stop_soon"
 #   @event "stop_now"
 #   @event ""

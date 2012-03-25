@@ -10,7 +10,7 @@ NS.Viewed = AS.Model.extend ({def}) ->
   # @embeds_one "embed"
   # @has_many "relations"
   # @has_one "relation"
-  # @belongs_to "owner"
+  # @belongsTo "owner"
 
   # @virtualProperties "field"
   #   one: ->

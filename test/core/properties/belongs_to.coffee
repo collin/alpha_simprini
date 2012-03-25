@@ -3,18 +3,18 @@ helper = require require("path").resolve("./test/helper")
 exports.setUp = coreSetUp
 
 NS.Parent = AS.Model.extend()
-NS.Parent.embedsOne "embed"
+NS.Parent.belongsTo "owner"
 
 # NS.Child = NS.Parent.extend()
 # NS.Child.hasMany "children", model: -> NS.Child
 
-exports.EmbedsOne =
+exports.BelongsTo =
   "property is a HasOne": (test) ->
     o = NS.Parent.new()
-    test.ok o.embed instanceof AS.Model.HasOne.Instance
+    test.ok o.owner instanceof AS.Model.HasOne.Instance
     test.done()
 
   "property is an EmbedsOne": (test) ->
     o = NS.Parent.new()
-    test.ok o.embed instanceof AS.Model.EmbedsOne.Instance
+    test.ok o.owner instanceof AS.Model.BelongsTo.Instance
     test.done()
