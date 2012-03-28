@@ -1,7 +1,7 @@
 AS = require "alpha_simprini"
 _ = require "underscore"
 
-AS.Model.Synapse = AS.Object.extend ({delegate, include, def, defs}) ->
+AS.Model.AbstractSynapse = AS.Object.extend ({delegate, include, def, defs}) ->
   defs create: (raw) ->
     if raw.constructor.Synapse
       raw.constructor.Synapse.new(raw)
@@ -14,10 +14,10 @@ AS.Model.Synapse = AS.Object.extend ({delegate, include, def, defs}) ->
     @notifications = []
 
   def observe: (other, config) ->
-    @observations.push AS.Model.Dendrite.new(this, other, config)
+    @observations.push @dendriteClass.new(this, other, config)
 
   def notify: (other, config) ->
-    @notifications.push AS.Model.Dendrite.new(other, this, config)
+    @notifications.push @dendriteClass.new(other, this, config)
 
   def stopObserving: (other) ->
     _(@observations).invoke('off')
@@ -25,7 +25,25 @@ AS.Model.Synapse = AS.Object.extend ({delegate, include, def, defs}) ->
   def stopNotifying: (other) ->
     _(@notifications).invoke('off')
 
-  def binds: AS.unimplemented("binds: (interface, event, callback) ->")
-  def unbinds: AS.unimplemented("unbinds: (interface, event, callback) ->")
+AS.Model.Synapse = AS.Model.AbstractSynapse.extend ({delegate, include, def, defs}) ->
+  # def dendriteClass: AS.Model.Dendrite
+  @::dendriteClass = AS.Model.Dendrite
+
+  def binds: AS.unimplemented("binds: (callback) ->")
+  def unbinds: AS.unimplemented("unbinds: (callback) ->")
+
   def get: AS.unimplemented("get: ->")
   def set: AS.unimplemented("set: (value) ->")
+
+AS.Model.CollectionSynapse = AS.Model.AbstractSynapse.extend ({delegate, include, def, defs}) ->
+  # def dendriteClass: AS.Model.CollectionDendrite
+  # FIXME: don't super chain constructors!
+  @::dendriteClass = AS.Model.CollectionDendrite
+
+  def binds: AS.unimplemented("binds: (insertCallback, removeCallback) ->")
+  def unbinds: AS.unimplemented("unbinds: (insertCallback, removeCallback) ->")
+  
+  def insert: AS.unimplemented("insert: (item, options) ->")
+  def remove: AS.unimplemented("remove: (item) ->")
+    
+        

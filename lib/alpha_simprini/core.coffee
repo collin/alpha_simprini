@@ -6,7 +6,7 @@ Core.require """
   callbacks state_machine
   instance_methods
 
-  model model/synapse model/dendrite
+  model model/dendrite model/synapse 
   properties/field properties/has_many properties/has_one properties/virtual_properties
   properties/embeds_many properties/embeds_one properties/belongs_to
 
@@ -45,7 +45,6 @@ AS.deepClone = (it) ->
 # large random numbers are base32 encoded and combined with the current time base32 encoded
 AS.uniq = ->
   (Math.floor Math.random() * 100000000000000000).toString(32) + "-" + (Math.floor Math.random() * 100000000000000000).toString(32) + "-" + (new Date).getTime().toString(32)
-
 
 AS.openSharedObject = (id, callback) ->
   @share.open id, "json", @ShareJsURL, (error, handle) ->

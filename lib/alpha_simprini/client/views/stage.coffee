@@ -1,8 +1,7 @@
 AS = require "alpha_simprini"
-class AS.Views.Stage extends AS.Views.Panel
-  canvas_class: AS.Views.Canvas
-  initialize: (config) ->
+AS.Views.Stage = AS.Views.Panel.extend ({delegate, include, def, defs}) ->
+  def canvas_class: AS.Views.Canvas
+  def initialize: (config) ->
     super
-    @canvas ?= new AS.Views.Canvas
-    console.log @canvas.el[0].outerHTML
+    @canvas ?= AS.Views.Canvas.new()
     @el.append @canvas.el

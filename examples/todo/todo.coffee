@@ -179,7 +179,7 @@ class Todo.Application extends AS.Application
   #     Todo.app = new Todo.Application()
   #
   initialize: ->
-    @list = Todo.Models.List.open(@params.list_id)
+    @list = Todo.Models.List.shared(@params.list_id)
     @list.bind "ready", @listready, this
 
   # When the list is ready we create the view and pass in the list.

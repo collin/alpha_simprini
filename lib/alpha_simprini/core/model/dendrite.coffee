@@ -7,11 +7,30 @@ AS.Model.Dendrite = AS.Object.extend ({delegate, include, def, defs}) ->
     @on()
 
   def callback: ->
-    @observer.set(@notifier.get())
+    @observer.set(@notifier.get(), arguments)
 
   def on: ->
-    @notifier.binds @config.subjectInterface, @config.event, @callback
+    @notifier.binds @callback
     @callback() if @config.triggerOnBind is true
 
   def off: ->
-    @notifier.unbinds @config.subjectInterface, @config.event, @callback
+    @notifier.unbinds @callback
+
+AS.Model.CollectionDendrite = AS.Model.Dendrite.extend ({delegate, include, def, defs}) ->
+  def initialize: (@observer, @notifier, @config={}) ->
+    @insertCallback = _.bind(@insertCallback, this)
+    @removeCallback = _.bind(@removeCallback, this)
+    @on()
+
+  def insertCallback: (item, options) ->
+    @observer.insert(item, options)
+    
+  def removeCallback: (item, options) ->
+    @observer.remove(item, options)
+
+  def on: ->
+    @notifier.binds @insertCallback, @removeCallback
+
+  def off: ->
+    @notifier.unbinds @insertCallback, @removeCallback
+    
