@@ -88,13 +88,17 @@ AS.Model.Share = AS.Module.extend ({delegate, include, def, defs}) ->
     # @loadIndeces()
 
 
+  def didEmbed: (@share) ->
+    @ensureDefaults()
+    @bindShareEvents()
+    
   def bindShareEvents: ->
-    # @neuron = for name, property of @constructor.properties
-    #   if synapse = AS.Model.Synapse.create(@[name])
-    #     shareSynapse = synapse.constructor.ShareSynapse.new(@share.at(name))
-    #     synapse.observe(shareSynapse)
-    #     synapse.notify(shareSynapse)
-    #     synapse
+    for name, config of @constructor.properties
+      @[name].syncWith(@share)
+
+  def stopSync: ->
+    for name of @constructor.properties
+      @[name].stopSync()
 
   def setAttributesFromShare: ->
     for name, property of @constructor.properties || {}

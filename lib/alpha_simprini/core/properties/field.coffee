@@ -34,12 +34,18 @@ AS.Model.Field = AS.Property.extend ({def}) ->
       @options.type ?= String
 
     def syncWith: (share) ->
-      synapse = @constructor.Synapse.new(this)
-      shareSynapse = @constructor.ShareSynapse.new(share, @options.name)
+      @stopSync()
 
-      synapse.observe(shareSynapse, field: @options.name)
-      synapse.notify(shareSynapse)
+      @synapse = @constructor.Synapse.new(this)
+      @shareSynapse = @constructor.ShareSynapse.new(share, @options.name)
 
+      @synapse.observe(@shareSynapse, field: @options.name)
+      @synapse.notify(@shareSynapse)
+
+    def stopSync: ->
+      @synapse?.stopObserving()
+      @synapse?.stopNotifying()
+      
     def get: ->
       if @value isnt undefined
         value = casters[@options.type.name].read(@value)

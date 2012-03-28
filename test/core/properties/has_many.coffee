@@ -63,7 +63,7 @@ exports.HasMany =
     "when an item is added to the share it is added to the field": (test) ->
       child = NS.Child.new()
       @share.emit 'remoteop', @share.at('children').insert(0, id: child.id, _type:"NS.Child")
-      test.equal child.id, @o.children.first().value()
+      test.equal child.id, @o.children.first().value().id
       test.equal NS.Child, @o.children.first().value().constructor
       test.done()
     

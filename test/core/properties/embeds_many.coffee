@@ -1,12 +1,13 @@
 helper = require require("path").resolve("./test/helper")
-{AS, _, sinon, coreSetUp, RelationModel, FieldModel, NS} = helper
+{AS, _, sinon, makeDoc, coreSetUp, RelationModel, FieldModel, NS} = helper
 exports.setUp = coreSetUp
 
 NS.Parent = AS.Model.extend()
-NS.Parent.embedsMany "embeds"
+NS.Parent.embedsMany "embeds", model: -> NS.Child
+NS.Parent.include AS.Model.Share
 
-# NS.Child = NS.Parent.extend()
-# NS.Child.hasMany "children", model: -> NS.Child
+NS.Child = AS.Model.extend()
+NS.Child.include AS.Model.Share
 
 exports.EmbedsMany =
   "property is a HasMany": (test) ->
@@ -18,3 +19,33 @@ exports.EmbedsMany =
     o = NS.Parent.new()
     test.ok o.embeds instanceof AS.Model.EmbedsMany.Instance
     test.done()
+
+  Sharing:
+    setUp: (callback) ->
+      @o = NS.Parent.new()
+      @share = makeDoc()
+      @share.at().set {}
+      @o.embeds.syncWith(@share)
+      callback()
+
+    "stashes @share with path": (test) ->
+      test.deepEqual ['embeds'], @o.embeds.share.path
+      test.done()
+
+    "default share value is []": (test) ->
+      test.deepEqual [], @share.at('embeds').get()
+      test.done()
+
+    "calls didEmbed on models as they are inserted": (test) ->
+      child = NS.Child.new()
+      child.didEmbed = (share) -> 
+        test.deepEqual ['embeds', 0], share.path
+        test.done()
+      @o.embeds.add(child)
+
+    "calls stopSync on models as they are removed": (test) ->
+      child = NS.Child.new()
+      child.stopSync = -> test.done()
+      @o.embeds.add(child)
+      @o.embeds.remove(child)
+
