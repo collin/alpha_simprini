@@ -24,7 +24,7 @@ exports.Binding =
 
   # Collection:
   #   "field_value is the model": (test) ->
-  #     [mocks, binding] = mock_binding(AS.Binding.Collection, model: new AS.Collection)
+  #     [mocks, binding] = mock_binding(AS.Binding.Many, model: new AS.Collection)
   #     test.equal binding.pathValue(), binding.model
   #     test.done()
 

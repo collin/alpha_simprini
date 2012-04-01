@@ -95,7 +95,7 @@ exports.ViewEvents =
 
   #     def initialize: ->
   #       @_super()
-  #       @default_state("left")
+  #       @defaultState("left")
 
   #   view = StatelyView.new()
   #   view.trigger 'crank'

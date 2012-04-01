@@ -20,13 +20,14 @@ AS.ViewModel = AS.Object.extend ({def, defs}) ->
     klass.extended_by = model.extended_by
 
     for name, property of model.properties
+      console.log property.constructor.toString() if name is "selected"
       klass.bindables[name] = switch property.constructor
-        when AS.Model.Field
+        when AS.Model.Field, AS.Model.BelongsTo, AS.Model.EmbedsOne, AS.Model.HasOne
           AS.Binding.Field
-        when AS.Model.HasMany
+        when AS.Model.HasMany, AS.Model.EmbedsMany
           AS.Binding.Many
-        when AS.Model.HasOne
-          AS.Binding.HasOne
+        # when AS.Model.HasOne
+        #   AS.Binding.HasOne
 
     for method in AS.instanceMethods(model)
       continue if _.include _.keys(Pathology.Object::), method
@@ -37,6 +38,8 @@ AS.ViewModel = AS.Object.extend ({def, defs}) ->
 
   def initialize: (@view, @model) ->
     @cid = @model.cid
+    for key, config of @model.constructor.properties
+      @[key] = @model[key]
 
   def binding: (field, options, fn) ->
     if _.isFunction(options)

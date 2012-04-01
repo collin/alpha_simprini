@@ -4,7 +4,6 @@ AS.Models.MultipleSelectionModel = AS.Model.extend ({def}) ->
 
   def initialize: ->
     @_super()
-    @items = @selected()
 
     @items.bind "add", (item) => @trigger("add", item)
     @items.bind "remove", (item) => @trigger("remove", item)

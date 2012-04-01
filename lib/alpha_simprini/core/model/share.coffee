@@ -5,6 +5,7 @@ AS.Model.Share = AS.Module.extend ({delegate, include, def, defs}) ->
   defs index: (name, config) ->
     @writeInheritableValue 'indeces', name, config
 
+
   defs shared: (id=AS.uniq(), indexer=(model) -> model.didIndex()) ->
     model = AS.All.byId[id] or @new(id:id)
     AS.openSharedObject id, (share) ->
@@ -77,6 +78,12 @@ AS.Model.Share = AS.Module.extend ({delegate, include, def, defs}) ->
 
   def index: (name) ->
     @share.at("index:#{name}")
+
+  def indexer: (name) ->
+    return (model) =>
+      @index(name).at(model.id).set model.constructor.path(), (error) ->
+        # AS.warn "FIXME: handle error in Model#indexer"
+        model.didIndex()
 
   def loadIndeces: ->
     indeces = @indeces()

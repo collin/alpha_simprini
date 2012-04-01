@@ -1,8 +1,11 @@
 AS = require("alpha_simprini")
+Taxi = require("taxi")
 _ = require("underscore")
 fleck = require("fleck")
 
-AS.View = AS.DOM.extend ({def}) ->
+AS.View = AS.DOM.extend ({delegate, include, def, defs}) ->
+  include Taxi.Mixin
+
   def tagName: "div"
 
   def _ensureElement: -> @el ?= @$(@buildElement())
@@ -44,7 +47,14 @@ AS.View = AS.DOM.extend ({def}) ->
 
   def binds: -> @bindingGroup.binds.apply(@bindingGroup, arguments)
 
-  def klassString: -> @constructor.path().replace /\./g, " "
+  def klassString: -> 
+    classes = []
+    for ancestor in @constructor.ancestors
+      continue unless ancestor.path().match(/Views?/)
+      classes.push ancestor._name()
+
+    classes.join(" ")
+
 
   def baseAttributes: ->
     attrs =

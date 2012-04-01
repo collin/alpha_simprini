@@ -40,7 +40,7 @@ class AS.Binding.MissingOption extends Error
 # class AS.Binding.HasOne extends AS.Binding.Field
 #   @willGroupBindings = true
 
-# class AS.Binding.Collection extends AS.Binding.HasMany
+# class AS.Binding.Many extends AS.Binding.HasMany
 #   fieldValue: -> @model
 
 # # use case: RadioSelectionModel
