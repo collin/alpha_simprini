@@ -1,32 +1,136 @@
 {AS, NS, _, sinon, coreSetUp, makeDoc} = require require("path").resolve("./test/helper")
 exports.setUp = coreSetUp
 
-# Shared = NS.Shared = AS.Model.extend ({delegate, include, def, defs}) ->
-#   include AS.Model.Share
-#   @field "field"
-#   @embedsMany "embeds", model: -> SimpleShare
-#   @embedsOne "embedded", model: -> SimpleShare
-#   @hasMany "relations", model: -> SimpleShare
-#   @hasOne "relation"
-#   @belongsTo "owner"
+Shared = NS.Shared = AS.Model.extend ({delegate, include, def, defs}) ->
+  include AS.Model.Share
+  @field "field"
+  @embedsMany "embeds", model: -> SimpleShare
+  @embedsOne "embedded", model: -> SimpleShare
+  @hasMany "relations", model: -> SimpleShare
+  # @hasOne "relation"
+  @belongsTo "owner"
 
-# SimpleShare = NS.SimpleShare = AS.Model.extend ({delegate, include, def, defs}) ->
-#   include AS.Model.Share
-#   @field "field"
-#   @embedsMany "embeds", model: -> SimplerShare
-#   @embedsOne "embedded", model: -> SimplerShare
-#   @hasMany "relations", model: -> SimplerShare
-#   @hasOne "relation"
-#   @belongsTo "owner"
+SimpleShare = NS.SimpleShare = AS.Model.extend ({delegate, include, def, defs}) ->
+  include AS.Model.Share
+  @field "field"
+  @embedsMany "embeds", model: -> SimplerShare
+  @embedsOne "embedded", model: -> SimplerShare
+  @hasMany "relations", model: -> SimplerShare
+  # @hasOne "relation"
+  @belongsTo "owner"
 
-# SimplerShare = NS.SimplerShare = AS.Model.extend ({delegate, include, def, defs}) ->
-#   include AS.Model.Share
-#   @field "field"
+SimplerShare = NS.SimplerShare = AS.Model.extend ({delegate, include, def, defs}) ->
+  include AS.Model.Share
+  @field "field"
 
-# IndexShare = NS.IndexShare = AS.Model.extend ({delegate, include, def, defs}) ->
-#   include AS.Model.Share
-#   @index "docs"
-#   @belongsTo "owner"
+IndexShare = NS.IndexShare = AS.Model.extend ({delegate, include, def, defs}) ->
+  include AS.Model.Share
+  @index "docs"
+  @belongsTo "owner"
+
+ORIGINAL_OPEN = AS.openSharedObject
+
+exports["Model.Share"] =
+  setUp: (callback) ->
+    AS.openSharedObject = (id, didOpen) -> didOpen makeDoc(id)
+    (@model = Shared.shared()).whenIndexed callback
+
+  tearDown: (callback) ->
+    AS.openSharedObject = ORIGINAL_OPEN
+    callback()
+
+  "default value is {}": (test) ->
+    test.ok @model.share.get() isnt null
+    test.done()
+
+  "embedded objects are synced": (test) ->
+     @model.embedded.set(SimpleShare.new())
+     @model.embedded.get().field.set("Hello")
+     test.equal "Hello", @model.share.at("embedded", "field").get()
+     test.done()
+
+  "embedded lists are synced": (test) ->
+    listenerCount = @model.share._listeners.length
+    embed = @model.embeds.add()
+    embed.field.set(":D")
+    embed.embedded.set(SimpleShare.new())
+    test.equal listenerCount * 3, @model.share._listeners.length
+    @model.embeds.remove(embed)
+    test.equal listenerCount, @model.share._listeners.length
+    embed.field.set("D:")
+    test.deepEqual [], @model.share.at("embeds").get()
+    test.done()
+
+  "indexes": 
+    setUp: (callback) ->
+      (@model = IndexShare.shared()).whenIndexed callback
+
+    "index is share at correct path": (test) ->
+      test.deepEqual ["index:docs"], @model.index("docs").path
+      test.done()
+
+    "index is a {} by default": (test) ->
+      test.deepEqual {}, @model.index("docs").get()
+      test.done()
+
+    "loads models when indexes update": (test) ->
+      (@model = IndexShare.shared()).whenIndexed =>
+        (other = SimpleShare.shared()).whenIndexed  =>
+          AS.openShareObject = (id, didOpen) -> didOpen other.share
+          @model.bind "indexload", (loaded) =>
+            loaded.whenIndexed ->
+              test.done()
+          @model.share.emit(
+            "remoteop", 
+            @model.share.at("index:docs", other.id).set(SimpleShare.path())
+          )
+    "loads models in indexes when opened": (test) ->
+      indexed = SimpleShare.new()
+      index = {}
+      index[indexed.id] = SimpleShare.path()
+      delete AS.All.byId[indexed.id]
+      delete AS.All.byCid[indexed.cid]
+      snap = {}
+      snap["index:docs"] = index
+      snap["owner"] = indexed.id
+      doc = makeDoc(AS.uniq(), snap)
+      @model = IndexShare.new()
+
+      AS.openShareObject = (id, didOpen) ->
+        didOpen makeDoc(id, indexed.attributesForSharing())
+
+      @model.didOpen(doc)
+      @model.whenIndexed =>
+        test.notEqual AS.All.byId[indexed.id], undefined
+        test.equal @model.owner.get().id, indexed.id
+        test.done()
+
+    "removes indexed models from the index when they are destroy()ed": (test) ->
+      indexed = SimpleShare.new()
+      index = {}
+      index[indexed.id] = SimpleShare.path()
+      delete AS.All.byId[indexed.id]
+      delete AS.All.byCid[indexed.cid]
+      snap = {}
+      snap["index:docs"] = index
+      snap["owner"] = indexed.id
+      doc = makeDoc(AS.uniq(), snap)
+
+      @model = IndexShare.new()
+
+      AS.openShareObject = (id, didOpen) ->
+        didOpen makeDoc(id, indexed.attributesForSharing())
+
+      test.expect 3
+      @model.didOpen(doc)
+      @model.whenIndexed =>
+        id = indexed.id
+        test.ok @model.index("docs").at(id).get()
+        @model.owner.get().destroy()
+        test.equal undefined, @model.index("docs").at(id).get()
+        test.equal undefined, @model.owner.get()
+        test.done()
+
 
 # exports["Model.Share"] =
 #   setUp: (callback) ->
@@ -89,194 +193,120 @@ exports.setUp = coreSetUp
 
 #     (@model = Shared.shared()).whenIndexed callback
 
-#   tearDown: (callback) ->
-#     AS.openShareObject = @real_open
-#     callback()
+  "is new if share is undefined": (test) ->
+    delete @model.share
+    test.ok @model.new()
+    test.done()
 
-#   "is new if share is undefined": (test) ->
-#     delete @model.share
-#     test.ok @model.new()
-#     test.done()
+  "is new if constructed with new": (test) ->
+    test.ok Shared.new(id:"an id").new()
+    test.done()
 
-#   "is new if constructed with new": (test) ->
-#     test.ok Shared.new(id:"an id").new()
-#     test.done()
+  "sets defaults when opening a new model": (test) ->
+    NS.DefaultShared = AS.Model.extend ({delegate, include, def, defs}) ->
+      include AS.Model.Share
+      @field "defaulted", default: "value"
 
-#   "sets defaults when opening a new model": (test) ->
-#     NS.DefaultShared = AS.Model.extend ({delegate, include, def, defs}) ->
-#       include AS.Model.Share
-#       @field "defaulted", default: "value"
+    model = NS.DefaultShared.shared("someid")
+    test.equal model.defaulted.get(), "value"
 
-#     model = NS.DefaultShared.shared("someid")
-#     test.equal model.defaulted.get(), "value"
+    test.done()
 
-#     test.done()
+  "overrides defaults when loading remotely": (test) ->
+    AS.openSharedObject = (id, didOpen) ->
+      didOpen makeDoc(id, defaulted: "REMOTE VALUE")
+    NS.DefaultShared = AS.Model.extend ({delegate, include, def, defs}) ->
+      include AS.Model.Share
+      @field "defaulted", default: "value"
 
-#   # "overrides defaults when loading remotely": (test) ->
-#   #   AS.openSharedObject = (id, didOpen) ->
-#   #     didOpen makeDoc(id, defaulted: "REMOTE VALUE")
-#   #   NS.DefaultShared = AS.Model.extend ({delegate, include, def, defs}) ->
-#   #     include AS.Model.Share
-#   #     @field "defaulted", default: "value"
+    model = NS.DefaultShared.shared("some other id")
+    test.equal model.defaulted.get(), "REMOTE VALUE"
 
-#   #   model = NS.DefaultShared.shared("some other id")
-#   #   test.equal model.defaulted.get(), "REMOTE VALUE"
+    test.done()
 
-#   #   test.done()
+  # "sets initial attributes when opening an object": (test) ->
+  #   test.deepEqual @model.share.get(), @model.attributesForSharing()
+  #   test.done()
 
-#   # "sets initial attributes when opening an object": (test) ->
-#   #   test.deepEqual @model.share.get(), @model.attributesForSharing()
-#   #   test.done()
+  # "updates shared object when model attributes change": (test) ->
+  #   @model.field.set("VALUE")
+  #   test.equal @model.share.at("field").get(), "VALUE"
 
-#   # "updates shared object when model attributes change": (test) ->
-#   #   @model.field.set("VALUE")
-#   #   test.equal @model.share.at("field").get(), "VALUE"
+  #   test.done()
 
-#   #   test.done()
+  # "adds/removes items to relations in share": (test) ->
+  #   @model_bindings(@model, test)
+  #   test.done()
 
-#   # "adds/removes items to relations in share": (test) ->
-#   #   @model_bindings(@model, test)
-#   #   test.done()
+  # "adds items to shared collection at specified index": (test) ->
+  #   @model.relations().add SimpleShare.shared()
+  #   @model.embeds().add SimpleShare.shared()
 
-#   # "adds items to shared collection at specified index": (test) ->
-#   #   @model.relations().add SimpleShare.shared()
-#   #   @model.embeds().add SimpleShare.shared()
+  #   @model.relations().add first_relation = SimpleShare.shared(), at: 0
+  #   @model.embeds().add first_embed = SimpleShare.shared(), at: 0
 
-#   #   @model.relations().add first_relation = SimpleShare.shared(), at: 0
-#   #   @model.embeds().add first_embed = SimpleShare.shared(), at: 0
+  #   relation_attrs =
+  #     id: first_relation.id
+  #     _type: first_relation.constructor._type
 
-#   #   relation_attrs =
-#   #     id: first_relation.id
-#   #     _type: first_relation.constructor._type
+  #   test.deepEqual relation_attrs, @model.share.at("relations", 0).get()
+  #   test.deepEqual first_embed.attributesForSharing(), @model.share.at("embeds", 0).get()
 
-#   #   test.deepEqual relation_attrs, @model.share.at("relations", 0).get()
-#   #   test.deepEqual first_embed.attributesForSharing(), @model.share.at("embeds", 0).get()
+  #   test.done()
 
-#   #   test.done()
+  # "updates fields in embeds_one models when change occurs on share": (test) ->
+  #   test.expect 5
 
-#   "updates fields when fields change on share": (test) ->
-#     test.expect 2
-#     doc = makeDoc()
-#     doc.at().set({})
-#     doc.at().on("insert", -> console.log "null insert")
-#     doc.at().on("replace", -> console.log "null replace")
-#     @remote doc.at("field").set("HELLO"), share: doc
-#     # @model.field.bind "change", -> test.ok true
-#     # @model.share.on("insert", (p,w,n) -> console.log p, w ,n)
-#     # @model.share.at("field").on("insert", (p,w,n) -> console.log p, w ,n)
-#     # @model.share.at("field").on("replace", (p,w,n) -> console.log p, w ,n)
-#     # @remote @model.share.at("field").set("value")
-#     # test.equal @model.field.get(), "value"
-#     test.done()
+  #   @model.embedded first = SimpleShare.shared()
+  #   @model.embedded().bind "change:field", -> test.ok true
+  #   @remote @model.share.at("embedded", "field").set("value")
+  #   test.equal first.field(), "value"
 
-#   # "updates fields in embeds_one models when change occurs on share": (test) ->
-#   #   test.expect 5
+  #   # make sure when we swap out embeds the only the newer one is changed
+  #   @model.embedded second = SimpleShare.shared()
+  #   @model.embedded().bind "change:field", -> test.ok true
+  #   @remote @model.share.at("embedded", "field").set("value2")
+  #   test.notEqual first.field(), "value2"
+  #   test.equal second.field(), "value2"
 
-#   #   @model.embedded first = SimpleShare.shared()
-#   #   @model.embedded().bind "change:field", -> test.ok true
-#   #   @remote @model.share.at("embedded", "field").set("value")
-#   #   test.equal first.field(), "value"
+  #   test.done()
 
-#   #   # make sure when we swap out embeds the only the newer one is changed
-#   #   @model.embedded second = SimpleShare.shared()
-#   #   @model.embedded().bind "change:field", -> test.ok true
-#   #   @remote @model.share.at("embedded", "field").set("value2")
-#   #   test.notEqual first.field(), "value2"
-#   #   test.equal second.field(), "value2"
+  # "updates fields on embedded models created in this client": (test)->
+  #   model = Shared.shared()
+  #   attrs = SimpleShare.shared().attributesForSharing()
+  #   attrs.id = "embeddedsharedid"
+  #   @remote model.share.at("embeds").insert(0, attrs), model
 
-#   #   test.done()
+  #   test.equal model.embeds().first().value().id, attrs.id
 
-#   # "updates fields on embedded models created in this client": (test)->
-#   #   model = Shared.shared()
-#   #   attrs = SimpleShare.shared().attributesForSharing()
-#   #   attrs.id = "embeddedsharedid"
-#   #   @remote model.share.at("embeds").insert(0, attrs), model
+  #   embed = model.embeds().first().value()
+  #   embed.field("!")
+  #   test.equal embed.share.at("field").get(), "!"
 
-#   #   test.equal model.embeds().first().value().id, attrs.id
+  #   @remote embed.share.at("field").insert(0, "BOO"), embed
 
-#   #   embed = model.embeds().first().value()
-#   #   embed.field("!")
-#   #   test.equal embed.share.at("field").get(), "!"
+  #   test.equal embed.share.at("field").get(), "BOO!"
 
-#   #   @remote embed.share.at("field").insert(0, "BOO"), embed
+  #   test.equal embed.field(), "BOO!"
 
-#   #   test.equal embed.share.at("field").get(), "BOO!"
+  #   test.done()
 
-#   #   test.equal embed.field(), "BOO!"
+  # "updates fields on models that have been received over the wire": (test) ->
 
-#   #   test.done()
+  #   attrs = SimpleShare.shared().attributesForSharing()
+  #   attrs.id = "someid"
 
-#   # "updates fields on models that have been received over the wire": (test) ->
+  #   @remote @model.share.at("embeds", 0).set attrs
+  #   @model_bindings @model.embeds.first().value.get(), test
 
-#   #   attrs = SimpleShare.shared().attributesForSharing()
-#   #   attrs.id = "someid"
+  #   test.done()
 
-#   #   @remote @model.share.at("embeds", 0).set attrs
-#   #   @model_bindings @model.embeds.first().value.get(), test
+  # "updates belongsTo in has_many models when change occurs on share": (test) ->
+  #   test.expect 2
+  #   owner = SimpleShare.shared()
+  #   @model.bind "change:owner", -> test.ok true
+  #   @remote @model.share.at("owner").set(owner.id)
+  #   test.equal @model.owner.get(), owner
 
-#   #   test.done()
+  #   test.done()
 
-#   # "updates belongsTo in has_many models when change occurs on share": (test) ->
-#   #   test.expect 2
-#   #   owner = SimpleShare.shared()
-#   #   @model.bind "change:owner", -> test.ok true
-#   #   @remote @model.share.at("owner").set(owner.id)
-#   #   test.equal @model.owner.get(), owner
-
-#   #   test.done()
-
-#   # "loads models when indexes update": (test) ->
-#   #   (@model = IndexShare.shared()).whenIndexed =>
-#   #     (other = SimpleShare.shared()).whenIndexed  =>
-#   #       AS.openShareObject = (id, didOpen) -> didOpen other.share
-#   #       @model.bind "indexload", (loaded) =>
-#   #         loaded.whenIndexed ->
-#   #           test.done()
-#   #       @remote @model.share.at("index:docs", other.id).set("SimpleShare")
-
-#   # "loads models in indexes when opened": (test) ->
-#   #   indexed = SimpleShare.new()
-#   #   index = {}
-#   #   index[indexed.id] = "SimpleShare"
-#   #   delete AS.All.byId[indexed.id]
-#   #   delete AS.All.byCid[indexed.cid]
-#   #   snap = {}
-#   #   snap["index:docs"] = index
-#   #   snap["owner"] = indexed.id
-#   #   doc = makeDoc(AS.uniq(), snap)
-
-#   #   @model = IndexShare.new()
-
-#   #   AS.openShareObject = (id, didOpen) ->
-#   #     didOpen makeDoc(id, indexed.attributesForSharing())
-
-#   #   @model.didOpen(doc)
-#   #   @model.whenIndexed =>
-#   #     test.notEqual AS.All.byId[indexed.id], undefined
-#   #     test.equal @model.owner(), AS.All.byId[indexed.id]
-#   #     test.done()
-#   #   test.done()
-
-#   # "removes indexed models from the index when they are destroy()ed": (test) ->
-#   #   indexed = SimpleShare.new()
-#   #   index = {}
-#   #   index[indexed.id] = "SimpleShare"
-#   #   delete AS.All.byId[indexed.id]
-#   #   delete AS.All.byCid[indexed.cid]
-#   #   snap = {}
-#   #   snap["index:docs"] = index
-#   #   snap["owner"] = indexed.id
-#   #   doc = makeDoc(AS.uniq(), snap)
-
-#   #   @model = IndexShare.new()
-
-#   #   AS.openShareObject = (id, didOpen) ->
-#   #     didOpen makeDoc(id, indexed.attributesForSharing())
-
-#   #   test.expect 2
-#   #   @model.didOpen(doc)
-#   #   @model.whenIndexed =>
-#   #     test.ok @model.index("docs").at(indexed.id).get()
-#   #     indexed.destroy()
-#   #     test.equal @model.index("docs").at(indexed.id).get(), undefined
-#   #     test.done()

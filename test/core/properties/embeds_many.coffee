@@ -21,6 +21,27 @@ exports.EmbedsMany =
     test.done()
 
   Sharing:
+    "on sync": 
+      "propagates value from field to share": (test) ->
+        o = NS.Parent.new()
+        child = NS.Child.new()
+        o.embeds.add(child)
+        share = makeDoc()
+        share.at().set({})
+        o.embeds.syncWith(share)
+
+        test.deepEqual [{_type: "NS.Child", id:child.id}], share.at('embeds').get()
+        test.done()
+
+      "propagates value from share to field": (test) ->
+        o = NS.Parent.new()
+        child = NS.Child.new()
+        share = makeDoc()
+        share.at().set embeds: [{_type: "NS.Child", id:child.id}]
+        o.embeds.syncWith(share)
+        test.equal child.toString(), o.embeds.backingCollection.at(0).toString()
+        test.done()
+
     setUp: (callback) ->
       @o = NS.Parent.new()
       @share = makeDoc()

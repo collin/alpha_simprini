@@ -53,6 +53,22 @@ exports.Field =
     test.done()
 
   "Sharing":
+    "propagate share value to model on sync": (test) ->
+      o = Model.new()
+      share = makeDoc()
+      share.at().set name: "from share"
+      o.name.syncWith(share)
+      test.equal "from share", o.name.get()
+      test.done()
+ 
+    "propagate field value to @share on sync": (test) ->
+      o = Model.new(name: "from model")
+      share = makeDoc()
+      share.at().set {}
+      o.name.syncWith(share)
+      test.equal "from model", share.at('name').get()
+      test.done()
+
     setUp: (callback) ->
       @o = Model.new()
       @share = makeDoc()

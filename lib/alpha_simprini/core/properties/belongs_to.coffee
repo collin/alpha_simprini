@@ -6,6 +6,7 @@ AS.Model.BelongsTo.Instance = AS.Model.Field.Instance.extend ({delegate, include
   def initialize: ->
     @namespace = ".#{_.uniqueId()}"
     @_super.apply(this, arguments)
+    @bind "destroy", => @set(null)
     
   def get: ->
     @value
@@ -34,7 +35,7 @@ AS.Model.BelongsTo.Instance = AS.Model.Field.Instance.extend ({delegate, include
       @raw.at(@path).get()
       
     def set: (value) ->
-      @_super(value.id)
+      @_super(value?.id) if value?.id
       
 
 AS.Model.defs belongsTo: (name, options) -> 

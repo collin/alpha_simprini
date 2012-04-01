@@ -45,5 +45,6 @@ AS.Model.CollectionSynapse = AS.Model.AbstractSynapse.extend ({delegate, include
   
   def insert: AS.unimplemented("insert: (item, options) ->")
   def remove: AS.unimplemented("remove: (item) ->")
-    
+  
+  def each: AS.unimplemented("each: (fn) ->")
         

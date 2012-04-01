@@ -42,6 +42,28 @@ exports.BelongsTo =
     test.done()
 
   "Sharing":
+    "propagates field value to share on sync": (test) ->
+      o = NS.Parent.new()
+      owner = NS.Owner.new()
+      share = makeDoc()
+      share.at().set({})
+      o.owner.set(owner)
+      o.owner.syncWith(share)
+
+      test.deepEqual owner.id, share.at('owner').get()
+      test.done()
+
+    "propagates share value to field on sync": (test) ->
+      o = NS.Parent.new()
+      owner = NS.Owner.new()
+      share = makeDoc()
+      share.at().set({})
+      share.at('owner').set(owner.id)
+      o.owner.syncWith(share)
+      test.equal owner.id, o.owner.get().id
+
+      test.done()
+
     setUp: (callback) ->
       @o = NS.Parent.new()
       @share = makeDoc()

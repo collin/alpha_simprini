@@ -17,6 +17,9 @@ AS.Model = AS.Object.extend ({def, include}) ->
 
     @[key].set(value) for key, value of attributes
 
+  def destroy: ->
+    @trigger("destroy")
+
   def trigger: ->
     args = toArray(arguments)
     args.splice(1, 0, this)

@@ -25,6 +25,12 @@ AS.ConstructorIdentity = (constructor) -> (object) -> object.constructor is cons
 AS.Identity = (object) -> (other) -> object is other
 AS.IdentitySort = (object) -> object
 
+AS.loadPath = (path) ->
+  target = require("pathology").Namespaces
+  for segment in path.split(".")
+    target = target[segment]
+  target
+
 AS.deepClone = (it) ->
   if _.isFunction(it)
     clone = it

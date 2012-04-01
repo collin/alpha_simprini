@@ -32,6 +32,26 @@ exports.HasMany =
     test.done()
 
   "Sharing":
+    "propagate values from model to share on sync": (test) ->
+      o = NS.Parent.new()
+      child = NS.Child.new()
+      share = makeDoc()
+      share.at().set({})
+      o.children.add(child)
+      o.children.syncWith(share)
+      test.deepEqual [{_type: "NS.Child", id: child.id}], share.at("children").get()
+      test.done()
+
+    "propagate values from share to model on sync": (test) ->
+      o = NS.Parent.new()
+      child = NS.Child.new()
+      share = makeDoc()
+      share.at().set children: [{_type: "NS.Child", id: child.id}]
+      o.children.syncWith(share)
+      test.equal child.id, o.children.at(0).id
+      
+      test.done()
+
     setUp: (callback) ->
       @o = NS.Child.new()
       @share = makeDoc()

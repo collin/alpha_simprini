@@ -1,4 +1,5 @@
 AS = require("alpha_simprini")
+_ = require("underscore")
 
 AS.Model.HasMany = AS.Model.Field.extend()
 AS.Model.HasMany.Instance = AS.Model.Field.Instance.extend ({def, delegate}) ->
@@ -36,6 +37,8 @@ AS.Model.HasMany.Instance = AS.Model.Field.Instance.extend ({def, delegate}) ->
       @raw.bind "remove#{@namespace}", (model, collection, options) -> 
         removeCallback(model, options)
 
+    def each: (fn) -> @raw.each(fn)
+
     def unbinds: ->
       @raw.unbind(@namespace)
 
@@ -51,14 +54,17 @@ AS.Model.HasMany.Instance = AS.Model.Field.Instance.extend ({def, delegate}) ->
         raw.on "delete", (position, data) -> removeCallback(data, at: position)
       ]
 
-    def unbind: ->
-      @share.removeListener(listener) for listener in @listeners
+    def unbinds: ->
+      @raw.removeListener(listener) for listener in @listeners
       
     def insert: (model, options) ->
       @raw.at(@path).insert(options.at, id: model.id, _type: model.constructor.path())
 
     def remove: (model, options) ->
       @raw.at(@path, options.at).remove()
+
+    def each: (fn) ->
+      _.each @raw.at(@path).get(), fn
 
 #FIXME: this should have worked
 # AS.Model.HasMany.Instance.delegate "add", "remove", "bind", "unbind", "trigger", to: "backingCollection"

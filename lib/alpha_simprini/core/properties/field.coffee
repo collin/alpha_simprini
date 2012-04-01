@@ -67,7 +67,7 @@ AS.Model.Field = AS.Property.extend ({def}) ->
       def binds: (callback) ->
         @raw.bind "change", callback
 
-      def unbind: (callback) ->
+      def unbinds: (callback) ->
         @raw.unbind "change", callback
 
     @ShareSynapse = AS.Model.Synapse.extend ({delegate, include, def, defs}) ->
@@ -84,8 +84,11 @@ AS.Model.Field = AS.Property.extend ({def}) ->
           length = current.length
           raw.del(0, length)
           raw.insert(0, value)
-        else
+        else if value
           raw.set(value)          
+        else if raw.get()
+          raw.del(0, raw.get().length)
+
 
       def binds: (callback) ->
         @listeners = [
@@ -95,7 +98,7 @@ AS.Model.Field = AS.Property.extend ({def}) ->
           @raw.at(@path).on("delete", callback)
         ]
 
-      def unbind: (callback) ->
+      def unbinds: (callback) ->
         @raw.removeListener(listener) for listener in @listeners
         @listeners = []
 
