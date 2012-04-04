@@ -100,8 +100,9 @@ AS.Model.Share = AS.Module.extend ({delegate, include, def, defs}) ->
         index.at(id).remove()
         
   def indecesDidLoad: ->
-    @bindShareEvents()
-    @didIndex()
+    unless @hasIndexed
+      @bindShareEvents()
+      @didIndex()
     # @build_loaded_data()
     # @set_attributes_from_share()
 

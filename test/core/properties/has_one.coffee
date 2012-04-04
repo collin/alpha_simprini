@@ -36,7 +36,16 @@ exports.HasOne =
     o = NS.Parent.new()
     o.bind "change", -> test.ok true
     o.bind "change:other", -> test.ok true
-    # RED FLAG: can't bind to this :(
-    # o.other.bind "change", -> test.ok true
+    o.other.bind "change", -> test.ok true
     o.other.set {}
+    test.done()
+
+  "clears object when set to null": (test) ->
+    test.expect 4, "fix field pass-through binding"
+    o = NS.Parent.new()
+    o.bind "change", -> test.ok true
+    o.bind "change:other", -> test.ok true
+    o.other.bind "change", -> test.ok true
+    o.other.set null
+    test.equal undefined, o.other.get()
     test.done()

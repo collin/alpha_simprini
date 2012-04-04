@@ -1,11 +1,11 @@
 {AS, $, _, sinon, NS} = require require("path").resolve("./test/client_helper")
 exports.View =
   "generates klass strings": (test) ->
-    test.equal AS.View.new().klassString(), "AlphaSimprini View", "basic klassString is ASView"
+    test.equal AS.View.new().klassString(), "View", "basic klassString is ASView"
 
     NS.SomeView = AS.View.extend()
 
-    test.equal NS.SomeView.new().klassString(), "NS SomeView", "subclasses include parent class string"
+    test.equal NS.SomeView.new().klassString(), "View SomeView", "subclasses include parent class string"
 
     test.done()
 
@@ -14,7 +14,7 @@ exports.View =
     NS.ListView = AS.View.extend ({def}) ->
       def tagName: "ol"
 
-    test.ok NS.ListView.new().el.is("ol.NS.ListView")
+    test.ok NS.ListView.new().el.is("ol.View.ListView")
     test.done()
 
   "sets options from constructor": (test) ->

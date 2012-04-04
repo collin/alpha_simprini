@@ -1,0 +1,17 @@
+AS = require("alpha_simprini")
+_ = require "underscore"
+
+AS.Binding.One = AS.Binding.Field.extend ({delegate, include, def, defs}) ->
+  @willGroupBindings = true
+
+  def setContent: ->
+    if (value = @fieldValue()) and @fn
+      value = AS.ViewModel.build(@context, value) if _.include(value.constructor.ancestors, AS.Model)
+      @container.empty()
+      @bindingGroup.unbind()
+      @context.withinBindingGroup @bindingGroup, =>
+        @context.withinNode @container, =>
+          @fn.call(@context, value)
+    else
+      @bindingGroup.unbind()
+      @container.empty()    

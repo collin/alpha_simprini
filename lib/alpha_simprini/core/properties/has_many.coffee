@@ -23,6 +23,9 @@ AS.Model.HasMany.Instance = AS.Model.Field.Instance.extend ({def, delegate}) ->
 
   def unbind: -> @backingCollection.unbind.apply(@backingCollection, arguments)
 
+  def any: ->
+    _.any @backingCollection
+
   @Synapse = AS.Model.CollectionSynapse.extend ({delegate, include, def, defs}) ->
     def insert: (item, options) ->
       @raw.add(item, options)

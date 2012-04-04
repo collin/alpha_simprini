@@ -3,7 +3,7 @@ SimpleModel, mock_binding, coreSetUp} = require require("path").resolve("./test/
 exports.setUp = coreSetUp
 
 exports.Binding =
-Many:
+  Many:
     setUp: (callback) ->
       model = BoundModel.new()
       items = model.items

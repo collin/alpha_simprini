@@ -1,27 +1,8 @@
 AS = require "alpha_simprini"
 _ = require "underscore"
 
-AS.Model.BelongsTo = AS.Model.Field.extend()
-AS.Model.BelongsTo.Instance = AS.Model.Field.Instance.extend ({delegate, include, def, defs}) ->
-  def initialize: ->
-    @namespace = ".#{_.uniqueId()}"
-    @_super.apply(this, arguments)
-    @bind "destroy", => @set(null)
-    
-  def get: ->
-    @value
-
-  def set: (value) ->
-    return if value is @value
-    value = AS.All.byId[value] if _.isString(value)
-    @value?.unbind(@namespace)
-    @value = value
-    @value?.bind "all#{@namespace}", _.bind(@trigger, this)
-    @object.trigger("change")
-    @object.trigger("change:#{@options.name}")
-    @trigger("change")
-    value
-
+AS.Model.BelongsTo = AS.Model.HasOne.extend()
+AS.Model.BelongsTo.Instance = AS.Model.HasOne.Instance.extend ({delegate, include, def, defs}) ->
   @Synapse = AS.Model.Field.Instance.Synapse.extend ({delegate, include, def, defs}) ->
     def get: ->
       @raw.get()

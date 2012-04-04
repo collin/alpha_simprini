@@ -8,7 +8,7 @@ Client.require """
   binding
     
     binding/model binding/field binding/input binding/select 
-    binding/check_box binding/edit_line binding/many
+    binding/check_box binding/edit_line binding/one binding/many
 
   views/panel views/region
 

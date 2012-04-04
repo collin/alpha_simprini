@@ -22,8 +22,10 @@ AS.ViewModel = AS.Object.extend ({def, defs}) ->
     for name, property of model.properties
       console.log property.constructor.toString() if name is "selected"
       klass.bindables[name] = switch property.constructor
-        when AS.Model.Field, AS.Model.BelongsTo, AS.Model.EmbedsOne, AS.Model.HasOne
+        when AS.Model.Field
           AS.Binding.Field
+        when AS.Model.BelongsTo, AS.Model.EmbedsOne, AS.Model.HasOne
+          AS.Binding.One
         when AS.Model.HasMany, AS.Model.EmbedsMany
           AS.Binding.Many
         # when AS.Model.HasOne
@@ -45,16 +47,16 @@ AS.ViewModel = AS.Object.extend ({def, defs}) ->
     if _.isFunction(options)
       [fn, options] = [options, {}]
 
-    new @constructor.bindables[field](@view, @model, field, options, fn)
+    @constructor.bindables[field].new(@view, @model, field, options, fn)
 
   def input: (path, options) ->
-    new AS.Binding.Input(@view, @model, path, options)
+    AS.Binding.Input.new(@view, @model, path, options)
 
   def checkbox: (path, options) ->
-    new AS.Binding.CheckBox(@view, @model, path, options)
+    AS.Binding.CheckBox.new(@view, @model, path, options)
 
-  def select: (path, options) ->
-    new AS.Binding.Select(@view, @model, path, options)
+  # def select: (path, options) ->
+  #   AS.Binding.Select.new(@view, @model, path, options)
 
   def editline: (path, options) ->
-    new AS.Binding.EditLine(@view, @model, path, options)
+    AS.Binding.EditLine.new(@view, @model, path, options)
