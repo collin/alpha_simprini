@@ -14,7 +14,6 @@ AS.Binding.Many = AS.Binding.extend ({def}) ->
 
     @makeAll()
 
-    console.log "THEFUCKS"
     @context.binds @collection, "add", @insertItem, this
     @context.binds @collection, "remove", @removeItem, this
     @context.binds @collection, "change", @changeItem, this

@@ -65,7 +65,7 @@ AS.Model.Share = AS.Module.extend ({delegate, include, def, defs}) ->
     @[name] for name, config of @constructor.properties
     
   def bindShareEvents: ->
-    property.syncWith?(@share) for property in @properties()
+    property?.syncWith?(@share) for property in @properties()
     for index in @indeces()
       index.on "insert", (id, konstructor) =>
         loaded = AS.loadPath(konstructor).load id, (share) ->

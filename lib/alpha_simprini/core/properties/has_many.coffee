@@ -6,6 +6,7 @@ AS.Model.HasMany.Instance = AS.Model.Field.Instance.extend ({def, delegate}) ->
   delegate AS.COLLECTION_DELEGATES, to: "backingCollection"
   
   def initialize: (@object, @options={}) ->
+    @options.source = @object if @options.inverse
     @backingCollection = AS.Collection.new(undefined, @options)
 
   def set: (models) ->

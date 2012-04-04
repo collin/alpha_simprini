@@ -2,6 +2,7 @@
 
 exports.setUp = coreSetUp
 
+NS.AView = AS.View.extend()
 NS.Viewed = AS.Model.extend ({def}) ->
   @field "field"
   @hasMany "many"
@@ -20,8 +21,8 @@ NS.Viewed = AS.Model.extend ({def}) ->
 
 exports.ViewModel =
   "builds viewmodels": (test) ->
-    view = AS.View.new()
-    model = AS.Model.new()
+    view = NS.AView.new()
+    model = NS.Viewed.new()
     vm = AS.ViewModel.build view, model
 
     test.equal vm.view, view
@@ -30,15 +31,15 @@ exports.ViewModel =
     test.done()
 
   "caches constructors": (test) ->
-    vm1 = AS.ViewModel.build AS.View.new(), AS.Model.new()
-    vm2 = AS.ViewModel.build AS.View.new(), AS.Model.new()
+    vm1 = AS.ViewModel.build NS.AView.new(), NS.Viewed.new()
+    vm2 = AS.ViewModel.build NS.AView.new(), NS.Viewed.new()
 
     test.equal vm1.constructor, vm2.constructor
 
     test.done()
 
   "configures constructor": (test) ->
-    vm = AS.ViewModel.build AS.View.new(), NS.Viewed.new()
+    vm = AS.ViewModel.build NS.AView.new(), NS.Viewed.new()
     bindables = vm.constructor.bindables
 
     test.equal bindables.field, AS.Binding.Field

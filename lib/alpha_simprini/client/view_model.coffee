@@ -47,16 +47,16 @@ AS.ViewModel = AS.Object.extend ({def, defs}) ->
     if _.isFunction(options)
       [fn, options] = [options, {}]
 
-    @constructor.bindables[field].new(@view, @model, field, options, fn)
+    @constructor.bindables[field].new(@view, @model, @model[field], options, fn)
 
-  def input: (path, options) ->
-    AS.Binding.Input.new(@view, @model, path, options)
+  def input: (field, options) ->
+    AS.Binding.Input.new(@view, @model, @model[field], options)
 
-  def checkbox: (path, options) ->
-    AS.Binding.CheckBox.new(@view, @model, path, options)
+  def checkbox: (field, options) ->
+    AS.Binding.CheckBox.new(@view, @model, @model[field], options)
 
-  # def select: (path, options) ->
-  #   AS.Binding.Select.new(@view, @model, path, options)
+  # def select: (field, options) ->
+  #   AS.Binding.Select.new(@view, @model, @model[field], options)
 
-  def editline: (path, options) ->
-    AS.Binding.EditLine.new(@view, @model, path, options)
+  def editline: (field, options) ->
+    AS.Binding.EditLine.new(@view, @model, @model[field], options)

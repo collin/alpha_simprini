@@ -24,7 +24,7 @@ AS.Collection = AS.Object.extend ({def, include, delegate}) ->
     unless model instanceof AS.Model
       model = @build(model)
 
-    model[@inverse](@source) if @inverse and @source
+    model[@inverse].set(@source) if @inverse and @source
 
     throw new Error("Cannot add model to collection twice.") if @models.include(model).value()
     @_add(model, options)

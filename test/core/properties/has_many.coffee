@@ -5,8 +5,12 @@ exports.setUp = coreSetUp
 NS.Parent = AS.Model.extend()
 NS.Parent.hasMany "children"
 
+NS.Inverter = AS.Model.extend()
+NS.Inverter.hasMany "children", inverse: "parent"
+
 NS.Child = NS.Parent.extend()
 NS.Child.hasMany "children", model: -> NS.Child
+NS.Child.property "parent"
 
 exports.HasMany =
   "property is a HasMany": (test) ->
@@ -30,6 +34,14 @@ exports.HasMany =
     o = NS.Child.new()
     test.ok o.children.add() instanceof NS.Child
     test.done()
+
+  "populates the inverse when item added": (test) ->
+    parent = NS.Inverter.new()
+    child = NS.Child.new()
+    parent.children.add child
+    test.equal parent, child.parent.get()
+    test.done()
+
 
   "Sharing":
     "propagate values from model to share on sync": (test) ->

@@ -4,6 +4,20 @@ exports.setUp = coreSetUp
 C = AS.Namespace.new("Collections")
 
 exports.Collection =
+  "sets the inverse is specified": (test) ->
+    C.Thing = AS.Model.extend()
+    C.Thing.property("inverse")
+    C.ThingCollection = AS.Collection.extend -> 
+      @def model: -> C.Thing
+      @def inverse: "inverse"
+
+    things = C.ThingCollection.new()
+    things.source = "SOURCE"
+    things.add()
+
+    test.equal "SOURCE", things.first().value().inverse.get()
+    test.done()
+
   "inserts item of specified type": (test) ->
     C.Thing = AS.Model.extend()
     C.ThingCollection = AS.Collection.extend -> @def model: -> C.Thing
