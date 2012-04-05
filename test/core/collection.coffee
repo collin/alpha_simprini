@@ -18,6 +18,20 @@ exports.Collection =
     test.equal "SOURCE", things.first().value().inverse.get()
     test.done()
 
+  "clears inverse if specified": (test) ->
+    C.Thing = AS.Model.extend()
+    C.Thing.property("inverse")
+    C.ThingCollection = AS.Collection.extend -> 
+      @def model: -> C.Thing
+      @def inverse: "inverse"
+
+    things = C.ThingCollection.new()
+    things.source = "SOURCE"
+    thing = things.add()
+    things.remove(thing)
+    test.equal null, thing.inverse.get()
+    test.done()
+
   "inserts item of specified type": (test) ->
     C.Thing = AS.Model.extend()
     C.ThingCollection = AS.Collection.extend -> @def model: -> C.Thing

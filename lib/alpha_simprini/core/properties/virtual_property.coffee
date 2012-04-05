@@ -4,6 +4,7 @@ _ = require "underscore"
 AS.Model.VirtualProperty = AS.Property.extend ({def}) ->
   def initialize: (@name, @_constructor, @options={}) ->
     @options.name = @name
+    @dependencies = @options.dependencies
     @_constructor.writeInheritableValue 'properties', @name, this
 
   def instance: (object) -> @constructor.Instance.new(object, @options)
@@ -17,7 +18,7 @@ AS.Model.VirtualProperty.Instance = AS.Property.Instance.extend ({def}) ->
 
   def set: () -> throw "Can't set a VirtualProperty name: #{@options.name}, dependencies: #{@options.dependencies.join(',')}"
   
-  def get: -> @cached ?= @compute()
+  def get: -> @cached = @compute()
 
   def compute: (args) -> @options.fn.call(@object)
 

@@ -66,7 +66,7 @@ AS.Collection = AS.Object.extend ({def, include, delegate}) ->
     model = model.model
     result = @_remove(model, options)
 
-    model[@inverse](null) if @inverse
+    model[@inverse].set(null) if @inverse
 
     result
 

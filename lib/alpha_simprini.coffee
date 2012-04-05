@@ -24,8 +24,7 @@ AS.Property = Taxi.Property
 
 AS.COLLECTION_DELEGATES = ["first", "rest", "last", "compact", "flatten", "without", "union", "filter", "reverse",
           "intersection", "difference", "uniq", "zip", "indexOf", "find", "detect",
-          "lastIndexOf", "range", "include",  "each", "map", "reject","all", "toArray"]
-
+          "lastIndexOf", "range", "include",  "each", "map", "reject","all", "toArray", "pluck"]
 
 AS.require = (framework="alpha_simprini", libraries) ->
   if libraries is undefined

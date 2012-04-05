@@ -16,7 +16,7 @@ exports.VirtualProperty =
     test.done()
 
   "exposes dependencies": (test) ->
-    test.deepEqual NS.Virtualized.properties.virtualA.options.dependencies, ["name"]
+    test.deepEqual NS.Virtualized.properties.virtualA.dependencies, ["name"]
     test.done()
 
   "when dependency and virtual changes, change triggers on virtual": (test) ->

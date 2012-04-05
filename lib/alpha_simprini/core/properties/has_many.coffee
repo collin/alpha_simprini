@@ -24,6 +24,9 @@ AS.Model.HasMany.Instance = AS.Model.Field.Instance.extend ({def, delegate}) ->
 
   def unbind: -> @backingCollection.unbind.apply(@backingCollection, arguments)
 
+  def pluck: (key) ->
+    @map (item) -> item[key].get()
+
   def any: ->
     _.any @backingCollection
 
