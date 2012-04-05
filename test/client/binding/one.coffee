@@ -23,3 +23,10 @@ exports.Binding =
       test.equal undefined, @model.owner.get()
       test.equal "", @binding.container.html()
       test.done()
+
+    "passes a model binding to the content_fn": (test) ->
+      @binding.fn = (model, binding) -> 
+        test.equal AS.Binding.Model, binding.constructor
+        test.done()
+
+      @binding.setContent()

@@ -20,7 +20,6 @@ AS.ViewModel = AS.Object.extend ({def, defs}) ->
     klass.extended_by = model.extended_by
 
     for name, property of model.properties
-      console.log property.constructor.toString() if name is "selected"
       klass.bindables[name] = switch property.constructor
         when AS.Model.Field
           AS.Binding.Field

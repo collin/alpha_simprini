@@ -3,7 +3,7 @@ exports.setUp = coreSetUp
 
 WithCallbacks = AS.Object.extend ({include}) ->
   include AS.Callbacks
-  @define_callbacks
+  @defineCallbacks
     before: "this that".split(" ")
 
 exports.Callbacks =
@@ -22,7 +22,7 @@ exports.Callbacks =
     it.before_that cb
 
     one = WithCallbacks.new()
-    one.run_callbacks "before_this"
-    one.run_callbacks "before_that"
+    one.runCallbacks "before_this"
+    one.runCallbacks "before_that"
 
     test.done()

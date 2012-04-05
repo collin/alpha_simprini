@@ -29,6 +29,7 @@ AS.Binding.EditLine = AS.Binding.extend ({def}) ->
       cursor
 
   def initialize: ->
+    @_super.apply(this, arguments)
     @options.contentEditable = true
     @content = @makeContent()
     @elem = @content[0]

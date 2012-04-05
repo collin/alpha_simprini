@@ -11,7 +11,7 @@ AS.Binding.One = AS.Binding.Field.extend ({delegate, include, def, defs}) ->
       @bindingGroup.unbind()
       @context.withinBindingGroup @bindingGroup, =>
         @context.withinNode @container, =>
-          @fn.call(@context, value)
+          @fn.call(@context, value, AS.Binding.Model.new(@context, @model, @container))
     else
       @bindingGroup.unbind()
       @container.empty()    

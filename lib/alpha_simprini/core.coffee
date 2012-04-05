@@ -7,7 +7,7 @@ Core.require """
   instance_methods
 
   model model/dendrite model/synapse 
-  properties/field properties/has_many properties/has_one properties/virtual_properties
+  properties/field properties/has_many properties/has_one properties/virtual_property
   properties/embeds_many properties/embeds_one properties/belongs_to
 
   collection model/share

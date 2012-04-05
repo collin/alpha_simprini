@@ -87,7 +87,7 @@ AS.Binding.Many = AS.Binding.extend ({def}) ->
     @context.withinBindingGroup @bindingGroup, =>
       @context.groupBindings =>
         @bindings[item.cid] = @context.bindingGroup
-        binding = new AS.Binding.Model(@context, item, content)
+        binding = AS.Binding.Model.new(@context, item, content)
         made = @fn.call(@context, AS.ViewModel.build(@context, item), binding)
         if made?.jquery
           content.push made[0]

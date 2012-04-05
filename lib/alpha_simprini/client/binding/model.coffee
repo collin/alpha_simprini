@@ -48,7 +48,7 @@ AS.Binding.Model = AS.Object.extend ({def}) ->
               if options.fn
                 options.fn(@model)
               else
-                if @model[options.field]() then "yes" else "no"
+                if @model[options.field].get() then "yes" else "no"
 
             painter = => _.defer =>
               @content.attr property, @attrs[property]()
