@@ -23,7 +23,7 @@ AS.Binding.Many = AS.Binding.extend ({def}) ->
 
   def sortedModels: ->
     if sortField = @options.order_by
-      @collection.sortBy((item) -> item[sortField]())
+      @collection.sortBy((item) -> item[sortField].get())
     else
       @collection
 

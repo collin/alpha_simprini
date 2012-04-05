@@ -1,7 +1,7 @@
 AS = require("alpha_simprini")
 _ = require "underscore"
 
-AS.Model.VirtualProperty = AS.Property.extend ({def}) ->
+AS.Model.VirtualProperty = AS.Model.Field.extend ({def}) ->
   def initialize: (@name, @_constructor, @options={}) ->
     @options.name = @name
     @dependencies = @options.dependencies
@@ -29,6 +29,8 @@ AS.Model.VirtualProperty.Instance = AS.Property.Instance.extend ({def}) ->
     @_trigger()
 
   def _trigger: ->    
+    @trigger("change")
+    @object.trigger("change")
     @object.trigger("change:#{@options.name}")
       
 

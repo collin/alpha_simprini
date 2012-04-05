@@ -1,7 +1,11 @@
 AS = require("alpha_simprini")
 _ = require("underscore")
 
-AS.Model.HasOne = AS.Model.Field.extend()
+AS.Model.HasOne = AS.Model.Field.extend ({delegate, include, def, defs}) ->
+  def couldBe: (test) ->
+    return true if test in @options.model?().ancestors
+    @_super.apply(this, arguments)
+
 AS.Model.HasOne.Instance = AS.Model.Field.Instance.extend ({def}) ->
   def initialize: (@object, @options) ->
     @options.model ?= -> AS.Model
@@ -37,7 +41,6 @@ AS.Model.HasOne.Instance = AS.Model.Field.Instance.extend ({def}) ->
     def set: (value) ->
       @raw.set(value)
       
-
   @ShareSynapse = AS.Model.Field.Instance.ShareSynapse.extend ({delegate, include, def, defs}) ->
     def get: ->
       @raw.at(@path).get()

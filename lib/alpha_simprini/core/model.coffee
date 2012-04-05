@@ -15,6 +15,9 @@ AS.Model = AS.Object.extend ({def, include}) ->
 
     AS.All.byCid[@cid] = AS.All.byId[@id] = this
 
+    @set(attributes)
+
+  def set: (attributes) ->    
     @[key].set(value) for key, value of attributes
 
   def destroy: ->

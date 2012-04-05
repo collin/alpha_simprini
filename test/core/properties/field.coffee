@@ -7,6 +7,7 @@ Model.field "name"
 Model.field "band", default: "the Tijuana Brass"
 Model.field "number", type: Number
 Model.field "boolean", type: Boolean
+Model.property "other"
 
 exports.Field =
   "is a property": (test) ->
@@ -51,6 +52,18 @@ exports.Field =
     o.boolean.set(true)
     o.number.set 43
     test.done()
+
+  "bindPath": 
+    "may be used in path bindings": (test) ->
+      o = Model.new()
+      o.bindPath ['boolean'], -> test.done()
+      o.boolean.set(true)
+
+    "may be nested in path bindings": (test) ->
+      other = Model.new()
+      o = Model.new(other:other)
+      o.bindPath ['other', 'boolean'], -> test.done()
+      other.boolean.set(true)
 
   "Sharing":
     "propagate share value to model on sync": (test) ->

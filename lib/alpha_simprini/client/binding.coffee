@@ -8,7 +8,7 @@ AS.Binding = AS.Object.extend ({def}) ->
     if _.isFunction(@options)
       [@fn, @options] = [@options, {}]
 
-    @container = @context.$ @context.currentNode
+    @container ?= @context.$ @context.currentNode
     @bindingGroup = @context.bindingGroup
 
     @content = @context.$ []

@@ -23,7 +23,7 @@ AS.Namespace = Pathology.Namespace
 AS.Property = Taxi.Property
 
 AS.COLLECTION_DELEGATES = ["first", "rest", "last", "compact", "flatten", "without", "union", "filter", "reverse",
-          "intersection", "difference", "uniq", "zip", "indexOf", "find", "detect",
+          "intersection", "difference", "uniq", "zip", "indexOf", "find", "detect", "sortBy",
           "lastIndexOf", "range", "include",  "each", "map", "reject","all", "toArray", "pluck"]
 
 AS.require = (framework="alpha_simprini", libraries) ->

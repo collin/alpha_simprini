@@ -3,10 +3,10 @@ helper = require require("path").resolve("./test/helper")
 exports.setUp = coreSetUp
 
 NS.Parent = AS.Model.extend()
-NS.Parent.belongsTo "owner"
+NS.Parent.belongsTo "owner", model: -> NS.Owner
+NS.Parent.field "name"
 
-NS.Owner = AS.Model.extend ->
-  @field 'name'
+NS.Owner = NS.Parent.extend()
 
 exports.BelongsTo =
   "property is a Field": (test) ->
@@ -40,6 +40,40 @@ exports.BelongsTo =
     firstOwner.name.set("Janine")
     secondOwner.name.set("Lord High Executioner")
     test.done()
+
+  "bindPath":
+    "may bind through belongsTo by name": (test) ->
+      test.expect 2
+      otherother = NS.Owner.new()
+      other = NS.Owner.new(owner:otherother)
+      o = NS.Parent.new owner: other
+
+      o.bindPath ['owner', 'owner', 'name'], -> test.ok(true)
+
+      otherother.name.set("other from another other's mother")
+
+      other.owner.set newother = NS.Owner.new()
+
+      otherother.name.set "simpler name"
+      newother.name.set "new name"
+      test.done()
+
+    "may bind through belongsTo by constructor": (test) ->
+      test.expect 2
+      otherother = NS.Owner.new()
+      other = NS.Owner.new(owner:otherother)
+      o = NS.Parent.new owner: other
+
+      o.bindPath ['owner', NS.Parent, 'name'], -> test.ok(true)
+
+      otherother.name.set("other from another other's mother")
+
+      other.owner.set newother = NS.Owner.new()
+
+      otherother.name.set "simpler name"
+      newother.name.set "new name"
+      test.done()
+
 
   "Sharing":
     "propagates field value to share on sync": (test) ->
