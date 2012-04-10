@@ -6,10 +6,12 @@ NS.Parent = AS.Model.extend()
 NS.Parent.hasMany "children"
 
 NS.Inverter = AS.Model.extend()
-NS.Inverter.hasMany "children", inverse: "parent"
+NS.Inverter.hasMany "children", inverse: "parent", model: NS.Child
 
 NS.Child = NS.Parent.extend()
 NS.Child.hasMany "children", model: -> NS.Child
+NS.Child.field "power"
+NS.Child.field "toughness"
 NS.Child.property "parent"
 
 exports.HasMany =
@@ -42,6 +44,22 @@ exports.HasMany =
     test.equal parent, child.parent.get()
     test.done()
 
+
+  "bindPath":
+    "may bind through HasMany by name": (test) ->
+      test.expect(2)
+      o = NS.Inverter.new()
+      o.bindPath ['children', 'children', 'power'], -> test.ok true
+
+      child = o.children.add NS.Child.new()
+
+      child.children.add().power.set("howdy")
+      child2 = child.children.add()
+      child2.power.set("howdy as well")
+
+      child.children.remove(child2)
+      child2.power.set("orhpan power")
+      test.done()
 
   "Sharing":
     "propagate values from model to share on sync": (test) ->

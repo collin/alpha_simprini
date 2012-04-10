@@ -1,13 +1,21 @@
 AS = require("alpha_simprini")
 _ = require("underscore")
 
-AS.Model.HasMany = AS.Model.Field.extend()
+AS.Model.HasMany = AS.Model.Field.extend ({delegate, include, def, defs}) ->
+  def couldBe: (test) ->
+    return true if test in (@options.model?()?.ancestors ? [])
+    @_super.apply(this, arguments)
+
 AS.Model.HasMany.Instance = AS.Model.Field.Instance.extend ({def, delegate}) ->
   delegate AS.COLLECTION_DELEGATES, to: "backingCollection"
   
   def initialize: (@object, @options={}) ->
     @options.source = @object if @options.inverse
     @backingCollection = AS.Collection.new(undefined, @options)
+
+  def bindToPathSegment: (segment) ->
+    segment.binds this, "add", segment.insertCallback
+    segment.binds this, "remove", segment.removeCallback
 
   def set: (models) ->
     @backingCollection.add models
