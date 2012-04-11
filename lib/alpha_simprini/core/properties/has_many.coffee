@@ -10,6 +10,7 @@ AS.Model.HasMany.Instance = AS.Model.Field.Instance.extend ({def, delegate}) ->
   delegate AS.COLLECTION_DELEGATES, to: "backingCollection"
   
   def initialize: (@object, @options={}) ->
+    @model = @options.model
     @options.source = @object if @options.inverse
     @backingCollection = AS.Collection.new(undefined, @options)
 
@@ -18,7 +19,7 @@ AS.Model.HasMany.Instance = AS.Model.Field.Instance.extend ({def, delegate}) ->
     segment.binds this, "remove", segment.removeCallback
 
   def set: (models) ->
-    @backingCollection.add models
+    @backingCollection.add(model) for model in models
 
   def add: (models) -> @backingCollection.add.apply(@backingCollection, arguments)
 

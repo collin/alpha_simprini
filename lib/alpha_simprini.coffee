@@ -18,6 +18,7 @@ AS.Models = Pathology.Namespace.new()
 AS.Views = Pathology.Namespace.new()
 
 AS.Object = Pathology.Object
+AS.Map = Pathology.Map
 AS.Module = Pathology.Module
 AS.Namespace = Pathology.Namespace
 AS.Property = Taxi.Property

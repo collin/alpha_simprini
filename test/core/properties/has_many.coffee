@@ -21,7 +21,7 @@ exports.HasMany =
     test.done()
 
   "is set when constructing the model": (test) ->
-    o = NS.Parent.new children: {}
+    o = NS.Parent.new children: [{}]
     test.ok o.children.first().value() instanceof AS.Model
     test.done()
 

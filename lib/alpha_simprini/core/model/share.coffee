@@ -1,6 +1,12 @@
 AS = require "alpha_simprini"
 _ = require "underscore"
 
+AS.ShareJsURL = "http://#{window?.location.host or 'localhost'}/sjs"
+
+AS.openSharedObject = (id, callback) ->
+  @share.open id, "json", @ShareJsURL, (error, handle) ->
+    if error then console.log(error) else callback(handle)
+
 AS.Model.Share = AS.Module.extend ({delegate, include, def, defs}) ->
   defs index: (name, config) ->
     @writeInheritableValue 'indeces', name, config
@@ -15,14 +21,11 @@ AS.Model.Share = AS.Module.extend ({delegate, include, def, defs}) ->
 
   defs load: (id, callback) ->
     unless model = AS.All.byId[id]
-        model = AS.All.byId[id] or @new(id:id)
+        model = @new(id:id)
       callback ?= model.didLoad
       AS.openSharedObject id, _.bind(callback, model)
     model
     
-  def initialize: ->
-    @_super.apply(this, arguments)
-
   def new: ->
     @share is undefined
     

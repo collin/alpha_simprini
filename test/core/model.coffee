@@ -4,13 +4,14 @@ exports.setUp = coreSetUp
 
 exports.Model =
   "has a place for all models": (test) ->
-    test.deepEqual AS.All, byCid: {}, byId: {}
+    test.deepEqual AS.All, byCid: {}, byId: {}, byIdRef: {}
     test.done()
 
   "puts new models in that place": (test) ->
     model = AS.Model.new()
     test.equal AS.All.byCid[model.cid], model, "puts model in AS.All.byCid"
     test.equal AS.All.byId[model.id], model, "puts model in AS.All.byId"
+    test.equal AS.All.byIdRef[model.idRef], model, "puts model in AS.All.byIdRef"
     test.done()
 
   # "runs initialize callbacks": (test) ->

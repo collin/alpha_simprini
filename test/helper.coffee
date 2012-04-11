@@ -22,6 +22,7 @@ exports.coreSetUp = (callback) ->
   AS.All =
     byCid: {}
     byId: {}
+    byIdRef: {}
   callback()
 
 BoundModel = exports.BoundModel = NS.BoundModel = AS.Model.extend()

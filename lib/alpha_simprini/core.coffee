@@ -10,14 +10,12 @@ Core.require """
   properties/field properties/has_many properties/has_one properties/virtual_property
   properties/embeds_many properties/embeds_one properties/belongs_to
 
-  collection model/share
+  collection
 
   models/radio_selection_model models/multiple_selection_model
 """
 
-AS.ShareJsURL = "http://#{window?.location.host or 'localhost'}/sjs"
-
-AS.share = require("share").client
+# model/share
 
 # # ## Some little utility functions.
 
@@ -51,10 +49,6 @@ AS.deepClone = (it) ->
 # large random numbers are base32 encoded and combined with the current time base32 encoded
 AS.uniq = ->
   (Math.floor Math.random() * 100000000000000000).toString(32) + "-" + (Math.floor Math.random() * 100000000000000000).toString(32) + "-" + (new Date).getTime().toString(32)
-
-AS.openSharedObject = (id, callback) ->
-  @share.open id, "json", @ShareJsURL, (error, handle) ->
-    if error then console.log(error) else callback(handle)
 
 AS.humanSize = (size) ->
   units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
