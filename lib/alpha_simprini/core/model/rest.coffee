@@ -34,18 +34,18 @@ AS.Model.REST = AS.Module.extend ({delegate, include, def, defs}) ->
     unless model = AS.All.byId[id]
       model = @new()
       callback ?= model.didLoad
-      @readOne id, callback
+      @readOne id, _.bind(callback, model)
 
     return model
 
   def didLoad: (data) ->
     @loadData(data)
 
-  defs readOne: (id, callback=@loadData) ->
+  defs readOne: (id, callback) ->
     $.ajax
       url: @resourceURL(id)
       dataType: 'json'
-      success: _.bind(callback, this)
+      success: callback
       error: =>
         console.error "readone error"
         console.error(this, arguments)
