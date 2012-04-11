@@ -58,14 +58,16 @@ sideLoading =
 
 exports.REST =
   "loads a model from a simple JSON response": (test) ->
-    model = Rested.loadData(plain)
+    model = Rested.new()
+    model.loadData(plain)
     test.equal "value", model.field.get()
     test.equal null, model.owner.get()
     test.equal 0, model.relations.backingCollection.length
     test.done()
 
   "loads a model from a JSON respons w/sideLoading": (test) ->
-    model = Rested.loadData(sideLoading)
+    model = Rested.new()
+    model.loadData(sideLoading)
     test.equal "packed", model.field.get()
     test.ok sideloaded = AS.All.byIdRef["1-NS.SimpleRest"]
     test.equal "first", sideloaded.field.get()

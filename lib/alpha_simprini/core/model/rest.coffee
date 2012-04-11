@@ -1,6 +1,6 @@
 AS = require "alpha_simprini"
 {camelize, underscore, pluralize} = require "fleck"
-isArray = require "underscore"
+_ = require "underscore"
 $ = require "jquery"
 
 convertKeys = (object) ->
@@ -34,15 +34,18 @@ AS.Model.REST = AS.Module.extend ({delegate, include, def, defs}) ->
     unless model = AS.All.byId[id]
       model = @new()
       callback ?= model.didLoad
-      @readOne id, _.bind(callback, model)
+      @readOne id, callback
 
     return model
 
-  defs readOne: (id) ->
-    $.get
+  def didLoad: (data) ->
+    @loadData(data)
+
+  defs readOne: (id, callback=@loadData) ->
+    $.ajax
       url: @resourceURL(id)
       dataType: 'json'
-      success: _.bind(@loadData, this)
+      success: _.bind(callback, this)
       error: =>
         console.error "readone error"
         console.error(this, arguments)
@@ -50,13 +53,13 @@ AS.Model.REST = AS.Module.extend ({delegate, include, def, defs}) ->
   defs mappings: ->
     mappings = {}
     for klass in @appendedTo
-      mappings[pluralize klass.rootKey()] = klass
+      mappings[pluralize(camelize(klass.rootKey()))] = klass
     mappings
     
 
-  defs loadData: (data) ->
+  def loadData: (data) ->
     references = AS.Map.new()
-    root = @rootKey()
+    root = @constructor.rootKey()
 
     # TODO: implement runtime assertions
     # assert data[root], "loaded data for, but JSON had no data at rootKey: #{root}"
@@ -65,17 +68,18 @@ AS.Model.REST = AS.Module.extend ({delegate, include, def, defs}) ->
     modelData = convertKeys(modelData)
     
     [modelData, ids] = extractIds(modelData)
-    model = @new(modelData)
 
-    references.set(model, ids)
+    @set(modelData)
 
-    for key, embeds of data
+    references.set(this, ids)
+
+    for key, embeds of convertKeys(data)
       continue if key is root
       # assert AS.Model.REST.mappings[key], "sideload data provided for #{key}, but no mapping exists in AS.Model.REST.mappings"
-      @mappings()[key].sideloadData(embed, references) for embed in embeds
+      @constructor.mappings()[key].sideloadData(embed, references) for embed in embeds
 
     references.each (model, ids) -> model.resolveReferences(ids)
-    return model
+    return this
 
   defs sideloadData: (modelData, references) ->
     modelData = convertKeys(modelData)
@@ -89,6 +93,7 @@ AS.Model.REST = AS.Module.extend ({delegate, include, def, defs}) ->
       continue unless references
       
       relationKey = key.replace(/Id/, '')
+      return if @[relationKey + "Type"] # polymorphic!
       path = @[relationKey].model().path()
       
       if references.length is undefined
