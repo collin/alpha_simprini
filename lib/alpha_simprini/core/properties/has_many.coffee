@@ -8,6 +8,7 @@ AS.Model.HasMany = AS.Model.Field.extend ({delegate, include, def, defs}) ->
 
 AS.Model.HasMany.Instance = AS.Model.Field.Instance.extend ({def, delegate}) ->
   delegate AS.COLLECTION_DELEGATES, to: "backingCollection"
+  delegate 'groupBy', to: "backingCollection"
   
   def initialize: (@object, @options={}) ->
     @model = @options.model

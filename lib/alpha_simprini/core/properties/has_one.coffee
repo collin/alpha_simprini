@@ -18,6 +18,7 @@ AS.Model.HasOne.Instance = AS.Model.Field.Instance.extend ({def}) ->
     @value
 
   def set: (value) ->
+    value = value.model if value?.model
     return if value is @value
 
     if _.isString(value)

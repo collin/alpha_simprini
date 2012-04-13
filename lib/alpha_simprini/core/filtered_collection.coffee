@@ -16,9 +16,16 @@ AS = require "alpha_simprini"
 
 AS.FilteredCollection = AS.Collection.extend ({delegate, include, def, defs}) ->
   delegate 'add', 'remove', to: 'parent'
+  @property 'filter'
 
-  def initialize: (@parent, @filter=(-> true)) ->
+  def initialize: (@parent, filter=(-> true)) ->
     @_super()
+
+    @filter.bind 
+      event: 'change'
+      handler: @reFilter
+      context: this
+
     @parent.bind
       event: 'add'
       handler: @addToSelf
@@ -31,10 +38,10 @@ AS.FilteredCollection = AS.Collection.extend ({delegate, include, def, defs}) ->
       context: this
       namespace: @objectId()
 
-    @parent.each (model) -> @addToSelf(model)
+    @filter.set(filter)
 
   def determinePlacementInSelf: (model) ->
-    if @filter(model) is true
+    if @filter.get()(model) is true
       @addToSelf(model)
     else
       @removeFromSelf(model)
@@ -48,11 +55,16 @@ AS.FilteredCollection = AS.Collection.extend ({delegate, include, def, defs}) ->
       namespace: @objectId()
       context: this
 
-    return unless @filter(model) is true
+    return unless @filter.get()(model) is true
     @_add(model)
 
   def removeFromSelf: (model) ->
     model.unbind "." + @objectId()
     return unless @models.indexOf(model)
     @_remove(model)
+
+  def reFilter: ->
+    @parent.each (model) => @determinePlacementInSelf(model)
+
+    
 

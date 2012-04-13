@@ -6,6 +6,8 @@ AS.part("Core").require("model/rest")
 Rested = NS.Rested = AS.Model.extend ({delegate, include, def, defs}) ->
   include AS.Model.REST
   @field "field"
+  @field "thingId"
+  @field "thingType"
   # @embedsMany "embeds", model: -> SimpleRest
   # @embedsOne "embedded", model: -> SimpleRest
   @hasMany "relations", model: -> SimpleRest
@@ -31,6 +33,8 @@ plain =
     field: "value"
     relation_ids: []
     owner_id: null
+    thing_id: 1
+    thing_type: "Thing"
 
 sideLoading = 
   rested:
@@ -62,6 +66,8 @@ exports.REST =
     test.equal "value", model.field.get()
     test.equal null, model.owner.get()
     test.equal 0, model.relations.backingCollection.length
+    test.equal "1", model.thingId.get()
+    test.equal "Thing", model.thingType.get()
     test.done()
 
   "loads a model from a JSON respons w/sideLoading": (test) ->

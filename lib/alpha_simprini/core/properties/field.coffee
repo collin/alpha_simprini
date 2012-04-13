@@ -1,6 +1,6 @@
 AS = require("alpha_simprini")
 _ = require("underscore")
-{isBoolean} = require "underscore"
+{isBoolean, isString} = require "underscore"
 
 # TODO: Field is generic. reuse it.
 AS.Model.Field = AS.Property.extend ({delegate, include, def, defs}) ->
@@ -8,9 +8,18 @@ AS.Model.Field = AS.Property.extend ({delegate, include, def, defs}) ->
     String:
       read: String
       write: String
+
     Number:
       read: Number
       write: Number
+
+    Date:
+      read: (value) ->
+        if isString(value) then new Date(value) else value
+
+      write: (value) ->
+        if value instanceof Date then value.toJSON() else value
+
     Boolean:
       read: (value) ->
         return value if isBoolean(value)

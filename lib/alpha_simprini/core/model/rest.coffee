@@ -13,7 +13,9 @@ extractIds = (object) ->
   data = {}
   ids = {}
   for key, value of object
-    if key.match /Ids?$/
+    if key.match(/Id$/) and not(object[key.replace(/Id$/, "Type")])
+      ids[key] = value
+    else if key.match /Ids$/
       ids[key] = value
     else
       data[key] = value
@@ -94,7 +96,6 @@ AS.Model.REST = AS.Module.extend ({delegate, include, def, defs}) ->
       continue unless references
       
       relationKey = key.replace(/Id/, '')
-      return if @[relationKey + "Type"] # polymorphic!
       path = @[relationKey].model().path()
       
       if references.length is undefined

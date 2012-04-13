@@ -3,6 +3,7 @@ AS.Models.Grouping = AS.Model.extend ({delegate, include, def, defs}) ->
   @hasMany 'groups'
 
   def initialize: (@backingCollection, @groupByProperty) ->
+    @_super()
     @groupMap = AS.Map.new()
     # TODO: send newvalue/oldvalue when triggering field changes ;)
     # that way an itemMap isn't neccessary.
@@ -23,12 +24,13 @@ AS.Models.Grouping = AS.Model.extend ({delegate, include, def, defs}) ->
       handler: @determineNewGroup
       context: this
 
-    @backingCollection.each (item) -> @addToGroup(item)
+    @backingCollection.each (item) => @addToGroup(item)
 
   def addToGroup: (item) ->
     name = item[@groupByProperty].get()
     unless group = @groupMap.get(name)
       group = AS.Models.Group.new(name: name)
+      @groups.add(group)
       @groupMap.set(name, group)
 
     @itemMap.set item, group

@@ -88,3 +88,17 @@ exports.FilteredCollection =
     test.deepEqual [one, three], f.models.value()
     test.done()
 
+  "re-filters when fn changes": (test) ->
+    c = C.Collection.new()
+    f = c.filter (model) -> model.truth.get() is false
+
+    one = c.add C.Model.new()
+    two = c.add C.Model.new(truth: true)
+    three = c.add C.Model.new()
+
+    f.filter.set (model) -> model.truth.get() is true
+
+    test.deepEqual [two], f.models.value()
+    test.done()
+
+
