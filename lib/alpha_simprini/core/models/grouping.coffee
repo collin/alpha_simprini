@@ -2,7 +2,7 @@ AS = require "alpha_simprini"
 AS.Models.Grouping = AS.Model.extend ({delegate, include, def, defs}) ->
   @hasMany 'groups'
 
-  def initialize: (@backingCollection, @groupByProperty) ->
+  def initialize: (@backingCollection, @groupByProperty, @metaData={}) ->
     @_super()
     @groupMap = AS.Map.new()
     # TODO: send newvalue/oldvalue when triggering field changes ;)
@@ -29,7 +29,7 @@ AS.Models.Grouping = AS.Model.extend ({delegate, include, def, defs}) ->
   def addToGroup: (item) ->
     name = item[@groupByProperty].get()
     unless group = @groupMap.get(name)
-      group = AS.Models.Group.new(name: name)
+      group = AS.Models.Group.new(name: name, metaData: @metaData)
       @groups.add(group)
       @groupMap.set(name, group)
 

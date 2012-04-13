@@ -6,7 +6,8 @@ exports.setUp = coreSetUp
 NS.Virtualized = AS.Model.extend ->
   @field "name"
   @property "other"
-  @virtualProperties "name",
+  @hasMany "others"
+  @virtualProperties "name", "others",
     virtualA: -> Math.random()
     virtualB: -> "steady as she goes"
     virtualC:
@@ -20,7 +21,7 @@ exports.VirtualProperty =
     test.done()
 
   "exposes dependencies": (test) ->
-    test.deepEqual NS.Virtualized.properties.virtualA.dependencies, ["name"]
+    test.deepEqual NS.Virtualized.properties.virtualA.dependencies, ["name", "others"]
     test.done()
 
   "when dependency and virtual changes, change triggers on virtual": (test) ->
@@ -40,6 +41,15 @@ exports.VirtualProperty =
     o = NS.Virtualized.new()
     o.virtualC.set("vname")
     test.equal "vname", o.name.get()
+    test.done()
+
+  "may depend on collection properties": (test) ->
+    test.expect 3
+    o = NS.Virtualized.new()
+    o.bind "change:virtualA", -> test.ok true
+    o.bind "change:virtualB", -> test.ok true
+    o.bind "change:virtualC", -> test.ok true
+    o.others.add {}
     test.done()
 
   "bindPath": 

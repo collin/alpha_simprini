@@ -15,6 +15,8 @@ AS.Model.VirtualProperty.Instance = AS.Property.Instance.extend ({def}) ->
     @cached = NULL_CACHE
     for dependency in @options.dependencies
       @object.bind "change:#{dependency}",  _.bind @triggerFor, this, dependency
+      @object[dependency].bind "add", _.bind @triggerFor, this, dependency
+      @object[dependency].bind "remove", _.bind @triggerFor, this, dependency
 
   def set: (value) -> 
     if set = @options.getSet.set
