@@ -81,6 +81,12 @@ AS.Collection = AS.Object.extend ({def, include, delegate}) ->
       event: "all"
       namespace: @objectId()
 
+  def filter: (fn) ->
+    AS.FilteredCollection.new(this, fn)
+
+  def groupBy: (key) ->
+    AS.Models.Grouping.new(this, key)
+    
   # # When an event is triggered from a model, it is bubbled up through the collection.
   def _onModelEvent: (event, model, collection, options) ->
     return unless isString(event)

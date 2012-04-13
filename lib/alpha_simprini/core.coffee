@@ -10,9 +10,10 @@ Core.require """
   properties/field properties/has_many properties/has_one properties/virtual_property
   properties/embeds_many properties/embeds_one properties/belongs_to
 
-  collection
+  collection filtered_collection
 
   models/radio_selection_model models/multiple_selection_model
+  models/group models/grouping
 """
 
 # model/share
