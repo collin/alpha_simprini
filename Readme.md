@@ -1,4 +1,4 @@
-# Alpha Simprini is in the middle of a rewrite to incorporate [Pathology](https://github.com/collin/pathology) and [Taxi](https://github.com/collin/taxi). This branch very much does not work nor is it reccomended to use master at this time.
+###### Alpha Simprini incorporates [Pathology](https://github.com/collin/pathology) and [Taxi](https://github.com/collin/taxi).
 ![Alpha Simprini](http://alphasimprini.com/images/logo.png "Alpha Simprini")
 ##### PUBLIC DOMAIN LICENSE ( IT'S IN THE PUBLIC DOMAIN )
 # From Lower Earth Orbit, it's Alpha Simprini
