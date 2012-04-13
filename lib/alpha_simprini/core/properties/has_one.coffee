@@ -28,7 +28,16 @@ AS.Model.HasOne.Instance = AS.Model.Field.Instance.extend ({def}) ->
       value = @options.model().new(value)
 
     @value?.unbind(@namespace)
+
+    # TODO: test inverse
+    if @value and @options.inverse and @object[@options.inverse]
+      @value[@options.inverse].remove(@object)
+
     @value = value
+    
+    if @value and @options.inverse and @object[@options.inverse]
+      @value[@options.inverse].add(@object)
+    
     @value?.bind "all#{@namespace}", _.bind(@trigger, this)
     @object.trigger("change")
     @object.trigger("change:#{@options.name}")

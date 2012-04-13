@@ -95,7 +95,7 @@ AS.Binding.Many = AS.Binding.extend ({def}) ->
           content.push made
 
         # FIXME: paint!
-        # binding.paint()
+        binding.paint()
 
     @contents[item.cid] = content
     return content

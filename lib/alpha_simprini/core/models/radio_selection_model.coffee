@@ -1,6 +1,6 @@
 AS = require "alpha_simprini"
 AS.Models.RadioSelectionModel = AS.Model.extend ({def}) ->
-  @hasOne 'selected'
+  @property 'selected'
   
   def initialize: ->
     @_super()

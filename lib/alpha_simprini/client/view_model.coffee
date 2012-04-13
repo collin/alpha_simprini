@@ -2,6 +2,7 @@ AS = require "alpha_simprini"
 _ = require "underscore"
 jQuery = require "jQuery"
 Pathology = require "pathology"
+Taxi = require("taxi")
 
 AS.ViewModel = AS.Object.extend ({def, defs}) ->
 
@@ -21,14 +22,12 @@ AS.ViewModel = AS.Object.extend ({def, defs}) ->
 
     for name, property of model.properties
       klass.bindables[name] = switch property.constructor
-        when AS.Model.Field
+        when AS.Model.Field, Taxi.Property, AS.Model.VirtualProperty
           AS.Binding.Field
         when AS.Model.BelongsTo, AS.Model.EmbedsOne, AS.Model.HasOne
           AS.Binding.One
         when AS.Model.HasMany, AS.Model.EmbedsMany
           AS.Binding.Many
-        # when AS.Model.HasOne
-        #   AS.Binding.HasOne
 
     for method in AS.instanceMethods(model)
       continue if _.include _.keys(Pathology.Object::), method

@@ -9,6 +9,9 @@ NS.Virtualized = AS.Model.extend ->
   @virtualProperties "name",
     virtualA: -> Math.random()
     virtualB: -> "steady as she goes"
+    virtualC:
+      get: -> @name.get()
+      set: (value) -> @name.set(value)
 
 exports.VirtualProperty =
   "is a virtual": (test) ->
@@ -31,6 +34,12 @@ exports.VirtualProperty =
     o.bind "change:virtualB", -> test.ok(true)
     o.name.set "First Name"
     o.name.set "Second Name"
+    test.done()
+
+  "with a setter": (test) ->
+    o = NS.Virtualized.new()
+    o.virtualC.set("vname")
+    test.equal "vname", o.name.get()
     test.done()
 
   "bindPath": 

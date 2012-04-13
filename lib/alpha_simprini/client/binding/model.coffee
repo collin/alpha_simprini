@@ -1,5 +1,6 @@
 AS = require("alpha_simprini")
 _ = require "underscore"
+$ = require "jquery"
 
 AS.Binding.Model = AS.Object.extend ({def}) ->
   def initialize: (@context, @model, @content=$([])) ->

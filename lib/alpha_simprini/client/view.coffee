@@ -6,21 +6,28 @@ fleck = require("fleck")
 AS.View = AS.DOM.extend ({delegate, include, def, defs}) ->
   include Taxi.Mixin
 
+  delegate 'addClass', 'removeClass', 'show', 'hide', 'html', to: "el"
+
   def tagName: "div"
 
   def _ensureElement: -> @el ?= @$(@buildElement())
 
   def initialize: (config={}) ->
+    config.el = @$(config.el) if config.el and !(config.el.jquery)
+
     @cid = _.uniqueId("c")
 
     for key, value of config
-      if value instanceof AS.Model
-        @[key] = AS.ViewModel.build(this, value)
+      if value?.model instanceof AS.Model
+        @[key] = AS.ViewModel.build(this, value.model)
       else
         @[key] = value
 
     @bindingGroup = AS.BindingGroup.new()
     @_ensureElement()
+
+    @currentNode = @el[0]
+    @childViews = []
     @delegateEvents()
 
   def append: (view) -> @el.append view.el
@@ -55,13 +62,43 @@ AS.View = AS.DOM.extend ({delegate, include, def, defs}) ->
 
     classes.join(" ")
 
-
   def baseAttributes: ->
     attrs =
       class: @klassString()
 
   def buildElement: ->
     @currentNode = @[@tagName](@baseAttributes())
+
+  def view: (constructor, options={}) ->
+    options.application = @application
+    options.parentView = this
+    view = constructor.new(options)
+    @childViews.push(view)
+    @bindingGroup.addChild(view)
+    view.el[0]
+
+  def descendantViews: (views=[], constructor) ->
+    for view in @childViews
+      if constructor
+        views.push view if view instanceof constructor
+      else
+        views.push view
+      view.descendantViews(views, constructor)
+
+    views
+
+  def removeChild: (child) ->
+    @childViews = _.without(@childViews, child)
+    
+  def unbind: ->
+    @parentView.removeChild(this)
+    @el.remove()
+
+  def binding: (bindable, fnOrElement) ->
+    if bindable instanceof AS.Collection
+      AS.Binding.Many.new(this, bindable, bindable, fnOrElement)
+    else if bindable instanceof AS.Model
+      AS.Binding.Model.new(this, bindable, fnOrElement)
 
   def delegateEvents: () ->
     if @events

@@ -5,6 +5,7 @@ _ = exports._ = require "underscore"
 sinon = exports.sinon = require "sinon"
 $ = exports.$ = require "jquery"
 exports.jwerty = require("jwerty").jwerty
+AS.part("Core").require("model/share")
 # AS.suppress_logging()
 
 require("nodeunit").assert.AssertionError.prototype.toString = ->

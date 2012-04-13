@@ -1,17 +1,31 @@
 {AS, $, _, sinon, jwerty} = require require("path").resolve("./test/client_helper")
 exports.Application =
   setUp: (callback) ->
-    @app = AS.Application.new()
+    @app = AS.Application.new(el: @el = $("<div>"))
     callback()
 
   "attaches global key handlers w/jwerty": (test) ->
-    test.expect 3
-    @app.bind "esc", (event) -> test.ok event
-    @app.bind "accept", (event) -> test.ok event
-    @app.bind "delete", (event) -> test.ok event
-    jwerty.fire "esc"
-    jwerty.fire "cmd+enter"
-    jwerty.fire "backspace"
+    events = [
+     "open", "up", "down", "first", "last", "left", 
+     "right", "indent", "dedent", "alphanum"
+     "escape", "accept", "delete"
+    ]
+
+    for event in events
+      do (event) =>
+        @app.bind event, (_event) -> test.ok(_event)
+
+    triggers = [
+      "esc", "cmd+enter", "backspace", "enter", "up", "down",
+      "home", "end", "left", "right", "tab", "shift+tab"
+      "a", "b", "C", "D", "1", "2"
+    ]
+    test.expect triggers.length
+
+
+    for trigger in triggers
+      jwerty.fire trigger, @el
+
     test.done()
 
   "initializes views into the application context": (test) ->

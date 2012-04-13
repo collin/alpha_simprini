@@ -25,8 +25,7 @@ AS.BindingGroup = AS.Object.extend ({def}) ->
         handler: handler
         context: context
 
-  def addChild: ->
-    child = AS.BindingGroup.new()
+  def addChild: (child=AS.BindingGroup.new())->
     @children.push child
     return child
 

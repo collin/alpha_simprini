@@ -9,6 +9,24 @@ exports.Binding =
       test.equal binding.container.find("span").text(), "value"
       test.done()
 
+    "clears content when value undefined": (test) ->
+      [mocks, binding] = mock_binding AS.Binding.Field,
+        fn: ->
+          @h1 -> @span "fn value"
+
+      binding.model.field.set(undefined)
+      test.equal "", binding.container.html()
+      test.done()
+
+    "clears content when value null": (test) ->
+      [mocks, binding] = mock_binding AS.Binding.Field,
+        fn: ->
+          @h1 -> @span "fn value"
+
+      binding.model.field.set(null)
+      test.equal "", binding.container.html()
+      test.done()
+
     "updates content when model changes": (test) ->
       [mocks, binding] = mock_binding(AS.Binding.Field)
       binding.model.field.set("new value")

@@ -16,11 +16,15 @@ AS.Model.VirtualProperty.Instance = AS.Property.Instance.extend ({def}) ->
     for dependency in @options.dependencies
       @object.bind "change:#{dependency}",  _.bind @triggerFor, this, dependency
 
-  def set: () -> throw "Can't set a VirtualProperty name: #{@options.name}, dependencies: #{@options.dependencies.join(',')}"
+  def set: (value) -> 
+    if set = @options.getSet.set
+      set.call(@object, value)
+    else
+      throw "Can't set a VirtualProperty name: #{@options.name}, dependencies: #{@options.dependencies.join(',')}"
   
   def get: -> @cached = @compute()
 
-  def compute: (args) -> @options.fn.call(@object)
+  def compute: (args) -> @options.getSet.get.call(@object)
 
   def triggerFor: (dependency) ->
     computed = @compute()
@@ -36,4 +40,8 @@ AS.Model.VirtualProperty.Instance = AS.Property.Instance.extend ({def}) ->
 
 AS.Model.defs virtualProperties: (dependencies..., properties) -> 
   for name, fn of properties
-    AS.Model.VirtualProperty.new(name, this, dependencies: dependencies, fn: fn)
+    if _.isFunction(fn)
+      getSet = {get: fn}
+    else
+      getSet = fn
+    AS.Model.VirtualProperty.new(name, this, dependencies: dependencies, getSet: getSet)

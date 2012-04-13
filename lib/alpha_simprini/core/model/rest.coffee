@@ -79,6 +79,7 @@ AS.Model.REST = AS.Module.extend ({delegate, include, def, defs}) ->
       @constructor.mappings()[key].sideloadData(embed, references) for embed in embeds
 
     references.each (model, ids) -> model.resolveReferences(ids)
+    @trigger("ready")
     return this
 
   defs sideloadData: (modelData, references) ->

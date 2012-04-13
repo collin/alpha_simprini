@@ -7,7 +7,7 @@ exports.Binding =
     setUp: (callback) ->
       @model = BoundModel.new( owner: BoundModel.new() )
 
-      content_fn = (thing) -> @div id: thing.cid
+      content_fn = (thing) -> @div id: thing.cid.replace('.', '-')
 
       [mocks, binding] = mock_binding(AS.Binding.One, field: @model.owner, model: @model, fn: content_fn)
 
@@ -15,7 +15,7 @@ exports.Binding =
       callback()
 
     "creates initial dom": (test) ->
-      test.ok @binding.container.find("##{@model.owner.get().cid}").is("div")
+      test.ok @binding.container.find("##{@model.owner.get().cid.replace('.', '-')}").is("div")
       test.done()
 
     "clears dom when field is null": (test) ->

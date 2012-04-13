@@ -12,7 +12,7 @@ exports.Binding =
       items.add()
 
 
-      content_fn = (thing) -> @div id: thing.cid
+      content_fn = (thing) -> @div id: thing.cid.replace(".", "-")
 
       [mocks, binding] = mock_binding(AS.Binding.Many, field: model.items, model: model, fn: content_fn)
 
@@ -23,14 +23,14 @@ exports.Binding =
     "creates initial collection dom": (test) ->
       test.expect 3
       @items.each (item) =>
-        test.ok @binding.container.find("##{item.cid}").is("div")
+        test.ok @binding.container.find("##{item.cid.replace(".", "-")}").is("div")
 
       test.done()
 
     "adds additional dom elements when items added to collection": (test) ->
       test.expect 1
       item = @items.add()
-      test.ok @binding.container.find("##{item.cid}").is("div")
+      test.ok @binding.container.find("##{item.cid.replace(".", "-")}").is("div")
 
       test.done()
 
@@ -38,14 +38,14 @@ exports.Binding =
       test.expect 1
       item = @items.add({}, at: 0)
 
-      test.ok @binding.container.children(":first").is("##{item.cid}")
+      test.ok @binding.container.children(":first").is("##{item.cid.replace(".", "-")}")
 
       test.done()
 
     "removes dom elements when item removed from collection": (test) ->
       item = @items.at(0)
       @items.remove item
-      test.ok @binding.container.find("##{item.cid}")[0] is undefined
+      test.ok @binding.container.find("##{item.cid.replace(".", "-")}")[0] is undefined
       test.done()
 
   HasManyWithFilter:
@@ -53,7 +53,7 @@ exports.Binding =
       model = BoundModel.new()
       items = model.items
 
-      content_fn = (thing) -> @div id: thing.cid
+      content_fn = (thing) -> @div id: thing.cid.replace(".", "-")
 
       [mocks, binding] = mock_binding(AS.Binding.Many,
           field: items,
@@ -71,9 +71,9 @@ exports.Binding =
       two = @items.add field: "false"
       three = @items.add field: "43"
 
-      test.equal @binding.container.find("##{one.cid}")[0].id, one.cid
-      test.equal @binding.container.find("##{two.cid}")[0], undefined
-      test.equal @binding.container.find("##{three.cid}")[0].id, three.cid
+      test.equal @binding.container.find("##{one.cid.replace(".", "-")}")[0].id, one.cid.replace(".", "-")
+      test.equal @binding.container.find("##{two.cid.replace(".", "-")}")[0], undefined
+      test.equal @binding.container.find("##{three.cid.replace(".", "-")}")[0].id, three.cid.replace(".", "-")
       test.done()
 
     "moves items into place in the collection when their values change": (test) ->
@@ -83,7 +83,7 @@ exports.Binding =
 
       two.field.set("43")
 
-      test.equal @binding.container.children()[1].id, two.cid
+      test.equal @binding.container.children()[1].id, two.cid.replace(".", "-")
 
       test.done()
 

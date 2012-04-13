@@ -2,7 +2,6 @@
 exports.setUp = coreSetUp
 
 AS.part("Core").require("model/rest")
-console.log AS.Model.REST.toString()
 
 Rested = NS.Rested = AS.Model.extend ({delegate, include, def, defs}) ->
   include AS.Model.REST
