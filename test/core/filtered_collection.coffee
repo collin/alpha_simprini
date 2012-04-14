@@ -51,7 +51,6 @@ exports.FilteredCollection =
     one = c.add C.Model.new()
     two = c.add C.Model.new(truth: true)
     three = c.add C.Model.new()
-
     two.truth.set(false)
 
     test.deepEqual [one, three, two], f.models.value()
@@ -71,12 +70,13 @@ exports.FilteredCollection =
     test.done()
 
   "triggers add/remove events": (test) ->
-    test.expect 4
+    test.expect 5
 
     c = C.Collection.new()
     f = c.filter (model) -> model.truth.get() is false
 
     f.bind "add", (model) -> test.ok(model)
+    f.bind "remove", (model) -> test.ok(model)
 
     one = c.add C.Model.new()
     two = c.add C.Model.new(truth: true)

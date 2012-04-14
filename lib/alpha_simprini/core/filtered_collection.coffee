@@ -32,9 +32,15 @@ AS.FilteredCollection = AS.Collection.extend ({delegate, include, def, defs}) ->
       context: this
       namespace: @objectId()
 
+    @parent.bind
+      event: 'change'
+      handler: @determinePlacementInSelf
+      context: this
+      namespace: @objectId()
+
     @parent.bind 
       event: 'remove'
-      handler: @determinePlacementInSelf
+      handler: @removeFromSelf
       context: this
       namespace: @objectId()
 
@@ -48,22 +54,13 @@ AS.FilteredCollection = AS.Collection.extend ({delegate, include, def, defs}) ->
 
   def addToSelf: (model) ->
     return if @models.include(model).value()
-    model.unbind "."+@objectId()
-
-    model.bind
-      event: "change"
-      handler: @determinePlacementInSelf
-      namespace: @objectId()
-      context: this
-
     @_add(model)
 
   def removeFromSelf: (model) ->
-    model.unbind "." + @objectId()
     return unless @models.include(model).value()
     @_remove(model)
-    # FIXME: thish should trigger on the previous method
-    @trigger("remove", model)
+    # # FIXME: thish should trigger on the previous method
+    # @trigger("remove", model)
 
   def reFilter: ->
     @parent.each (model) => @determinePlacementInSelf(model)

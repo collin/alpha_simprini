@@ -14,9 +14,9 @@ AS.Model.VirtualProperty.Instance = AS.Property.Instance.extend ({def}) ->
   def initialize: (@object, @options) ->
     @cached = NULL_CACHE
     for dependency in @options.dependencies
-      @object.bind "change:#{dependency}",  _.bind @triggerFor, this, dependency
-      @object[dependency].bind "add", _.bind @triggerFor, this, dependency
-      @object[dependency].bind "remove", _.bind @triggerFor, this, dependency
+      @object[dependency].bind "add", _.bind(@triggerFor, this, dependency, "add")
+      @object[dependency].bind "remove", _.bind(@triggerFor, this, dependency, "remove")
+      @object[dependency].bind "change", _.bind(@triggerFor, this, dependency, "change")
 
   def set: (value) -> 
     if set = @options.getSet.set
@@ -28,13 +28,13 @@ AS.Model.VirtualProperty.Instance = AS.Property.Instance.extend ({def}) ->
 
   def compute: (args) -> @options.getSet.get.call(@object)
 
-  def triggerFor: (dependency) ->
+  def triggerFor: (dependency, trigger) ->
     computed = @compute()
     return if @cached is computed
     @cached = computed
     @_trigger()
 
-  def _trigger: ->    
+  def _trigger: ->
     @trigger("change")
     @object.trigger("change")
     @object.trigger("change:#{@options.name}")

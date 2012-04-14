@@ -14,6 +14,9 @@ NS.Virtualized = AS.Model.extend ->
       get: -> @name.get()
       set: (value) -> @name.set(value)
 
+NS.Basic = AS.Model.extend ({delegate, include, def, defs}) ->
+  @field "name"
+
 exports.VirtualProperty =
   "is a virtual": (test) ->
     test.ok NS.Virtualized.properties.virtualA instanceof AS.Model.VirtualProperty
@@ -50,6 +53,14 @@ exports.VirtualProperty =
     o.bind "change:virtualB", -> test.ok true
     o.bind "change:virtualC", -> test.ok true
     o.others.add {}
+    test.done()
+
+  "may depend on changing collection properties": (test) ->
+    test.expect 1
+    o = NS.Virtualized.new()
+    other = o.others.add NS.Basic.new()
+    o.bind "change:virtualA", -> test.ok true
+    o.others.at(0).name.set("NEW NAME")
     test.done()
 
   "bindPath": 

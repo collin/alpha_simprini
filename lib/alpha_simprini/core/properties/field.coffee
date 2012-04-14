@@ -91,7 +91,7 @@ AS.Model.Field = AS.Property.extend ({delegate, include, def, defs}) ->
 
       def set: (value) ->
         raw = @raw.at(@path)
-        if _.isString(current = raw.get())
+        if toString.call(current = raw.get()) == '[object String]'
           length = current.length
           raw.del(0, length)
           raw.insert(0, value)
