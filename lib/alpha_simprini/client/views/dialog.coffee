@@ -16,7 +16,8 @@ AS.Views.Dialog = AS.Views.Panel.extend ({delegate, include, def, defs}) ->
       "knead:dragend header": "dragend"
       
     @_super.apply(this, arguments)
-  
+
+  def content: ->
     @head = @$ @header @header_content
     @content = @$ @section @main_content
     @foot = @$ @footer @footer_content

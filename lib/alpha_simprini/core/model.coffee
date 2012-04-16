@@ -18,6 +18,7 @@ AS.Model = AS.Object.extend ({def, include}) ->
 
   def set: (attributes) ->    
     for key, value of attributes
+      continue if key is "_type"
       if key is "id"
         @setId(value)
       else

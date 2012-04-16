@@ -35,7 +35,7 @@ exports.FilteredCollection =
 
   "respects filter function when adding models": (test) ->
     c = C.Collection.new()
-    f = c.filter (model) -> model.truth.get() is false
+    f = c.filter truth: false
 
     one = c.add C.Model.new()
     two = c.add C.Model.new(truth: true)
@@ -46,7 +46,7 @@ exports.FilteredCollection =
 
   "add filtered items when they change": (test) ->
     c = C.Collection.new()
-    f = c.filter (model) -> model.truth.get() is false
+    f = c.filter truth: false
 
     one = c.add C.Model.new()
     two = c.add C.Model.new(truth: true)
@@ -58,7 +58,7 @@ exports.FilteredCollection =
 
   "remove filtered items when they change": (test) ->
     c = C.Collection.new()
-    f = c.filter (model) -> model.truth.get() is false
+    f = c.filter truth: false
 
     one = c.add C.Model.new()
     two = c.add C.Model.new()
@@ -73,7 +73,7 @@ exports.FilteredCollection =
     test.expect 5
 
     c = C.Collection.new()
-    f = c.filter (model) -> model.truth.get() is false
+    f = c.filter truth: false
 
     f.bind "add", (model) -> test.ok(model)
     f.bind "remove", (model) -> test.ok(model)
@@ -88,17 +88,18 @@ exports.FilteredCollection =
     test.deepEqual [one, three], f.models.value()
     test.done()
 
-  "re-filters when fn changes": (test) ->
+  "re-filters when filter changes": (test) ->
     c = C.Collection.new()
-    f = c.filter (model) -> model.truth.get() is false
+    f = c.filter truth: false
 
     one = c.add C.Model.new()
     two = c.add C.Model.new(truth: true)
     three = c.add C.Model.new()
 
-    f.filter.set (model) -> model.truth.get() is true
+    f.setConditions(truth: true)
 
     test.deepEqual [two], f.models.value()
     test.done()
+
 
 

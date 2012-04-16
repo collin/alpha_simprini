@@ -3,6 +3,9 @@ _ = require "underscore"
 
 AS.Binding = AS.Object.extend ({def}) ->
   def initialize: (@context, @model, @field, @options={}, @fn=undefined) ->
+    if _.isString(@field)
+      @field = @model[@field]      
+
     @event = "change:#{field}"
 
     if _.isFunction(@options)
@@ -23,7 +26,11 @@ AS.Binding = AS.Object.extend ({def}) ->
   def willGroupBindings: ->
     @constructor.willGroupBindings or _.isFunction(@fn)
 
-  def fieldValue: -> @field.get()
+  def fieldValue: -> 
+    if _.isArray(@field)
+      @model.readPath(@field)
+    else
+      @field.get()
 
   def require_option: (name) ->
     return unless @options[name] is undefined

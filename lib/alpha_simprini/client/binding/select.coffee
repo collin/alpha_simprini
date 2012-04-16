@@ -23,7 +23,9 @@ AS.Binding.Select = AS.Binding.Input.extend ({def}) ->
 
   def setField: ->
     value = @select.val()
-    if _.isArray value
-      @field.set value[0]
+    value = if _.isArray value then value[0] else value
+
+    if _.isArray @field
+      @model.writePath @field, value
     else
       @field.set value

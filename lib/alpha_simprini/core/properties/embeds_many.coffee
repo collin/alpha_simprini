@@ -8,8 +8,8 @@ AS.Model.EmbedsMany.Instance = AS.Model.HasMany.Instance.extend ({def, delegate}
     if @share.get() in [null, undefined]
       @share.set([]) 
       @each (item, index) => item.didEmbed @share.at(index)
-    else
-      _.each @share.get(), (item, index) => @add(item)
+    # else
+    #   _.each @share.get(), (item, index) => @add(item)
 
   def add: (item, options={}) ->
     item = @backingCollection.add.apply(@backingCollection, arguments)

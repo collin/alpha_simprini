@@ -19,7 +19,7 @@ AS.Model.HasOne.Instance = AS.Model.Field.Instance.extend ({def}) ->
 
   def set: (value) ->
     value = value.model if value?.model
-    return if value is @value
+    return @value if value is @value
 
     if _.isString(value)
       value = AS.All.byId[value] 
@@ -31,19 +31,21 @@ AS.Model.HasOne.Instance = AS.Model.Field.Instance.extend ({def}) ->
     @value?.unbind(@namespace)
 
     # TODO: test inverse
-    if @value and @options.inverse and @object[@options.inverse]
-      @value[@options.inverse].remove(@object)
+
+    if @value and @options.inverse and @value[@options.inverse]
+      @value[@options.inverse].remove(@object) if @value[@options.inverse].include(@object).value()
 
     @value = value
     
-    if @value and @options.inverse and @object[@options.inverse]
-      @value[@options.inverse].add(@object)
+    if @value and @options.inverse and @value[@options.inverse]
+      debugger if window.DEBUG
+      @value[@options.inverse].add(@object) unless @value[@options.inverse].include(@object).value()
     
     @value?.bind "all#{@namespace}", _.bind(@trigger, this)
     @object.trigger("change")
     @object.trigger("change:#{@options.name}")
     @trigger("change")
-    value
+    @value
 
   @Synapse = AS.Model.Field.Instance.Synapse.extend ({delegate, include, def, defs}) ->
     def get: ->

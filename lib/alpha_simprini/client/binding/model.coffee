@@ -16,8 +16,7 @@ AS.Binding.Model = AS.Object.extend ({def}) ->
             value = @styles[property]()
             @content.css property, value
 
-          bindingPath = AS.deepClone(options)
-          bindingPath[options.length - 1] = "change:#{_(options).last()}"
+          bindingPath = options
           @context.binds @model, bindingPath, painter, this
         else
           @styles[property] = => options.fn(@model)
@@ -41,8 +40,7 @@ AS.Binding.Model = AS.Object.extend ({def}) ->
             painter = => _.defer =>
               @content.attr property, @attrs[property]()
 
-            bindingPath = AS.deepClone(options)
-            bindingPath[options.length - 1] = "change:#{_(options).last()}"
+            bindingPath = options
             @context.binds @model, bindingPath, painter, this
           else
             @attrs[property] = =>

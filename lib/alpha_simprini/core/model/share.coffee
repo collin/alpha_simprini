@@ -1,10 +1,11 @@
 AS = require "alpha_simprini"
 _ = require "underscore"
+ShareJs = require("share").client
 
 AS.ShareJsURL = "http://#{window?.location.host or 'localhost'}/sjs"
 
 AS.openSharedObject = (id, callback) ->
-  @share.open id, "json", @ShareJsURL, (error, handle) ->
+  ShareJs.open id, "json", @ShareJsURL, (error, handle) ->
     if error then console.log(error) else callback(handle)
 
 AS.Model.Share = AS.Module.extend ({delegate, include, def, defs}) ->
@@ -12,7 +13,7 @@ AS.Model.Share = AS.Module.extend ({delegate, include, def, defs}) ->
     @writeInheritableValue 'indeces', name, config
 
 
-  defs shared: (id=AS.uniq(), indexer=(model) -> model.didIndex()) ->
+  defs shared: (id=AS.uniq(), indexer=(model) -> ) ->
     model = AS.All.byId[id] or @new(id:id)
     AS.openSharedObject id, (share) ->
       model.didOpen(share)
@@ -20,10 +21,10 @@ AS.Model.Share = AS.Module.extend ({delegate, include, def, defs}) ->
     model
 
   defs load: (id, callback) ->
-    unless model = AS.All.byId[id]
-        model = @new(id:id)
-      callback ?= model.didLoad
-      AS.openSharedObject id, _.bind(callback, model)
+    model = AS.All.byId[id] or @new(id:id)
+    AS.openSharedObject id, (share) ->
+      model.didLoad(share)
+      callback.call(model)
     model
     
   def new: ->
@@ -56,6 +57,7 @@ AS.Model.Share = AS.Module.extend ({delegate, include, def, defs}) ->
       @share.at().set({_type: @constructor.toString(), id:@id}) 
     @bindShareEvents()
     @buildIndeces()
+    @loadIndeces()
 
   def indeces: ->
     @index(name) for name, config of @constructor.indeces
@@ -68,11 +70,11 @@ AS.Model.Share = AS.Module.extend ({delegate, include, def, defs}) ->
     @[name] for name, config of @constructor.properties
     
   def bindShareEvents: ->
-    property?.syncWith?(@share) for property in @properties()
+    for property in @properties()
+      property?.syncWith?(@share) 
     for index in @indeces()
       index.on "insert", (id, konstructor) =>
         loaded = AS.loadPath(konstructor).load id, (share) ->
-          @didLoad(share)
           @indecesDidLoad()
         @trigger("indexload", loaded)
 
@@ -99,8 +101,7 @@ AS.Model.Share = AS.Module.extend ({delegate, include, def, defs}) ->
     loadedItem = _.after count, callback
     for id, _type of specs
       model = AS.loadPath(_type).load(id, loadedItem)
-      model.bind "destroy", => 
-        index.at(id).remove()
+      model.bind "destroy", => index.at(id).remove()
         
   def indecesDidLoad: ->
     unless @hasIndexed

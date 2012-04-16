@@ -5,12 +5,17 @@ fleck = require("fleck")
 
 AS.View = AS.DOM.extend ({delegate, include, def, defs}) ->
   include Taxi.Mixin
+  include AS.Callbacks
+
+  @defineCallbacks after: ['content'], before: ['content']
 
   delegate 'addClass', 'removeClass', 'show', 'hide', 'html', to: "el"
 
   def tagName: "div"
 
-  def _ensureElement: -> @el ?= @$(@buildElement())
+  def _ensureElement: -> 
+    @el ?= @$(@buildElement())
+    @el.data().view = this
 
   def initialize: (config={}) ->
     config.el = @$(config.el) if config.el and !(config.el.jquery)
@@ -28,7 +33,14 @@ AS.View = AS.DOM.extend ({delegate, include, def, defs}) ->
 
     @currentNode = @el[0]
     @childViews = []
+
+    @runCallbacks "beforeContent"
+    @content()
     @delegateEvents()
+    @runCallbacks "afterContent"
+
+  def content: ->
+    # Make your content here.
 
   def append: (view) -> @el.append view.el
 
@@ -94,11 +106,11 @@ AS.View = AS.DOM.extend ({delegate, include, def, defs}) ->
     @parentView.removeChild(this)
     @el.remove()
 
-  def binding: (bindable, fnOrElement) ->
-    if bindable instanceof AS.Collection
-      AS.Binding.Many.new(this, bindable, bindable, fnOrElement)
+  def binding: (bindable, options, fnOrElement) ->
+    if bindable instanceof AS.Collection or bindable instanceof AS.Model.HasMany.Instance
+      AS.Binding.Many.new(this, bindable, bindable, options, fnOrElement)
     else if bindable instanceof AS.Model
-      AS.Binding.Model.new(this, bindable, fnOrElement)
+      AS.Binding.Model.new(this, bindable, options or fnOrElement)
 
   def delegateEvents: () ->
     if @events

@@ -7,6 +7,7 @@ Model.field "name"
 Model.field "band", default: "the Tijuana Brass"
 Model.field "number", type: Number
 Model.field "boolean", type: Boolean
+Model.field "enum", type: AS.Enum, values: ["zero", "one", "two"]
 Model.property "other"
 
 exports.Field =
@@ -52,6 +53,19 @@ exports.Field =
     o.boolean.set(true)
     o.number.set 43
     test.done()
+
+  "Enum":
+    "reads enums": (test) ->
+      o = Model.new()
+      o.enum.value = 0
+      test.equal o.enum.get(), "zero"
+      test.done()
+
+    "writes enums": (test) ->
+      o = Model.new()
+      o.enum.set("two")
+      test.equal 2, o.enum.value
+      test.done()
 
   "bindPath": 
     "may be used in path bindings": (test) ->

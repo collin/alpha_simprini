@@ -13,10 +13,12 @@ AS.Model.AbstractSynapse = AS.Object.extend ({delegate, include, def, defs}) ->
     @observations = []
     @notifications = []
 
-  def observe: (other, config) ->
+  def observe: (other, config={}) ->
+    config.syncNow = true
     @observations.push @dendriteClass.new(this, other, config)
 
-  def notify: (other, config) ->
+  def notify: (other, config={}) ->
+    config.syncNow = false
     @notifications.push @dendriteClass.new(other, this, config)
 
   def stopObserving: (other) ->

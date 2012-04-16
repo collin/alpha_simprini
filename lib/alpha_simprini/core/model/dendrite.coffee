@@ -33,8 +33,10 @@ AS.Model.CollectionDendrite = AS.Model.Dendrite.extend ({delegate, include, def,
 
   def on: ->
     @notifier.binds @insertCallback, @removeCallback
-    @notifier.each (item, index) => 
-      @insertCallback(item, index)
+
+    if @config.syncNow
+      @notifier.each (item, index) => 
+        @insertCallback(item, index)
 
   def off: ->
     @notifier.unbinds @insertCallback, @removeCallback

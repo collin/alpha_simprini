@@ -62,6 +62,35 @@ exports.HasMany =
       test.done()
 
   "Sharing":
+    "on load": 
+      "loads objects from share": (test) ->
+        shareData =
+          children: [
+            {_type: "NS.Child", id: _.uniqueId()}
+            {_type: "NS.Child", id: _.uniqueId()}
+          ]
+
+        share = makeDoc(null, shareData)
+        o = NS.Parent.new()
+        o.children.syncWith(share)
+        test.equal 2, o.children.backingCollection.length
+
+        test.done()
+
+      "doesn't re-add data to share": (test) ->
+        shareData =
+          children: [
+            {_type: "NS.Child", id: _.uniqueId()}
+            {_type: "NS.Child", id: _.uniqueId()}
+          ]
+
+        share = makeDoc(null, shareData)
+        o = NS.Parent.new()
+        o.children.syncWith(share)
+        test.equal 2, share.at('children').get().length
+
+        test.done()
+
     "propagate values from model to share on sync": (test) ->
       o = NS.Parent.new()
       child = NS.Child.new()

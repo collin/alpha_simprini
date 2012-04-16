@@ -12,16 +12,19 @@
 #     add: ->
 #     remove: ->
 AS = require "alpha_simprini"
-{extend, isString} = require "underscore"
+Taxi = require "taxi"
+{extend, isString, isFunction, isArray} = require "underscore"
 
 AS.FilteredCollection = AS.Collection.extend ({delegate, include, def, defs}) ->
   delegate 'add', 'remove', to: 'parent'
-  @property 'filter'
 
-  def initialize: (@parent, filter=(-> true)) ->
+  def initialize: (@parent, conditions={}) ->
     @_super()
 
-    @filter.bind 
+    @conditions = Taxi.Map.new()
+    @conditions.set(key, value) for key, value of conditions
+
+    @conditions.bind 
       event: 'change'
       handler: @reFilter
       context: this
@@ -44,10 +47,10 @@ AS.FilteredCollection = AS.Collection.extend ({delegate, include, def, defs}) ->
       context: this
       namespace: @objectId()
 
-    @filter.set(filter)
+    @reFilter()
 
   def determinePlacementInSelf: (model) ->
-    if @filter.get()(model) is true
+    if @filter(model) is true
       @addToSelf(model)
     else
       @removeFromSelf(model)
@@ -59,11 +62,28 @@ AS.FilteredCollection = AS.Collection.extend ({delegate, include, def, defs}) ->
   def removeFromSelf: (model) ->
     return unless @models.include(model).value()
     @_remove(model)
-    # # FIXME: thish should trigger on the previous method
-    # @trigger("remove", model)
 
   def reFilter: ->
     @parent.each (model) => @determinePlacementInSelf(model)
+
+  def setConditions: (conditions) ->
+    @conditions.unbind()
+    @conditions.set(key, value) for key, value of conditions
+    @conditions.bind 
+      event: 'change'
+      handler: @reFilter
+      context: this
+    @reFilter()
+
+  def filter: (model) ->
+    for key, value of @conditions.toObject()
+      modelValue = model[key].get()
+      testValue = if isFunction(value) then value.call() else value
+      testValue = if isArray(testValue) then testValue else [testValue]
+
+      return false unless modelValue in testValue
+
+    true
 
     
 

@@ -3,17 +3,38 @@ _ = require("underscore")
 
 AS.Model.HasMany = AS.Model.Field.extend ({delegate, include, def, defs}) ->
   def couldBe: (test) ->
-    return true if test in (@options.model?()?.ancestors ? [])
+    return true if @options.model?() in (test.ancestors or [])
     @_super.apply(this, arguments)
 
 AS.Model.HasMany.Instance = AS.Model.Field.Instance.extend ({def, delegate}) ->
   delegate AS.COLLECTION_DELEGATES, to: "backingCollection"
   delegate 'groupBy', to: "backingCollection"
   
+  def inspect: ->
+    "#{@options.name}: [#{@backingCollection.length}]}"
+
   def initialize: (@object, @options={}) ->
     @model = @options.model
     @options.source = @object if @options.inverse
     @backingCollection = AS.Collection.new(undefined, @options)
+
+  def syncWith: (share) ->
+    @share = share.at(@options.name)
+    @stopSync()
+
+    @synapse = @constructor.Synapse.new(this)
+    @shareSynapse = @constructor.ShareSynapse.new(share, @options.name)
+
+    alreadyThere = _.clone @backingCollection.models.value()
+
+    @synapse.observe(@shareSynapse, field: @options.name)
+
+    _.each alreadyThere, (item) => @shareSynapse.insert(item, {})
+
+    @synapse.notify(@shareSynapse)
+
+  def objects: ->
+    @backingCollection.models.value()    
 
   def bindToPathSegment: (segment) ->
     segment.binds this, "add", segment.insertCallback
@@ -75,6 +96,7 @@ AS.Model.HasMany.Instance = AS.Model.Field.Instance.extend ({def, delegate}) ->
       @raw.removeListener(listener) for listener in @listeners
       
     def insert: (model, options) ->
+      options.at ?= @raw.at(@path).get().length
       @raw.at(@path).insert(options.at, id: model.id, _type: model.constructor.path())
 
     def remove: (model, options) ->

@@ -1,5 +1,5 @@
 AS = require "alpha_simprini"
-{camelize, underscore, pluralize} = require "fleck"
+{camelize, underscore, pluralize, singularize} = require "fleck"
 _ = require "underscore"
 $ = require "jquery"
 
@@ -95,15 +95,21 @@ AS.Model.REST = AS.Module.extend ({delegate, include, def, defs}) ->
     for key, references of ids
       continue unless references
       
-      relationKey = key.replace(/Id/, '')
-      path = @[relationKey].model().path()
-      
       if references.length is undefined
+        relationKey = key.replace(/Id$/, '')
+        path = @[relationKey].model().path()
         id = references
         @[relationKey].set AS.All.byIdRef["#{id}-#{path}"]
       
       else
+        relationKey = pluralize key.replace(/Ids$/, '')
+        path = @[relationKey].model().path()
         for id in references
-          @[relationKey].add AS.All.byIdRef["#{id}-#{path}"]
+          item = AS.All.byIdRef["#{id}-#{path}"]
+          relation = @[relationKey]
+
+          # careful not to double-add at load time
+          continue if relation.include(item).value()
+          relation.add(item)
 
     

@@ -3,36 +3,50 @@ _ = require("underscore")
 {isBoolean, isString} = require "underscore"
 
 # TODO: Field is generic. reuse it.
+
+AS.Enum = AS.Object.extend ({delegate, include, def, defs}) ->
+  defs read: (value, options) ->
+    # AS.Assert options.values
+    options.values[value]
+
+  defs write: (value, options) ->
+    # AS.Assert options.values
+    options.values.indexOf(value)
+
 AS.Model.Field = AS.Property.extend ({delegate, include, def, defs}) ->
-  defs Casters:
-    String:
-      read: String
-      write: String
-
-    Number:
-      read: Number
-      write: Number
-
-    Date:
-      read: (value) ->
-        if isString(value) then new Date(value) else value
-
-      write: (value) ->
-        if value instanceof Date then value.toJSON() else value
-
-    Boolean:
-      read: (value) ->
-        return value if isBoolean(value)
-        return true if value is "true"
-        return false if value is "false"
-        return false
-
-      write: (value) ->
-        return "true" if value is "true" or value is true
-        return "false" if value is "false" or value is false
-        return "false"
+  defs Casters: AS.Map.new()
 
   Casters = @Casters
+
+  Casters.set String,
+    read: String
+    write: String
+
+  Casters.set Number,
+    read: Number
+    write: Number
+
+  Casters.set Date,
+    read: (value) ->
+      if isString(value) then new Date(value) else value
+
+    write: (value) ->
+      if value instanceof Date then value.toJSON() else value
+
+  Casters.set Boolean,
+    read: (value) ->
+      return value if isBoolean(value)
+      return true if value is "true"
+      return false if value is "false"
+      return false
+
+    write: (value) ->
+      return "true" if value is "true" or value is true
+      return "false" if value is "false" or value is false
+      return "false"
+
+  Casters.set AS.Enum, AS.Enum
+
 
   def initialize: (@name, @_constructor, @options={}) ->
     @options.name = @name
@@ -45,6 +59,7 @@ AS.Model.Field = AS.Property.extend ({delegate, include, def, defs}) ->
       @options.type ?= String
 
     def syncWith: (share) ->
+      @share = share.at(@options.name)
       @stopSync()
 
       @synapse = @constructor.Synapse.new(this)
@@ -59,18 +74,18 @@ AS.Model.Field = AS.Property.extend ({delegate, include, def, defs}) ->
       
     def get: ->
       if @value isnt undefined
-        value = Casters[@options.type.name].read(@value)
+        value = Casters.get(@options.type).read(@value, @options)
       else
         @options.default
 
     def set: (value) ->
-      writeValue = Casters[@options.type.name].write(value)
-      return if writeValue is @value
+      writeValue = Casters.get(@options.type).write(value, @options)
+      return @value if writeValue is @value
       @value = writeValue
       @object.trigger("change")
       @object.trigger("change:#{@options.name}")
       @trigger("change")
-      value
+      @value
 
     @Synapse = AS.Model.Synapse.extend ({delegate, include, def, defs}) ->
       delegate 'get', 'set', to: 'raw'

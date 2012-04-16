@@ -16,8 +16,11 @@ AS.BindingGroup = AS.Object.extend ({def}) ->
 
   def binds: (object, event, handler, context) ->
     @boundObjects.push object
+
     if object.jquery
-      object.bind "#{event}.#{@namespace}", handler
+      object.bind "#{event}.#{@namespace}", _.bind(handler, context)
+    else if _.isArray(event)
+      object.bindPath(event, _.bind(handler, context))
     else
       object.bind 
         event: event

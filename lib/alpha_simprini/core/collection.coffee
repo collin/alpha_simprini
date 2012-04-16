@@ -38,11 +38,13 @@ AS.Collection = AS.Object.extend ({def, include, delegate}) ->
       if model.id and AS.All.byId[model.id]
         return AS.All.byId[model.id]
       else if model._type
-        ctor = AS.module(model._type)
+        ctor = AS.loadPath(model._type)
       else
         ctor = @model()
-        
-      ctor.new(model)
+      
+      data = _.clone(model)
+      delete data._type
+      ctor.new(data)
 
   def _add: (model, options={}) ->
     options.at ?= this.length
@@ -81,8 +83,8 @@ AS.Collection = AS.Object.extend ({def, include, delegate}) ->
       event: "all"
       namespace: @objectId()
 
-  def filter: (fn) ->
-    AS.FilteredCollection.new(this, fn)
+  def filter: (filterBy) ->
+    AS.FilteredCollection.new(this, filterBy)
 
   def groupBy: (key, metaData) ->
     AS.Models.Grouping.new(this, key, metaData)

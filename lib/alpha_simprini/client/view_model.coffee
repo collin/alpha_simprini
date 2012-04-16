@@ -32,6 +32,9 @@ AS.ViewModel = AS.Object.extend ({def, defs}) ->
     for method in AS.instanceMethods(model)
       continue if _.include _.keys(Pathology.Object::), method
       do (method) =>
+        # FIXME: shouldn't be checking for specific conflicting methods here.
+        if method is 'select'
+          klass::[method] = -> @model[method].apply(@model, arguments)
         klass::[method] ?= -> @model[method].apply(@model, arguments)
 
     return klass
@@ -48,13 +51,13 @@ AS.ViewModel = AS.Object.extend ({def, defs}) ->
     @constructor.bindables[field].new(@view, @model, @model[field], options, fn)
 
   def input: (field, options) ->
-    AS.Binding.Input.new(@view, @model, @model[field], options)
+    AS.Binding.Input.new(@view, @model, field, options)
 
   def checkbox: (field, options) ->
-    AS.Binding.CheckBox.new(@view, @model, @model[field], options)
+    AS.Binding.CheckBox.new(@view, @model, field, options)
 
-  # def select: (field, options) ->
-  #   AS.Binding.Select.new(@view, @model, @model[field], options)
+  def select: (field, options) ->
+    AS.Binding.Select.new(@view, @model, field, options)
 
   def editline: (field, options) ->
-    AS.Binding.EditLine.new(@view, @model, @model[field], options)
+    AS.Binding.EditLine.new(@view, @model, field, options)
