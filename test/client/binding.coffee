@@ -28,16 +28,6 @@ exports.Binding =
   #     test.equal binding.pathValue(), binding.model
   #     test.done()
 
-  # EmbedsMany:
-  #   "extends AS.Binding.HasMany": (test) ->
-  #     test.equal AS.Binding.EmbedsMany.__super__.constructor, AS.Binding.HasMany
-  #     test.done()
-
-  # EmbedsOne:
-  #   "extends AS.Binding.Field": (test) ->
-  #     test.equal AS.Binding.EmbedsOne.__super__.constructor, AS.Binding.Field
-  #     test.done()
-
   # HasOne:
   #   "extends AS.Binding.Field": (test) ->
   #     test.equal AS.Binding.HasOne.__super__.constructor, AS.Binding.Field

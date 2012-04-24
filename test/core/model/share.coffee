@@ -4,8 +4,6 @@ exports.setUp = coreSetUp
 Shared = NS.Shared = AS.Model.extend ({delegate, include, def, defs}) ->
   include AS.Model.Share
   @field "field"
-  @embedsMany "embeds", model: -> SimpleShare
-  @embedsOne "embedded", model: -> SimpleShare
   @hasMany "relations", model: -> SimpleShare
   # @hasOne "relation"
   @belongsTo "owner"
@@ -13,8 +11,6 @@ Shared = NS.Shared = AS.Model.extend ({delegate, include, def, defs}) ->
 SimpleShare = NS.SimpleShare = AS.Model.extend ({delegate, include, def, defs}) ->
   include AS.Model.Share
   @field "field"
-  @embedsMany "embeds", model: -> SimplerShare
-  @embedsOne "embedded", model: -> SimplerShare
   @hasMany "relations", model: -> SimplerShare
   # @hasOne "relation"
   @belongsTo "owner"
@@ -175,7 +171,7 @@ exports["Share Integration"] =
       NS.Embed = AS.Model.extend ({delegate, include, def, defs}) ->
         include AS.Model.Share
 
-        @embedsMany 'embeds'
+        @hasMany 'embeds'
 
       callback()
 

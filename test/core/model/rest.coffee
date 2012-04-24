@@ -8,8 +8,6 @@ Rested = NS.Rested = AS.Model.extend ({delegate, include, def, defs}) ->
   @field "field"
   @field "thingId"
   @field "thingType"
-  # @embedsMany "embeds", model: -> SimpleRest
-  # @embedsOne "embedded", model: -> SimpleRest
   @hasMany "relations", model: -> SimpleRest
   # @hasOne "relation"
   @belongsTo "owner", model: -> SimpleRest
@@ -17,8 +15,6 @@ Rested = NS.Rested = AS.Model.extend ({delegate, include, def, defs}) ->
 SimpleRest = NS.SimpleRest = AS.Model.extend ({delegate, include, def, defs}) ->
   include AS.Model.REST
   @field "field"
-  # @embedsMany "embeds", model: -> SimplerRest
-  # @embedsOne "embedded", model: -> SimplerRest
   @hasMany "relations", model: -> SimplerRest
   # @hasOne "relation"
   @belongsTo "owner", model: -> SimplerRest

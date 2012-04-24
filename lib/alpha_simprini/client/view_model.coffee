@@ -25,9 +25,9 @@ AS.ViewModel = AS.Object.extend ({delegate, include, def, defs}) ->
       klass.bindables[name] = switch property.constructor
         when AS.Model.Field, Pathology.Property, Taxi.Property, AS.Model.VirtualProperty
           AS.Binding.Field
-        when AS.Model.BelongsTo, AS.Model.EmbedsOne, AS.Model.HasOne
+        when AS.Model.BelongsTo, AS.Model.HasOne
           AS.Binding.One
-        when AS.Model.HasMany, AS.Model.EmbedsMany
+        when AS.Model.HasMany
           AS.Binding.Many
 
     for method in AS.instanceMethods(model)
