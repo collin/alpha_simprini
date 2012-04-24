@@ -18,7 +18,10 @@ AS.Model.HasMany.Instance = AS.Model.Field.Instance.extend ({def, delegate}) ->
     @options.source = @object if @options.inverse
     @backingCollection = AS.Collection.new(undefined, @options)
 
+    @bind('change', (=> @triggerDependants()), this)
+
   def syncWith: (share) ->
+    console.log "syncWith", @toString()
     @share = share.at(@options.name)
     @stopSync()
 
@@ -43,11 +46,18 @@ AS.Model.HasMany.Instance = AS.Model.Field.Instance.extend ({def, delegate}) ->
   def set: (models) ->
     @backingCollection.add(model) for model in models
 
-  def add: (models) -> @backingCollection.add.apply(@backingCollection, arguments)
+  def add: -> 
+    added = @backingCollection.add.apply(@backingCollection, arguments)
+    @triggerDependants()
+    return added
+
 
   def at: (models) -> @backingCollection.at.apply(@backingCollection, arguments)
 
-  def remove: (models) -> @backingCollection.remove.apply(@backingCollection, arguments)
+  def remove: -> 
+    removed = @backingCollection.remove.apply(@backingCollection, arguments)
+    @triggerDependants()
+    return removed
 
   def bind: -> @backingCollection.bind.apply(@backingCollection, arguments)
 

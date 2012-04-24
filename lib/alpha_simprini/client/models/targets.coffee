@@ -2,11 +2,11 @@ AS = require("alpha_simprini")
 $ = require("jquery")
 Taxi = require "taxi"
 
-TOP = name:"TOP"
-MIDDLE = name:"MIDDLE"
-BOTTOM = name:"BOTTOM"
-LEFT = name: "LEFT"
-RIGHT = name: "RIGHT"
+TOP = name:"TOP", toString: -> @name
+MIDDLE = name:"MIDDLE", toString: -> @name
+BOTTOM = name:"BOTTOM", toString: -> @name
+LEFT = name: "LEFT", toString: -> @name
+RIGHT = name: "RIGHT", toString: -> @name
 
 AS.Models.Targets = AS.Object.extend ({def, defs, include}) ->
   include Taxi.Mixin

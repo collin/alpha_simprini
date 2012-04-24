@@ -7,7 +7,8 @@ AS.Model.Dendrite = AS.Object.extend ({delegate, include, def, defs}) ->
     @on()
 
   def callback: ->
-    @observer.set(@notifier.get(), arguments)
+    return if @observer.blocking
+    @notifier.block => @observer.set(@notifier.get(), arguments)
 
   def equal: -> @notifier.get() is @observer.get()
 
@@ -26,10 +27,12 @@ AS.Model.CollectionDendrite = AS.Model.Dendrite.extend ({delegate, include, def,
     @on()
 
   def insertCallback: (item, options) ->
-    @observer.insert(item, options)
+    return if @observer.blocking
+    @notifier.block => @observer.insert(item, options)
     
   def removeCallback: (item, options) ->
-    @observer.remove(item, options)
+    return if @observer.blocking
+    @notifier.block => @observer.remove(item, options)
 
   def on: ->
     @notifier.binds @insertCallback, @removeCallback

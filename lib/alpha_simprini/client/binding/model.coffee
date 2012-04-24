@@ -16,13 +16,11 @@ AS.Binding.Model = AS.Object.extend ({def}) ->
             value = @styles[property]()
             @content.css property, value
 
-          bindingPath = options
-          @context.binds @model, bindingPath, painter, this
+          @context.binds @model, options, painter, this
         else
           @styles[property] = => options.fn(@model)
           painter = => _.defer => @content.css property, @styles[property]()
-          for field in options.field.split(" ")
-            @context.binds @model, "change:#{field}", painter, this
+          @context.binds @model, options.field, painter, this
 
   def attr: (attrs) ->
      for property, options of attrs
@@ -52,8 +50,7 @@ AS.Binding.Model = AS.Object.extend ({def}) ->
             painter = => _.defer =>
               @content.attr property, @attrs[property]()
 
-            for field in options.field.split(" ")
-              @context.binds @model, "change:#{field}", painter, this
+            @context.binds @model, options.field, painter, this
 
   def paint: ->
     attrs = {}

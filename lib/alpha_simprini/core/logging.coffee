@@ -1,8 +1,7 @@
 AS = require("alpha_simprini")
 
 AS.warn = ->
-  if window.DEBUGGER
-    console.warn.apply(console, arguments)
+  console.warn.apply(console, arguments)
 
 AS.error = () ->
   console.trace()

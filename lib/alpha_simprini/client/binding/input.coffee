@@ -13,16 +13,16 @@ AS.Binding.Input = AS.Binding.Field.extend ({def}) ->
     @context.$ @context.input(@options)
 
   def bindContent: ->
-    if _.isArray @field
-      @context.binds @model, @field, @setField, this
-    else
-      @context.binds @content, "change", @setField, this
+    @context.binds @content, "change", @setField, this
 
   def setContent: () ->
     @content.val @fieldValue()
 
+  def readField: ->
+    @content.val()
+
   def setField: () ->
     if _.isArray @field
-      @model.writePath @field, @content.val()
+      @model.writePath @field, @readField()
     else
-      @field.set @content.val()
+      @field.set @readField()

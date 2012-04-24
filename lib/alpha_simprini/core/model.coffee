@@ -4,8 +4,20 @@ Taxi = require("taxi")
 
 AS.All = byCid: {}, byId: {}, byIdRef: {}
 
-AS.Model = AS.Object.extend ({def, include}) ->
+AS.Model = AS.Object.extend ({delegate, include, def, defs}) ->
   include Taxi.Mixin
+  include AS.Callbacks
+
+  @defineCallbacks 
+    # before: [
+    #   'initialize'
+    # ]
+    after: [
+      'initialize'
+    ] 
+
+  defs find: (id) ->
+    AS.All.byId[id] or @new(id:id)
 
   def initialize: (attributes={}) ->
     @model = this
@@ -15,6 +27,7 @@ AS.Model = AS.Object.extend ({def, include}) ->
     else if !@id
       @setId(AS.uniq())
     @set(attributes)
+    @runCallbacks 'afterInitialize'
 
   def set: (attributes) ->    
     for key, value of attributes
@@ -22,7 +35,7 @@ AS.Model = AS.Object.extend ({def, include}) ->
       if key is "id"
         @setId(value)
       else
-        # assert @[key].set
+        property = @[key]
         @[key].set(value) 
 
   def setId: (id) ->

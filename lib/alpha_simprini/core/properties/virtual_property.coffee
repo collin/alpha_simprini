@@ -13,10 +13,11 @@ NULL_CACHE = new Object
 AS.Model.VirtualProperty.Instance = AS.Property.Instance.extend ({def}) ->
   def initialize: (@object, @options) ->
     @cached = NULL_CACHE
+    @bindDependencies()
+
+  def bindDependencies: ->
     for dependency in @options.dependencies
-      @object[dependency].bind "add", _.bind(@triggerFor, this, dependency, "add")
-      @object[dependency].bind "remove", _.bind(@triggerFor, this, dependency, "remove")
-      @object[dependency].bind "change", _.bind(@triggerFor, this, dependency, "change")
+      @object[dependency].addDependant(this)
 
   def set: (value) -> 
     if set = @options.getSet.set
@@ -29,9 +30,10 @@ AS.Model.VirtualProperty.Instance = AS.Property.Instance.extend ({def}) ->
   def compute: (args) -> @options.getSet.get.call(@object)
 
   def triggerFor: (dependency, trigger) ->
-    computed = @compute()
-    return if @cached is computed
-    @cached = computed
+    # JUST LET THINGS GO TO HELL. WE NEED A RUNLOOP AND DIRTY TRACKING I GUESS ):(
+    # computed = @compute()
+    # return if @cached is computed
+    # @cached = computed
     @_trigger()
 
   def _trigger: ->

@@ -3,6 +3,8 @@ Core = AS.part("Core")
 _ = require "underscore"
 
 Core.require """
+  logging
+  
   callbacks state_machine
   instance_methods
 
@@ -13,7 +15,7 @@ Core.require """
   collection filtered_collection
 
   models/radio_selection_model models/multiple_selection_model
-  models/group models/grouping
+  models/group models/grouping models/file
 """
 
 # model/share

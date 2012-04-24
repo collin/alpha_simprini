@@ -20,13 +20,12 @@ AS.Model.Share = AS.Module.extend ({delegate, include, def, defs}) ->
       indexer(model)
     model
 
-  defs load: (id, callback) ->
-    model = AS.All.byId[id] or @new(id:id)
-    AS.openSharedObject id, (share) ->
-      model.didLoad(share)
+  defs load: (model, callback= ->) ->
+    AS.openSharedObject model.id, (share) ->
       callback.call(model)
+      model.didLoad(share)
     model
-    
+
   def new: ->
     @share is undefined
     
@@ -55,7 +54,6 @@ AS.Model.Share = AS.Module.extend ({delegate, include, def, defs}) ->
   def didEmbed: (@share) ->
     if @share.at().get() in [null, undefined]
       @share.at().set({_type: @constructor.toString(), id:@id}) 
-    @bindShareEvents()
     @buildIndeces()
     @loadIndeces()
 
@@ -71,12 +69,14 @@ AS.Model.Share = AS.Module.extend ({delegate, include, def, defs}) ->
     
   def bindShareEvents: ->
     for property in @properties()
-      property?.syncWith?(@share) 
+      property?.syncWith?(@share)
+
     for index in @indeces()
-      index.on "insert", (id, konstructor) =>
-        loaded = AS.loadPath(konstructor).load id, (share) ->
-          @indecesDidLoad()
-        @trigger("indexload", loaded)
+      index.on "insert", (id, path) =>
+        constructor = AS.loadPath(path)
+        model = constructor.find(id)
+        constructor.load model
+        @trigger("indexload", model)
 
   def stopSync: ->
     property.stopSync?() for property in @properties()
@@ -100,20 +100,19 @@ AS.Model.Share = AS.Module.extend ({delegate, include, def, defs}) ->
     count = _(specs).keys().length
     loadedItem = _.after count, callback
     for id, _type of specs
-      model = AS.loadPath(_type).load(id, loadedItem)
-      model.bind "destroy", => index.at(id).remove()
+      constructor = AS.loadPath(_type)
+      model = constructor.find(id)
+
+      model.bind "ready", -> loadedItem()
+      model.bind "destroy", -> index.at(id).remove()
+
+      model = constructor.load model, ->
+        # @indecesDidLoad()
         
   def indecesDidLoad: ->
-    unless @hasIndexed
-      @bindShareEvents()
-      @didIndex()
-    # @build_loaded_data()
-    # @set_attributes_from_share()
-
-    # for name, config of @constructor.indeces
-    #   for id, _type of @index(name).get()
-    #     AS.All.byId[id].indeces_did_load()
-
+    @bindShareEvents()
+    @didIndex()
+    console.log "indecesDidLoad", @toString()
     @trigger("ready")
     
     

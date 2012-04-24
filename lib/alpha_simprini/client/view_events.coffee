@@ -72,7 +72,7 @@ AS.ViewEvents = AS.Object.extend ({def}) ->
       @view[selector.slice(1)]?.unbind @namespace
     else
       target = @view.$(selector, @view.el[0])
-      target.die @namespace
+      target.off @namespace
       target.click() # bug with drag/drop allows for one last drag after revoking bindings :(
 
   def applyBindings: ->
@@ -93,4 +93,5 @@ AS.ViewEvents = AS.Object.extend ({def}) ->
       else
         emitter.bind eventName, handler, @view
     else
+      selector = selector.replace /\$/g, "#"+@view.el.attr('id')
       @view.el.delegate selector, eventName, handler

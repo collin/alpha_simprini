@@ -74,13 +74,13 @@ exports.View =
 
     test.done()
 
-  "when view is unbound it is removed from it's parents childViews and from the DOM": (test) ->
-    view = AS.View.new()
-    view.view(AS.View, el: view.div(-> @h1()))
-    view.bindingGroup.unbind()
-    test.deepEqual [], view.childViews
-    test.equal "", view.html()
-    test.done()
+  # "when view is unbound it is removed from it's parents childViews and from the DOM": (test) ->
+  #   view = AS.View.new()
+  #   view.view(AS.View, el: view.div(-> @h1()))
+  #   view.bindingGroup.unbind()
+  #   test.deepEqual [], view.childViews
+  #   test.equal "", view.html()
+  #   test.done()
 
   "binding()": 
     "creates a binding for a collection": (test) ->
@@ -114,3 +114,94 @@ exports.View =
       test.equal 1, view.descendantViews(null, NS.SubView).length
       test.done()
 
+exports["View Integration"] = 
+  "property binding with two children":
+    setUp: (callback) ->
+      NS.Parent = AS.Model.extend ({delegate, include, def, defs}) ->
+        @property "item"
+
+      NS.Item = AS.Model.extend ({delegate, include, def, defs}) ->
+        @hasMany 'children', model: -> NS.Child
+
+      NS.Child = AS.Model.extend ({delegate, include, def, defs}) ->
+        @field 'name'
+
+      
+      @item1 = NS.Item.new()
+      @item2 = NS.Item.new()
+
+      @item1.children.add name: "child1"
+      @item1.children.add name: "child2"
+
+      @item2.children.add name: "child3"
+      @item2.children.add name: "child4"
+
+      @parent = NS.Parent.new(item: @item1)
+
+      NS.View = AS.View.extend ({delegate, include, def, defs}) ->
+        def content: ->
+          binding = @parent.binding 'item', (item) ->
+            @ol ->
+              item.binding 'children', (child) ->
+                @li -> child.binding 'name'
+            @ul ->
+              item.binding 'children', (child) ->
+                @li -> child.binding 'name'
+
+      @view = NS.View.new(parent: @parent)
+      callback()
+
+    "cleans up all content when property changes": (test) ->
+      test.equal 2, @view.el.find("ol li").length
+      test.equal 2, @view.el.find("ul li").length
+      @parent.item.set(null)
+      test.equal 0, @view.el.find("ol li").length
+      test.equal 0, @view.el.find("ul li").length
+      test.done()
+
+  "property binding nested ina property binding": 
+    setUp: (callback) ->
+      NS.Model = AS.Model.extend ({delegate, include, def, defs}) ->
+        @property "other"
+        @hasMany "children"
+
+      NS.View = AS.View.extend ({delegate, include, def, defs}) ->
+        def content: ->
+          @root.binding 'other', (other) ->
+            @section class: "root-other", id:other.model.objectId(), ->
+              other.binding 'children', (child) ->
+                @section id: child.model.objectId()
+
+            binding = @model.binding 'other', ->
+              @section class:"model-other"
+
+      @root = NS.Model.new()
+
+      @thing1 = NS.Model.new children: [{}]
+      @thing2 = NS.Model.new  children: [{}, {}]
+
+      @other1 = NS.Model.new()
+      @other2 = NS.Model.new()
+      @model = NS.Model.new(other: @other1)
+
+      @view = NS.View.new(root: @root, model: @model)
+
+      callback()
+
+    "cleans up bindings": (test) ->
+      otherBinding = NS.OtherBinding
+
+      @root.other.set(@thing1)
+      test.ok @view.el.find("##{@thing1.objectId()}").is("*"), "renders first thing"
+      test.ok @view.el.find("##{@thing1.children.at(0).objectId()}").is("*"), "renders first thing child"
+
+      @root.other.set(@thing2)
+      test.ok @view.el.find("##{@thing2.objectId()}").is("*"), "renders second thing"
+      test.ok @view.el.find("##{@thing2.children.at(0).objectId()}").is("*"), "renders second thing first child"
+      test.ok @view.el.find("##{@thing2.children.at(1).objectId()}").is("*"), "renders second thing second child"
+      
+      @model.other.set(@other2)
+      
+      test.equal 1, @view.el.find(".model-other").length, "renders only one other"
+      test.ok @view.el.find("##{@thing2.objectId()}").is("*"), "second thing still visiible"
+      test.done()

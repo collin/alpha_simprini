@@ -9,8 +9,8 @@ WithCallbacks = AS.Object.extend ({include}) ->
 exports.Callbacks =
   definition: (test) ->
     it = WithCallbacks
-    test.ok WithCallbacks.before_this
-    test.ok WithCallbacks.before_that
+    test.ok WithCallbacks.beforeThis
+    test.ok WithCallbacks.beforeThat
     test.done()
 
   running: (test) ->
@@ -18,11 +18,11 @@ exports.Callbacks =
 
     it = WithCallbacks
     cb = -> test.ok(true)
-    it.before_this cb
-    it.before_that cb
+    it.beforeThis cb
+    it.beforeThat cb
 
     one = WithCallbacks.new()
-    one.runCallbacks "before_this"
-    one.runCallbacks "before_that"
+    one.runCallbacks "beforeThis"
+    one.runCallbacks "beforeThat"
 
     test.done()

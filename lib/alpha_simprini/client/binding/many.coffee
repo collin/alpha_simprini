@@ -9,9 +9,8 @@ AS.Binding.Many = AS.Binding.extend ({def}) ->
     @collection = @field
 
     @contents = {}
-    @bindings = {}
+    @bindingGroups = {}
     @sorting = @sortedModels()
-
     @makeAll()
 
     @context.binds @collection, "add", @insertItem, this
@@ -19,7 +18,7 @@ AS.Binding.Many = AS.Binding.extend ({def}) ->
     @context.binds @collection, "change", @changeItem, this
 
   def makeAll: ->
-    @sortedModels().each _.bind @makeContent, this
+    @sortedModels().each _.bind @makeItemContent, this
 
   def sortedModels: ->
     if sortField = @options.order_by
@@ -39,15 +38,22 @@ AS.Binding.Many = AS.Binding.extend ({def}) ->
 
   def insertItem: (item) ->
     return if @skipItem(item)
-    content = @context.danglingContent => @makeContent(item)
+
+    content = @context.danglingContent => @makeItemContent(item)
     index = @sortedModels().indexOf(item).value?()
     index ?= 0
     siblings = @container.children()
-    if siblings.get(0) is undefined or siblings.get(index) is undefined
+
+    unless siblings.get(0)
       @container.append(content)
+
+    else unless siblings.get(index)
+      @container.append(content)
+
     else
       @context.$(siblings.get(index)).before(content)
 
+    debugger if window.DEBUG
     @sorting = @sortedModels()
 
   def removeItem: (item) ->
@@ -55,8 +61,8 @@ AS.Binding.Many = AS.Binding.extend ({def}) ->
       @contents[item.cid].remove()
       delete @contents[item.cid]
 
-      @bindings[item.cid].unbind()
-      delete @bindings[item.cid]
+      @bindingGroups[item.cid].unbind()
+      delete @bindingGroups[item.cid]
 
     @sorting = @sortedModels()
 
@@ -81,12 +87,13 @@ AS.Binding.Many = AS.Binding.extend ({def}) ->
     else if @contents[item.cid] is undefined
       @insertItem(item)
 
-  def makeContent: (item) ->
+  def makeItemContent: (item) ->
+    return unless item
     return if @skipItem(item)
     content = @context.$ []
     @context.withinBindingGroup @bindingGroup, =>
       @context.groupBindings =>
-        @bindings[item.cid] = @context.bindingGroup
+        @bindingGroups[item.cid] = @context.bindingGroup
         binding = AS.Binding.Model.new(@context, item, content)
         made = @fn.call(@context, AS.ViewModel.build(@context, item), binding)
         if made?.jquery
@@ -99,3 +106,7 @@ AS.Binding.Many = AS.Binding.extend ({def}) ->
 
     @contents[item.cid] = content
     return content
+
+  def makeContent: ->
+    AS.Binding.Container.new(@container[0])
+    

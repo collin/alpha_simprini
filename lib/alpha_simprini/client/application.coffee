@@ -23,7 +23,7 @@ AS.Application =  AS.Object.extend ({def, include}) ->
     handlers =
       '⎋': 'escape'
       '⌘+↩': 'accept'
-      '⌫': 'delete'
+      # 'backspace': 'delete'
 
       #TODO: add to test suite
       "↩": "open"
@@ -40,6 +40,10 @@ AS.Application =  AS.Object.extend ({def, include}) ->
 
     each handlers, (trigger, key) =>
       jwerty.key key, ( (event) => @trigger(trigger, event) ), @el
+
+    jwerty.key "backspace", (event) => 
+      event.preventDefault()
+      @trigger("delete", event)
 
   def view: (constructor, options={}) ->
     options.application = this

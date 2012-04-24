@@ -7,6 +7,7 @@ exports.Collection =
   "sets the inverse is specified": (test) ->
     C.Thing = AS.Model.extend()
     C.Thing.property("inverse")
+    C.Thing.property("name")
     C.ThingCollection = AS.Collection.extend -> 
       @def model: -> C.Thing
       @def inverse: "inverse"
@@ -79,13 +80,16 @@ exports.Collection =
       test.done()
 
     "model change events bubble through collection": (test) ->
-      test.expect 2
+      test.expect 5
+      C.Thing = AS.Model.extend()
+      C.Thing.property("name")
       collection = AS.Collection.new()
-      thing = collection.add()
+      thing = collection.add C.Thing.new()
       collection.bind "all", -> test.ok true
       collection.bind "modelevent", -> test.ok true
-
+      collection.bind "change", -> test.ok true
       thing.trigger "modelevent"
+      thing.name.set("changed")
 
       test.done()
 

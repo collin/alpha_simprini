@@ -19,12 +19,18 @@ AS.Model.Field = AS.Property.extend ({delegate, include, def, defs}) ->
   Casters = @Casters
 
   Casters.set String,
-    read: String
-    write: String
+    read: (value) ->
+      String(value) if value?
+
+    write: (value) ->
+      String(value) if value?
 
   Casters.set Number,
-    read: Number
-    write: Number
+    read: (value) ->
+      Number(value) if value?
+
+    write: (value) ->
+      String(value) if value?
 
   Casters.set Date,
     read: (value) ->
@@ -60,12 +66,13 @@ AS.Model.Field = AS.Property.extend ({delegate, include, def, defs}) ->
 
     def syncWith: (share) ->
       @share = share.at(@options.name)
+      @share.set("") unless @share.get()?
       @stopSync()
 
       @synapse = @constructor.Synapse.new(this)
       @shareSynapse = @constructor.ShareSynapse.new(share, @options.name)
 
-      @synapse.observe(@shareSynapse, field: @options.name)
+      @synapse.observe(@shareSynapse)
       @synapse.notify(@shareSynapse)
 
     def stopSync: ->
@@ -85,6 +92,7 @@ AS.Model.Field = AS.Property.extend ({delegate, include, def, defs}) ->
       @object.trigger("change")
       @object.trigger("change:#{@options.name}")
       @trigger("change")
+      @triggerDependants()
       @value
 
     @Synapse = AS.Model.Synapse.extend ({delegate, include, def, defs}) ->
@@ -106,15 +114,15 @@ AS.Model.Field = AS.Property.extend ({delegate, include, def, defs}) ->
 
       def set: (value) ->
         raw = @raw.at(@path)
-        if toString.call(current = raw.get()) == '[object String]'
+        current = raw.get()
+        if current
           length = current.length
           raw.del(0, length)
-          raw.insert(0, value)
+          raw.insert(0, value.toString())
         else if value
-          raw.set(value)          
-        else if raw.get()
-          raw.del(0, raw.get().length)
-
+          raw.insert(0, value.toString())          
+        else if current
+          raw.del(0, current.toString().length)
 
       def binds: (callback) ->
         @listeners = [

@@ -16,7 +16,7 @@ exports.BindingGroup =
     mock = sinon.mock(object)
     handler = ->
 
-    mock.expects("bind").withExactArgs("event.#{bg.namespace}", handler)
+    mock.expects("bind").withArgs("event.#{bg.namespace}")
     bg.binds object, "event", handler
 
     mock.verify()
@@ -48,7 +48,7 @@ exports.BindingGroup =
 
     mock = sinon.mock(object)
     handler = ->
-    mock.expects("unbind").withExactArgs(bg.namespace)
+    mock.expects("unbind").withExactArgs("."+bg.namespace)
     bg.binds object, "event", handler, object
     bg.unbind()
     mock.verify()
@@ -66,7 +66,7 @@ exports.BindingGroup =
 
     mock = sinon.mock(object)
     handler = ->
-    mock.expects("unbind").withExactArgs(child.namespace)
+    mock.expects("unbind").withExactArgs("."+child.namespace)
     child.binds object, "event", handler, object
     parent.unbind()
     mock.verify()

@@ -87,24 +87,30 @@ exports["Model.Share"] =
           
     "loads models in indexes when opened": (test) ->
       indexed = SimpleShare.new()
+      indexed.owner.set(indexed)
       index = {}
       index[indexed.id] = SimpleShare.path()
       delete AS.All.byId[indexed.id]
       delete AS.All.byCid[indexed.cid]
+      delete AS.All.byIdRef[indexed.idRef]
       snap = {}
       snap["index:docs"] = index
       snap["owner"] = indexed.id
       doc = makeDoc(AS.uniq(), snap)
       @model = IndexShare.new()
 
-      AS.openShareObject = (id, didOpen) ->
-        didOpen makeDoc(id, indexed.attributesForSharing())
+      AS.openSharedObject = (id, didOpen) ->
+        attrs = {owner: indexed.id}
+        didOpen makeDoc(id, attrs)
 
-      @model.didOpen(doc)
-      @model.whenIndexed =>
+      @model.bind "ready", =>
         test.notEqual AS.All.byId[indexed.id], undefined
         test.equal @model.owner.get().id, indexed.id
+        test.ok @model.owner.get().share
+        test.equal @model.owner.get(), @model.owner.get().owner.get()
         test.done()
+
+      @model.didOpen(doc)
 
     "removes indexed models from the index when they are destroy()ed": (test) ->
       indexed = SimpleShare.new()
@@ -123,14 +129,14 @@ exports["Model.Share"] =
         didOpen makeDoc(id, indexed.attributesForSharing())
 
       test.expect 3
-      @model.didOpen(doc)
-      @model.whenIndexed =>
+      @model.bind "ready", =>
         id = indexed.id
         test.ok @model.index("docs").at(id).get()
         @model.owner.get().destroy()
-        test.equal undefined, @model.index("docs").at(id).get()
-        test.equal undefined, @model.owner.get()
+        test.ok not( @model.index("docs").at(id).get() ), "index is cleaned up"
+        test.ok not( @model.owner.get() ), "references are removed"
         test.done()
+      @model.didOpen(doc)
 
   "is new if share is undefined": (test) ->
     delete @model.share
@@ -162,3 +168,31 @@ exports["Model.Share"] =
     test.equal model.defaulted.get(), "REMOTE VALUE"
 
     test.done()
+
+exports["Share Integration"] =
+  "loads lists of embedded models":
+    setUp: (callback) ->
+      NS.Embed = AS.Model.extend ({delegate, include, def, defs}) ->
+        include AS.Model.Share
+
+        @embedsMany 'embeds'
+
+      callback()
+
+    "and doesn't double load models loaded from shareJS": (test) ->
+      data = {
+        embeds: [
+          {_type: "NS.Embed", id: "model1"}
+          {_type: "NS.Embed", id: "model2"}
+        ]
+      }
+
+      share = makeDoc(null, data)
+
+      o = NS.Embed.new()
+
+      test.doesNotThrow -> o.didOpen(share)
+
+      test.equal 2, o.embeds.backingCollection.length
+
+      test.done()

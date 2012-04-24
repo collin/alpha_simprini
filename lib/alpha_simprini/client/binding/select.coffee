@@ -7,6 +7,7 @@ AS.Binding.Select = AS.Binding.Input.extend ({def}) ->
     @require_option "options"
 
   def makeContent: ->
+    @select?.remove()
     options = @options.options
     @select = @context.$ @context.select ->
       if _.isArray options

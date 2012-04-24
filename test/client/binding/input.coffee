@@ -6,20 +6,20 @@ exports.Binding =
   Input:
     "sets input value on initialization": (test) ->
       [mocks, binding] = mock_binding(AS.Binding.Input)
-      test.equal binding.container.find("input").val(), "value"
+      test.equal "value", binding.content.val()
       test.done()
 
     "updates input value when model changes": (test) ->
       [mocks, binding] = mock_binding(AS.Binding.Input)
       binding.model.field.set("changed value")
-      test.equal binding.container.find("input").val(), "changed value"
+      test.equal "changed value", binding.content.val()
       test.done()
 
     "updates model value when input changes": (test) ->
       [mocks, binding] = mock_binding(AS.Binding.Input)
       binding.model.field.set("changed value")
-      binding.container.find("input").val("user value").trigger("change")
-      test.equal binding.model.field.get(), "user value"
+      binding.content.val("user value").trigger("change")
+      test.equal "user value", binding.model.field.get()
       test.done()
 
     "inherits from Field": (test) ->

@@ -21,8 +21,10 @@ AS.Model.HasOne.Instance = AS.Model.Field.Instance.extend ({def}) ->
     value = value.model if value?.model
     return @value if value is @value
 
-    if _.isString(value)
-      value = AS.All.byId[value] 
+    if _.isString(value) and (konstructor = @model()) isnt AS.Model
+      value = konstructor.find(value)
+    else if _.isString(value)
+      value = AS.All.byId[value]
     else if value instanceof AS.Model
       value = value
     else if _.isObject(value)
@@ -38,13 +40,15 @@ AS.Model.HasOne.Instance = AS.Model.Field.Instance.extend ({def}) ->
     @value = value
     
     if @value and @options.inverse and @value[@options.inverse]
-      debugger if window.DEBUG
       @value[@options.inverse].add(@object) unless @value[@options.inverse].include(@object).value()
     
-    @value?.bind "all#{@namespace}", _.bind(@trigger, this)
+    # this looks neccessory for path bindings, but not so good for view bindings yeesh
+    # @value?.bind "all#{@namespace}", _.bind(@trigger, this)
+    
     @object.trigger("change")
     @object.trigger("change:#{@options.name}")
     @trigger("change")
+    @triggerDependants()
     @value
 
   @Synapse = AS.Model.Field.Instance.Synapse.extend ({delegate, include, def, defs}) ->

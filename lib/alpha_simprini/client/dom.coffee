@@ -71,8 +71,7 @@ AS.DOM = AS.Object.extend ({delegate, include, def, defs}) ->
     else if content
       @withinNode node, ->
         last = content.call(this)
-        if _.isString(last)
-          @text(last)
+        @text(last) if _.isString(last)
 
     return node
 
@@ -94,7 +93,7 @@ SVG_ELEMENTS.each (element) ->
   htmlSvgConflict = ~DOM_ELEMENTS.value().indexOf(element)
   methodConflict = AS.DOM::[element]?
   if htmlSvgConflict or methodConflict
-    element = "svg_#{element}"
+    safeElement = "svg_#{element}"
 
-  AS.DOM::[element] = -> @svgTag.apply this, _(arguments).unshift(element)
+  AS.DOM::[safeElement or element] = -> @svgTag.apply this, _(arguments).unshift(element)
 

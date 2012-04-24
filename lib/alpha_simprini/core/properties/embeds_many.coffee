@@ -8,17 +8,23 @@ AS.Model.EmbedsMany.Instance = AS.Model.HasMany.Instance.extend ({def, delegate}
     if @share.get() in [null, undefined]
       @share.set([]) 
       @each (item, index) => item.didEmbed @share.at(index)
-    # else
-    #   _.each @share.get(), (item, index) => @add(item)
+    else
+      _.each @share.get(), (item, index) =>
+        @add(item)
 
   def add: (item, options={}) ->
-    item = @backingCollection.add.apply(@backingCollection, arguments)
-    options.at ?= @backingCollection.length - 1
-    item.didEmbed @share.at(options.at) if @share
-    return item
+    console.log "add" if item instanceof Pasteup.Models.StyleComponent
+    # console.warn "wrapping EmbedsMany add in a try"
+    try
+      item = @backingCollection.add.apply(@backingCollection, arguments)
+      @triggerDependants()
+      options.at ?= @backingCollection.length - 1
+      item.didEmbed @share.at(options.at) if @share
+      return item
 
   def remove: (item) ->
     index = @backingCollection.indexOf(item).value()
+    @triggerDependants()
     @backingCollection.remove.apply(@backingCollection, arguments)
     @share.at(index).remove() if @share
     item.stopSync()

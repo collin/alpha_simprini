@@ -18,7 +18,7 @@ exports.Model =
   #   test.expect 2
   #   class AModel extends AS.Model
   #     @before_initialize -> test.ok true
-  #     @after_initialize -> test.ok true
+  #     @afterInitialize -> test.ok true
   #   new AModel
   #   test.done()
 

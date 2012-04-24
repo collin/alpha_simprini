@@ -20,6 +20,15 @@ exports.HasMany =
     test.ok o.children instanceof AS.Model.HasMany.Instance
     test.done()
 
+  "triggers change event when members change": (test) ->
+    test.expect 2
+    o = NS.Parent.new()
+    o.children.bind('change', -> test.ok true)
+    child = o.children.add NS.Child.new()
+    child.power.set(10)
+    child.toughness.set(10)
+    test.done()
+
   "is set when constructing the model": (test) ->
     o = NS.Parent.new children: [{}]
     test.ok o.children.first().value() instanceof AS.Model

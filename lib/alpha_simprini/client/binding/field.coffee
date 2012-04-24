@@ -3,20 +3,20 @@ _ = require "underscore"
 jQuery = require "jquery"
 
 AS.Binding.Field = AS.Binding.extend ({def}) ->
-
   def initialize: ->
     @_super.apply this, arguments
-    @content = @makeContent()
-    @bindContent()
     @setContent()
+    @bindContent()
 
   def bindContent: ->
+    # don't go thinking ou want to @withingBindingGroup @bindingGroup this.
+    # you want this binding to take place in the context of the @context
     @context.binds @field, "change", @setContent, this
 
   def setContent: ->
     if @fn
-      @content.remove()
-      @container.empty()
+      @content.empty()
+      @bindingGroup.unbind()
 
       fieldValue = @fieldValue()
       # FIXME: this turned into a string :(
@@ -24,20 +24,23 @@ AS.Binding.Field = AS.Binding.extend ({def}) ->
       return if fieldValue is undefined
       return if fieldValue is "null"
       return if fieldValue is "undefined"
-      @bindingGroup.unbind()
       @context.withinBindingGroup @bindingGroup, =>
-        @context.withinNode @container, =>
-          made = if _.include(fieldValue.model?.constructor.ancestors, AS.Model)
+        @context.withinNode @content, =>
+          if _.include(fieldValue.model?.constructor.ancestors, AS.Model)
             value = AS.ViewModel.build(@context, fieldValue.model)
-            made = @fn.call(@context, value, AS.Binding.Model.new(@context, value, @container))
+            @fn.call(@context, value, AS.Binding.Model.new(@context, value, @container))
+
+          else if _.include(fieldValue.model?.constructor.ancestors, AS.ViewModel)
+            value = AS.ViewModel.build(@context, fieldValue.model.model)
+            @fn.call(@context, value, AS.Binding.Model.new(@context, value, @container))
+
           else
             @fn.call(@context)
-          @content.push if made instanceof jQuery then made[0] else made
     else
       @content.text @fieldValue()
 
   def makeContent: ->
-    @content = if @fn
-      @context.$ []
+    if @fn
+      AS.Binding.Container.new(@container[0])
     else
       @context.$ @context.span()

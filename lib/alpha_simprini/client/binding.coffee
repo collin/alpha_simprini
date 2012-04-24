@@ -5,23 +5,23 @@ AS.Binding = AS.Object.extend ({def}) ->
   def initialize: (@context, @model, @field, @options={}, @fn=undefined) ->
     if _.isString(@field)
       @field = @model[@field]      
-
-    @event = "change:#{field}"
-
+      
     if _.isFunction(@options)
       [@fn, @options] = [@options, {}]
 
     @container ?= @context.$ @context.currentNode
     @bindingGroup = @context.bindingGroup
 
-    @content = @context.$ []
+    @content = @makeContent()
 
     if @willGroupBindings()
-      @context.groupBindings (bindingGroup) ->
+      @context.groupBindings (bindingGroup) =>
         @bindingGroup = bindingGroup
-      @setup()
-    else
-      @setup()
+
+    @setup()
+
+  def makeContent: ->
+    @context.$ []
 
   def willGroupBindings: ->
     @constructor.willGroupBindings or _.isFunction(@fn)

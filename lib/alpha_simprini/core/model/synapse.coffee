@@ -14,18 +14,25 @@ AS.Model.AbstractSynapse = AS.Object.extend ({delegate, include, def, defs}) ->
     @notifications = []
 
   def observe: (other, config={}) ->
-    config.syncNow = true
+    config.syncNow ?= true
     @observations.push @dendriteClass.new(this, other, config)
 
   def notify: (other, config={}) ->
-    config.syncNow = false
+    config.syncNow ?= false
     @notifications.push @dendriteClass.new(other, this, config)
+
+  def block: (fn) ->
+    @blocking = true
+    fn()
+    @blocking = undefined
 
   def stopObserving: (other) ->
     _(@observations).invoke('off')
+    @observations = []
 
   def stopNotifying: (other) ->
     _(@notifications).invoke('off')
+    @notifications = []
 
 AS.Model.Synapse = AS.Model.AbstractSynapse.extend ({delegate, include, def, defs}) ->
   # def dendriteClass: AS.Model.Dendrite

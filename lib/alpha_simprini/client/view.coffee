@@ -9,12 +9,18 @@ AS.View = AS.DOM.extend ({delegate, include, def, defs}) ->
 
   @defineCallbacks after: ['content'], before: ['content']
 
-  delegate 'addClass', 'removeClass', 'show', 'hide', 'html', to: "el"
+  delegate 'addClass', 'removeClass', 'show', 'hide', 'html', 'find', to: "el"
 
   def tagName: "div"
 
+  def attrBindings: null
+
   def _ensureElement: -> 
     @el ?= @$(@buildElement())
+    baseAttributes = @baseAttributes()
+    baseAttributes["class"] = undefined if @el.attr("class")
+    baseAttributes["id"] = undefined if @el.attr("id")
+    @el.attr(baseAttributes)
     @el.data().view = this
 
   def initialize: (config={}) ->
@@ -28,15 +34,16 @@ AS.View = AS.DOM.extend ({delegate, include, def, defs}) ->
       else
         @[key] = value
 
-    @bindingGroup = AS.BindingGroup.new()
-    @_ensureElement()
-
-    @currentNode = @el[0]
     @childViews = []
+
+    @bindingGroup = AS.BindingGroup.new(@parentVew?.bindingGroup)
+    @_ensureElement()
+    @currentNode = @el[0]
 
     @runCallbacks "beforeContent"
     @content()
     @delegateEvents()
+    @bindAttrs()
     @runCallbacks "afterContent"
 
   def content: ->
@@ -77,9 +84,10 @@ AS.View = AS.DOM.extend ({delegate, include, def, defs}) ->
   def baseAttributes: ->
     attrs =
       class: @klassString()
+      id: @objectId()
 
   def buildElement: ->
-    @currentNode = @[@tagName](@baseAttributes())
+    @currentNode = @[@tagName]()
 
   def view: (constructor, options={}) ->
     options.application = @application
@@ -87,6 +95,7 @@ AS.View = AS.DOM.extend ({delegate, include, def, defs}) ->
     view = constructor.new(options)
     @childViews.push(view)
     @bindingGroup.addChild(view)
+    @currentNode?.appendChild view.el[0]
     view.el[0]
 
   def descendantViews: (views=[], constructor) ->
@@ -101,16 +110,26 @@ AS.View = AS.DOM.extend ({delegate, include, def, defs}) ->
 
   def removeChild: (child) ->
     @childViews = _.without(@childViews, child)
-    
+
+  # DO NOT OVERRIDE #unbind
   def unbind: ->
-    @parentView.removeChild(this)
-    @el.remove()
+    # AS.warn("Do not OVERRIDE View.unbind")
+    @_super.apply(this, arguments)
+  #   @parentView?.removeChild(this)
+  #   @el.remove()
 
   def binding: (bindable, options, fnOrElement) ->
     if bindable instanceof AS.Collection or bindable instanceof AS.Model.HasMany.Instance
       AS.Binding.Many.new(this, bindable, bindable, options, fnOrElement)
     else if bindable instanceof AS.Model
       AS.Binding.Model.new(this, bindable, options or fnOrElement)
+
+  def modelBinding: ->
+    @_modelBinding ?= AS.Binding.Model.new(this, @model, @el)
+
+  def bindAttrs: ->
+    return unless @attrBindings
+    @modelBinding().attr @attrBindings    
 
   def delegateEvents: () ->
     if @events

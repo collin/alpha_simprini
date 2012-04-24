@@ -3,16 +3,19 @@ _ = require "underscore"
 
 AS.BindingGroup = AS.Object.extend ({def}) ->
 
-  def initialize: ->
+  def initialize: (@parentGroup) ->
     @namespace = _.uniqueId("bg")
     @children = []
     @boundObjects = []
 
   # Unbind all bindings, and then unbind all children binding groups
   def unbind: ->
-    object.unbind(@namespace) for object in @boundObjects
+    object.unbind("."+@namespace) for object in @boundObjects
+    @unbindChildren()
+
+  def unbindChildren: ->
     child.unbind() for child in @children
-    @initialize()
+    @children = []
 
   def binds: (object, event, handler, context) ->
     @boundObjects.push object
@@ -28,7 +31,7 @@ AS.BindingGroup = AS.Object.extend ({def}) ->
         handler: handler
         context: context
 
-  def addChild: (child=AS.BindingGroup.new())->
+  def addChild: (child=AS.BindingGroup.new(this))->
     @children.push child
     return child
 

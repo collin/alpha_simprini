@@ -98,8 +98,7 @@ exports.Field =
 
     setUp: (callback) ->
       @o = Model.new()
-      @share = makeDoc()
-      @share.at().set {}
+      @share = makeDoc(null, {})
       @o.name.syncWith(@share)
       callback()
 

@@ -19,7 +19,12 @@ exports.Binding =
       binding.css
         "background-color":
           fn: (model) -> model.bgcolor or "mock-color"
-          field: "field1 field2"
+          field: ["field1"]
+
+      binding.css
+        "background-color":
+          fn: (model) -> model.bgcolor or "mock-color"
+          field: ["field2"]
 
       content_mock.expects("css").withExactArgs
         "background-color": "mock-color"
@@ -31,7 +36,7 @@ exports.Binding =
       content_mock.expects("css").withExactArgs
         "background-color": "bgcolor"
 
-      model.trigger("change:field1")
+      model.field1.trigger("change")
 
       test.done()
 
@@ -43,13 +48,18 @@ exports.Binding =
       model = AS.Model.new()
       binding = AS.Binding.Model.new context, model, content
 
-      context_mock.expects('binds').withArgs(model, "change:field1")
-      context_mock.expects('binds').withArgs(model, "change:field2")
+      context_mock.expects('binds').withArgs(model, "field1")
+      context_mock.expects('binds').withArgs(model, "field2")
 
       binding.attr
         "data-property":
           fn: (model) -> model.property or "mock-value"
-          field: "field1 field2"
+          field: ["field1"]
+
+      binding.attr
+        "data-property":
+          fn: (model) -> model.property or "mock-value"
+          field: ["field2"]
 
       content_mock.expects("attr").withExactArgs
         "data-property": "mock-value"
@@ -61,6 +71,6 @@ exports.Binding =
       content_mock.expects("attr").withExactArgs
         "data-property": "value2"
 
-      model.trigger("change:field2")
+      model.field2.trigger("change")
 
       test.done()

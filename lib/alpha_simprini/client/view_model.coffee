@@ -4,7 +4,8 @@ jQuery = require "jQuery"
 Pathology = require "pathology"
 Taxi = require("taxi")
 
-AS.ViewModel = AS.Object.extend ({def, defs}) ->
+AS.ViewModel = AS.Object.extend ({delegate, include, def, defs}) ->
+  delegate 'readPath', 'writePath', to: 'model'
 
   defs build: (view, model) ->
     constructor = AS.ViewModel.constructorForModel(model.constructor)
@@ -15,14 +16,14 @@ AS.ViewModel = AS.Object.extend ({def, defs}) ->
 
     klass = AS.ViewModel[model.path()] = AS.ViewModel.extend()
     klass.name = model.name
-    klass::type = model.name
+    klass::type = model._name()
 
     klass.bindables = {}
     klass.extended_by = model.extended_by
 
     for name, property of model.properties
       klass.bindables[name] = switch property.constructor
-        when AS.Model.Field, Taxi.Property, AS.Model.VirtualProperty
+        when AS.Model.Field, Pathology.Property, Taxi.Property, AS.Model.VirtualProperty
           AS.Binding.Field
         when AS.Model.BelongsTo, AS.Model.EmbedsOne, AS.Model.HasOne
           AS.Binding.One
@@ -41,6 +42,8 @@ AS.ViewModel = AS.Object.extend ({def, defs}) ->
 
   def initialize: (@view, @model) ->
     @cid = @model.cid
+    @id = @model.id
+    @model.bind("change:id", (=> @id = @model.id))
     for key, config of @model.constructor.properties
       @[key] = @model[key]
 
@@ -52,6 +55,9 @@ AS.ViewModel = AS.Object.extend ({def, defs}) ->
 
   def input: (field, options) ->
     AS.Binding.Input.new(@view, @model, field, options)
+
+  def file: (field, options) ->
+    AS.Binding.File.new(@view, @model, field, options)
 
   def checkbox: (field, options) ->
     AS.Binding.CheckBox.new(@view, @model, field, options)
