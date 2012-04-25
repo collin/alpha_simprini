@@ -1,6 +1,3 @@
-AS = require("alpha_simprini")
-_ = require("underscore")
-
 AS.Model.HasOne = AS.Model.Field.extend ({delegate, include, def, defs}) ->
   def couldBe: (test) ->
     return true if test in @options.model?().ancestors
