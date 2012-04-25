@@ -9,22 +9,22 @@ AS.Model.HasMany = AS.Model.Field.extend ({delegate, include, def, defs}) ->
 AS.Model.HasMany.Instance = AS.Model.Field.Instance.extend ({def, delegate}) ->
   delegate AS.COLLECTION_DELEGATES, to: "backingCollection"
   delegate 'groupBy', 'bind', 'trigger' 'unbind', to: "backingCollection"
-  
-  # @::inspect.doc = 
+
+  # @::inspect.doc =
   #   return: String
   #   desc: """
-  #     
+  #
   #   """
   def inspect: ->
     "#{@options.name}: [#{@backingCollection.length}]}"
 
-  # @::initialize.doc = 
+  # @::initialize.doc =
   #   params: [
   #     ["@object", AS.Model, true]
   #     ["@options", Obect, false, default: {}]
   #   ]
   #   desc: """
-  #     
+  #
   #   """
   def initialize: (@object, @options={}) ->
     @model = @options.model
@@ -33,12 +33,12 @@ AS.Model.HasMany.Instance = AS.Model.Field.Instance.extend ({def, delegate}) ->
 
     @bind('change', (=> @triggerDependants()), this)
 
-  # @::syncWith.doc = 
+  # @::syncWith.doc =
   #   params: [
   #     ["share", "ShareJS.Doc", true]
   #   ]
   #   desc: """
-  #     
+  #
   #   """
   def syncWith: (share) ->
     console.log "syncWith", @toString()
@@ -54,86 +54,86 @@ AS.Model.HasMany.Instance = AS.Model.Field.Instance.extend ({def, delegate}) ->
     _.each alreadyThere, (item) => @shareSynapse.insert(item, {})
     @synapse.notify(@shareSynapse)
 
-  # @::objects.doc = 
+  # @::objects.doc =
   #   return: [AS.Model]
   #   desc: """
-  #     
+  #
   #   """
   def objects: ->
-    @backingCollection.models.value()    
+    @backingCollection.models.value()
 
-  # @::bindToPathSegment.doc = 
+  # @::bindToPathSegment.doc =
   #   params: [
   #     ["segment", Taxi.Segment, true]
   #   ]
   #   desc: """
-  #     
+  #
   #   """
   def bindToPathSegment: (segment) ->
     segment.binds this, "add", segment.insertCallback
     segment.binds this, "remove", segment.removeCallback
 
-  # @::set.doc = 
+  # @::set.doc =
   #   params: [
   #     ["models", [[AS.Model, String, Object], true]
   #   ]
   #   desc: """
-  #     
+  #
   #   """
   def set: (models) ->
     @backingCollection.add(model) for model in models
 
-  # @::add.doc = 
+  # @::add.doc =
   #   params: [
   #     ["model", AS.Model, true]
   #     ["options", Object, false]
   #   ]
   #   desc: """
-  #     
+  #
   #   """
-  def add: (model, options) -> 
+  def add: (model, options) ->
     added = @backingCollection.add(model, options)
     @triggerDependants()
     return added
 
-  # @::at.doc = 
+  # @::at.doc =
   #   params: [
   #     ["index", Number, true]
   #   ]
   #   return: [AS.Model, undefined]
   #   desc: """
-  #     
+  #
   #   """
   def at: (index) -> @backingCollection.at.apply(@backingCollection, arguments)
 
-  # @::remove.doc = 
+  # @::remove.doc =
   #   params: [
   #     ["model", AS.Model, true]
   #   ]
   #   return: AS.Model
   #   desc: """
-  #     
+  #
   #   """
-  def remove: (model) -> 
+  def remove: (model) ->
     removed = @backingCollection.remove.apply(@backingCollection, arguments)
     @triggerDependants()
     return removed
 
-  # @::pluc.doc = 
+  # @::pluc.doc =
   #   params: [
   #     ["key", String, true]
   #   ]
   #   return: ["*"]
   #   desc: """
-  #     
+  #
   #   """
   def pluck: (key) ->
     @map (item) -> item[key].get()
 
-  # @::any.doc = 
+  # @::any.doc =
   #   return: Boolean
   #   desc: """
-  #     
+  #
   #   """
   def any: ->
     _.any @backingCollection
@@ -144,12 +144,12 @@ AS.Model.HasMany.Instance = AS.Model.Field.Instance.extend ({def, delegate}) ->
 
     def remove: (item, options) ->
       @raw.remove @raw.at(options.at)
-      
+
     def binds: (insertCallback, removeCallback) ->
       @raw.bind "add#{@namespace}", (model, collection, options) ->
         insertCallback(model, options)
 
-      @raw.bind "remove#{@namespace}", (model, collection, options) -> 
+      @raw.bind "remove#{@namespace}", (model, collection, options) ->
         removeCallback(model, options)
 
     def each: (fn) -> @raw.each(fn)
@@ -171,7 +171,7 @@ AS.Model.HasMany.Instance = AS.Model.Field.Instance.extend ({def, delegate}) ->
 
     def unbinds: ->
       @raw.removeListener(listener) for listener in @listeners
-      
+
     def insert: (model, options) ->
       debugger if @path[0] is "compositions"
       options.at ?= @raw.at(@path).get().length
@@ -186,5 +186,5 @@ AS.Model.HasMany.Instance = AS.Model.Field.Instance.extend ({def, delegate}) ->
 #FIXME: this should have worked
 # AS.Model.HasMany.Instance.delegate "add", "remove", "bind", "unbind", "trigger", to: "backingCollection"
 
-AS.Model.defs hasMany: (name, options) -> 
+AS.Model.defs hasMany: (name, options) ->
   AS.Model.HasMany.new(name, this, options)

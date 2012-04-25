@@ -4,8 +4,8 @@ _ = require "underscore"
 AS.Binding = AS.Object.extend ({def}) ->
   def initialize: (@context, @model, @field, @options={}, @fn=undefined) ->
     if _.isString(@field)
-      @field = @model[@field]      
-      
+      @field = @model[@field]
+
     if _.isFunction(@options)
       [@fn, @options] = [@options, {}]
 
@@ -26,7 +26,7 @@ AS.Binding = AS.Object.extend ({def}) ->
   def willGroupBindings: ->
     @constructor.willGroupBindings or _.isFunction(@fn)
 
-  def fieldValue: -> 
+  def fieldValue: ->
     if _.isArray(@field)
       @model.readPath(@field)
     else

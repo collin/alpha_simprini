@@ -8,13 +8,13 @@ NS.Parent.hasOne "other", model: -> NS.Other
 NS.Other = NS.Parent.extend()
 NS.Other.field "name"
 
-exports.HasOne = 
+exports.HasOne =
   "property is a HasOne": (test) ->
     o = NS.Parent.new()
     test.ok o.other instanceof AS.Model.HasOne.Instance
     test.done()
 
-  "is set when constructing the model": 
+  "is set when constructing the model":
     "with a model": (test) ->
       o = NS.Parent.new other: other = AS.Model.new()
       test.equal other, o.other.get()

@@ -54,16 +54,47 @@ AS.Model.Field = AS.Property.extend ({delegate, include, def, defs}) ->
   Casters.set AS.Enum, AS.Enum
 
 
+  # @::initialize.doc =
+  #   params: [
+  #     ["@name", String, true]
+  #     ["@_constructor", AS.Model, true]
+  #     ["@options", Object, false, default: {}]
+  #   ]
+  #   desc: """
+  #
+  #   """
   def initialize: (@name, @_constructor, @options={}) ->
     @options.name = @name
     @_constructor.writeInheritableValue 'properties', @name, this
 
+  # @::instance.doc =
+  #   params: [
+  #     ["object", AS.Model, true]
+  #   ]
+  #   desc: """
+  #
+  #   """
   def instance: (object) -> @constructor.Instance.new(object, @options)
 
   @Instance = AS.Property.Instance.extend ({def}) ->
+    # @::initialize.doc =
+    #   params: [
+    #     ["@object", AS.Model, true]
+    #     ["@options", Object, false, default: true]
+    #   ]
+    #   desc: """
+    #
+    #   """
     def initialize: (@object, @options={}) ->
       @options.type ?= String
 
+    # @::syncWith.doc =
+    #   params: [
+    #     ["share", "ShareJS.Doc", true]
+    #   ]
+    #   desc: """
+    #
+    #   """
     def syncWith: (share) ->
       @share = share.at(@options.name)
       @share.set("") unless @share.get()?
@@ -75,16 +106,32 @@ AS.Model.Field = AS.Property.extend ({delegate, include, def, defs}) ->
       @synapse.observe(@shareSynapse)
       @synapse.notify(@shareSynapse)
 
+    # @::stopSync.doc =
+    #   desc: """
+    #
+    #   """
     def stopSync: ->
       @synapse?.stopObserving()
       @synapse?.stopNotifying()
-      
+
+    # @::get.doc =
+    #   return: "*"
+    #   desc: """
+    #
+    #   """
     def get: ->
       if @value isnt undefined
         value = Casters.get(@options.type).read(@value, @options)
       else
         @options.default
 
+    # @::set.doc =
+    #   params: [
+    #     ["value", "*", true]
+    #   ]
+    #   desc: """
+    #
+    #   """
     def set: (value) ->
       writeValue = Casters.get(@options.type).write(value, @options)
       return @value if writeValue is @value
@@ -120,7 +167,7 @@ AS.Model.Field = AS.Property.extend ({delegate, include, def, defs}) ->
           raw.del(0, length)
           raw.insert(0, value.toString())
         else if value
-          raw.insert(0, value.toString())          
+          raw.insert(0, value.toString())
         else if current
           raw.del(0, current.toString().length)
 
@@ -139,6 +186,6 @@ AS.Model.Field = AS.Property.extend ({delegate, include, def, defs}) ->
 
 
 
-AS.Model.defs field: (name, options) -> 
+AS.Model.defs field: (name, options) ->
   AS.Model.Field.new(name, this, options)
 

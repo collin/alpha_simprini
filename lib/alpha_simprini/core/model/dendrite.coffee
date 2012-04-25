@@ -29,7 +29,7 @@ AS.Model.CollectionDendrite = AS.Model.Dendrite.extend ({delegate, include, def,
   def insertCallback: (item, options) ->
     return if @observer.blocking
     @observer.insert(item, options)
-    
+
   def removeCallback: (item, options) ->
     return if @observer.blocking
     @observer.remove(item, options)
@@ -38,9 +38,9 @@ AS.Model.CollectionDendrite = AS.Model.Dendrite.extend ({delegate, include, def,
     @notifier.binds @insertCallback, @removeCallback
 
     if @config.syncNow
-      @notifier.each (item, index) => 
+      @notifier.each (item, index) =>
         @insertCallback(item, index)
 
   def off: ->
     @notifier.unbinds @insertCallback, @removeCallback
-    
+

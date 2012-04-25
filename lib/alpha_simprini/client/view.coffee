@@ -15,7 +15,7 @@ AS.View = AS.DOM.extend ({delegate, include, def, defs}) ->
 
   def attrBindings: null
 
-  def _ensureElement: -> 
+  def _ensureElement: ->
     @el ?= @$(@buildElement())
     baseAttributes = @baseAttributes()
     baseAttributes["class"] = undefined if @el.attr("class")
@@ -73,7 +73,7 @@ AS.View = AS.DOM.extend ({delegate, include, def, defs}) ->
 
   def binds: -> @bindingGroup.binds.apply(@bindingGroup, arguments)
 
-  def klassString: -> 
+  def klassString: ->
     classes = []
     for ancestor in @constructor.ancestors
       continue unless ancestor.path().match(/Views?/)
@@ -129,7 +129,7 @@ AS.View = AS.DOM.extend ({delegate, include, def, defs}) ->
 
   def bindAttrs: ->
     return unless @attrBindings
-    @modelBinding().attr @attrBindings    
+    @modelBinding().attr @attrBindings
 
   def delegateEvents: () ->
     if @events

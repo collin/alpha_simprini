@@ -9,15 +9,15 @@ AS.Model.BelongsTo.Instance = AS.Model.HasOne.Instance.extend ({delegate, includ
 
     def set: (value) ->
       @raw.set(value)
-      
+
 
   @ShareSynapse = AS.Model.Field.Instance.ShareSynapse.extend ({delegate, include, def, defs}) ->
     def get: ->
       @raw.at(@path).get()
-      
+
     def set: (value) ->
       @_super(value?.id) if value?.id
-      
 
-AS.Model.defs belongsTo: (name, options) -> 
+
+AS.Model.defs belongsTo: (name, options) ->
   AS.Model.BelongsTo.new(name, this, options)

@@ -6,7 +6,7 @@ exports.Application =
 
   "attaches global key handlers w/jwerty": (test) ->
     events = [
-     "open", "up", "down", "first", "last", "left", 
+     "open", "up", "down", "first", "last", "left",
      "right", "indent", "dedent", "alphanum"
      "escape", "accept", "delete"
     ]

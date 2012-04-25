@@ -20,7 +20,7 @@ NS.Basic = AS.Model.extend ({delegate, include, def, defs}) ->
 exports.VirtualProperty =
   "is a virtual": (test) ->
     test.ok NS.Virtualized.properties.virtualA instanceof AS.Model.VirtualProperty
-    test.ok NS.Virtualized.properties.virtualB instanceof AS.Model.VirtualProperty    
+    test.ok NS.Virtualized.properties.virtualB instanceof AS.Model.VirtualProperty
     test.done()
 
   "exposes dependencies": (test) ->
@@ -63,7 +63,7 @@ exports.VirtualProperty =
     o.others.at(0).name.set("NEW NAME")
     test.done()
 
-  "bindPath": 
+  "bindPath":
     "may be used in path bindings": (test) ->
       o = NS.Virtualized.new()
       o.bindPath ['virtualA'], -> test.done()

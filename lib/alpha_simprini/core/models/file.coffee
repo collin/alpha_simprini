@@ -5,7 +5,7 @@ camelize = require("fleck").upperCamelize
 
 AS.Models.File = AS.Model.extend ({delegate, include, def, defs}) ->
   defs familyClasses: AS.Map.new(-> this)
-    
+
   defs registerFamilyClass: (mimeFamily, klass) ->
     @familyClasses.set(mimeFamily, klass)
 
@@ -52,9 +52,9 @@ AS.Models.File = AS.Model.extend ({delegate, include, def, defs}) ->
   #   konstructor = class_for_mime()
   #   # pass
 
-  # @::initialize.doc = 
+  # @::initialize.doc =
   #   desc: """
-  #     
+  #
   #   """
   def initialize: ->
     @_super.apply(this, arguments)
@@ -68,12 +68,12 @@ AS.Models.File = AS.Model.extend ({delegate, include, def, defs}) ->
     #   @name image.attr("title") or image.attr("alt") or $.url(image.attr("src")).attr("file") or "Untitled Image"
     #   @bytes 0
 
-  # @::read.doc = 
+  # @::read.doc =
   #   params: [
   #     ["callback", Function, true]
   #   ]
   #   desc: """
-  #     
+  #
   #   """
   def read: (callback) ->
     # return callback(@dataURL) if @dataURL
@@ -82,12 +82,12 @@ AS.Models.File = AS.Model.extend ({delegate, include, def, defs}) ->
     # else if @image()
     #   @readCanvas(callback)
 
-  # @::readFile.doc = 
+  # @::readFile.doc =
   #   params: [
   #     ["callback", Function, true]
   #   ]
   #   desc: """
-  #     
+  #
   #   """
   def readFile: (callback) ->
     reader = new @FileReader
@@ -110,9 +110,9 @@ AS.Models.File = AS.Model.extend ({delegate, include, def, defs}) ->
   #   console.warn "FIXME: portable image proxy port"
   #   image.src = "http://catalogs.dev/?proxy_uri=#{@image().src}"
 
-  # @::upload.doc = 
+  # @::upload.doc =
   #   desc: """
-  #     
+  #
   #   """
   def upload: ->
     formdata = new FormData

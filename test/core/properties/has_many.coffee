@@ -71,7 +71,7 @@ exports.HasMany =
       test.done()
 
   "Sharing":
-    "on load": 
+    "on load":
       "loads objects from share": (test) ->
         shareData =
           children: [
@@ -117,7 +117,7 @@ exports.HasMany =
       share.at().set children: [{"NS.Child", id: child.id}]
       o.children.syncWith(share)
       test.equal child.id, o.children.at(0).id
-      
+
       test.done()
 
     setUp: (callback) ->

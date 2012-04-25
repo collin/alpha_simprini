@@ -8,7 +8,7 @@ AS.Model.Store = AS.Object.extend ({delegate, include, def, defs}) ->
   def initialize: ({@adapterClass, @adapterConfig}) ->
     @adapterConfig ?= {}
     @adapterConfig.store = this
-  
+
   def adapterFor: (options) ->
     @adapterClass.new( extend clone(@adapterConfig), options )
 
@@ -17,4 +17,4 @@ AS.Model.Store = AS.Object.extend ({delegate, include, def, defs}) ->
     @adapterFor({model}).open()
     model
 
-    
+

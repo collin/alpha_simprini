@@ -51,7 +51,7 @@ AS.Model.ShareJSAdapter = AS.Object.extend ({delegate, include, def, defs}) ->
     modelDocument = constructorGroup.at(@model.id)
     modelDocument.set(new Object) unless modelDocument.get()
     modelDocument
-    
+
   def constructorGroup: (path) ->
     constructorGroup = @share.at(path)
     constructorGroup.set(new Object) unless constructorGroup.get()
@@ -82,7 +82,7 @@ AS.Model.ShareJSAdapter = AS.Object.extend ({delegate, include, def, defs}) ->
         model = constructor.find(id)
 
         if model is @model
-          @sync()      
+          @sync()
         else
           @adapterFor({model, @share}).sync()
 
@@ -90,7 +90,7 @@ AS.Model.ShareJSAdapter = AS.Object.extend ({delegate, include, def, defs}) ->
 
   def adapterFor: (options) ->
     @store.adapterFor(options)
-            
+
 
   # def loadIndexedData: ->
   #   selfReady = => @model.trigger("ready")

@@ -8,7 +8,7 @@ AS.Binding.File = AS.Binding.Input.extend ({delegate, include, def, defs}) ->
 
   def fieldValue: -> # FALSE. Cannot set value of a file input.
   def setContent: -> # FALSE. Cannot set value of a file input.
-  def readField: -> 
+  def readField: ->
     AS.Models.File.new file: @content[0].files[0]
-    
+
     

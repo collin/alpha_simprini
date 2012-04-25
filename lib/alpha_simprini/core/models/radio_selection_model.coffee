@@ -1,25 +1,25 @@
 AS = require "alpha_simprini"
 AS.Models.RadioSelectionModel = AS.Model.extend ({def}) ->
   @property 'selected'
-  
-  # @::initialize.doc = 
+
+  # @::initialize.doc =
   #   params: [
   #     ["options", Object, false, default: {}]
   #   ]
   #   desc: """
-  #     
+  #
   #   """
   def initialize: (options={}) ->
     @property = options.property
     @_super()
     @select undefined
-  
-  # @::select.doc = 
+
+  # @::select.doc =
   #   params: [
   #     ["item", "*", true]
   #   ]
   #   desc: """
-  #     
+  #
   #   """
   def select: (item) ->
     if @property

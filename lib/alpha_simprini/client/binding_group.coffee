@@ -25,7 +25,7 @@ AS.BindingGroup = AS.Object.extend ({def}) ->
     else if _.isArray(event)
       object.bindPath(event, _.bind(handler, context))
     else
-      object.bind 
+      object.bind
         event: event
         namespace: @namespace
         handler: handler

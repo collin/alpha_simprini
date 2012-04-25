@@ -9,13 +9,13 @@ AS.Callbacks = AS.Module.extend ({def, defs}) ->
           do (callback) =>
             @["#{key}#{upperCamelize callback}"] = (fn) ->
               @pushInheritableItem("#{key}#{upperCamelize callback}_callbacks", fn)
-          
-  # @::runCallbacks.doc = 
+
+  # @::runCallbacks.doc =
   #   params: [
   #     ["name", String, true]
   #   ]
   #   desc: """
-  #     
+  #
   #   """
   def runCallbacks: (name) ->
     for callback in @constructor["#{name}_callbacks"] || []

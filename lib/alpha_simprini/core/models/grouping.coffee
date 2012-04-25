@@ -2,14 +2,14 @@ AS = require "alpha_simprini"
 AS.Models.Grouping = AS.Model.extend ({delegate, include, def, defs}) ->
   @hasMany 'groups'
 
-  # @::initialize.doc = 
+  # @::initialize.doc =
   #   params: [
   #     ["@backingCollection", AS.Collection, true]
   #     ["@groupByProperty", String, true]
   #     ["@metaData", Object, false, default: {}]
   #   ]
   #   desc: """
-  #     
+  #
   #   """
   def initialize: (@backingCollection, @groupByProperty, @metaData={}) ->
     @_super()
@@ -23,24 +23,24 @@ AS.Models.Grouping = AS.Model.extend ({delegate, include, def, defs}) ->
       handler: @addToGroup
       context: this
 
-    @backingCollection.bind 
+    @backingCollection.bind
       event: "remove"
       handler: @removeFromGroup
       context: this
 
-    @backingCollection.bind 
+    @backingCollection.bind
       event: "change:#{@groupByProperty}"
       handler: @determineNewGroup
       context: this
 
     @backingCollection.each (item) => @addToGroup(item)
 
-  # @::addToGroup.doc = 
+  # @::addToGroup.doc =
   #   params: [
   #     ["item", AS.Model, true]
   #   ]
   #   desc: """
-  #     
+  #
   #   """
   def addToGroup: (item) ->
     name = item[@groupByProperty].get()
@@ -52,23 +52,23 @@ AS.Models.Grouping = AS.Model.extend ({delegate, include, def, defs}) ->
     @itemMap.set item, group
     group.members.add(item)
 
-  # @::removeFromGroup.doc = 
+  # @::removeFromGroup.doc =
   #   params: [
   #     ["item", AS.Model, true]
   #   ]
   #   desc: """
-  #     
+  #
   #   """
   def removeFromGroup: (item) ->
     return unless group = @itemMap.get(item)
     group.members.remove(item)
 
-  # @::determineNewGroup.doc = 
+  # @::determineNewGroup.doc =
   #   params: [
   #     ["item", AS.Model, true]
   #   ]
   #   desc: """
-  #     
+  #
   #   """
   def determineNewGroup: (item) ->
     @removeFromGroup(item)
@@ -77,7 +77,7 @@ AS.Models.Grouping = AS.Model.extend ({delegate, include, def, defs}) ->
 # @currentUser.labors.groupBy "endDateGroup", (group) ->
 #   @text group.name
 #   @text "(" ;@group.binding "membersCount"; @text ")"
-  
+
 #   group.members.groupBy 'orgName', (group) ->
 #     group.binding "name"
 #     @text "("; @group.binding "membersCount"; @text ")"

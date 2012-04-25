@@ -10,7 +10,7 @@ AS.unimplemented = (method) ->
   return ->
     throw new Error ["you MUST implement the method '#{method}' on: #{@toString()}"]
 
-AS.part = (name) -> 
+AS.part = (name) ->
   exports[name] = require: (libraries) -> AS.require name.toLowerCase(), libraries
 
 # Namespaces

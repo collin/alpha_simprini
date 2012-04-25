@@ -41,7 +41,7 @@ AS.Application =  AS.Object.extend ({def, include}) ->
     each handlers, (trigger, key) =>
       jwerty.key key, ( (event) => @trigger(trigger, event) ), @el
 
-    jwerty.key "backspace", (event) => 
+    jwerty.key "backspace", (event) =>
       event.preventDefault()
       @trigger("delete", event)
 

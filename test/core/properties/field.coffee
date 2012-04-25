@@ -67,7 +67,7 @@ exports.Field =
       test.equal 2, o.enum.value
       test.done()
 
-  "bindPath": 
+  "bindPath":
     "may be used in path bindings": (test) ->
       o = Model.new()
       o.bindPath ['boolean'], -> test.done()
@@ -87,7 +87,7 @@ exports.Field =
       o.name.syncWith(share)
       test.equal "from share", o.name.get()
       test.done()
- 
+
     "propagate field value to @share on sync": (test) ->
       o = Model.new(name: "from model")
       share = makeDoc()

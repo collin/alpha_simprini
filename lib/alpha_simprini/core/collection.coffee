@@ -7,13 +7,13 @@ AS.Collection = AS.Object.extend ({def, include, delegate}) ->
   include Taxi.Mixin
   delegate AS.COLLECTION_DELEGATES, to: "models"
 
-  # @::initialize.doc = 
+  # @::initialize.doc =
   #   params: [
   #     ["@models", [AS.Model], false, default: []]
   #     ["options", Object, false, default: {}]
   #   ]
   #   desc: """
-  #     
+  #
   #   """
   def initialize: (@models=[], options = {}) ->
     extend this, options
@@ -23,19 +23,19 @@ AS.Collection = AS.Object.extend ({def, include, delegate}) ->
     @models = _([]).chain()
     @add(model) for model in @models
 
-  # @::model.doc = 
+  # @::model.doc =
   #   desc: """
-  #     
+  #
   #   """
   def model: -> AS.Model
 
-  # @::add.doc = 
+  # @::add.doc =
   #   params: [
   #     ["model", [AS.Model, String, Object], false, default: {}]
   #     ["options", Object, false, default: {}]
   #   ]
   #   desc: """
-  #     
+  #
   #   """
   def add: (model={}, options={}) ->
     # Allow for passing both Model and ViewModels in
@@ -51,13 +51,13 @@ AS.Collection = AS.Object.extend ({def, include, delegate}) ->
 
     model
 
-  # @::build.doc = 
+  # @::build.doc =
   #   private: true
   #   params: [
   #     ["model", [AS.Model, String, Object], true]
   #   ]
   #   desc: """
-  #     
+  #
   #   """
   def build: (model) ->
     if isString(model) and constructor = @model?()
@@ -69,18 +69,18 @@ AS.Collection = AS.Object.extend ({def, include, delegate}) ->
         return AS.All.byId[model.id]
       else
         ctor = @model()
-      
+
       data = _.clone(model)
       ctor.new(data)
 
-  # @::_add.doc = 
+  # @::_add.doc =
   #   private: true
   #   params: [
   #     ["model", AS.Model, true]
   #     ["options", Object, false, default: {}]
   #   ]
   #   desc: """
-  #     
+  #
   #   """
   def _add: (model, options={}) ->
     options.at ?= this.length
@@ -96,23 +96,23 @@ AS.Collection = AS.Object.extend ({def, include, delegate}) ->
 
     model.trigger "add", this, options
 
-  # @::at.doc = 
+  # @::at.doc =
   #   params: [
   #     ["index", Number, true]
   #   ]
   #   desc: """
-  #     
+  #
   #   """
   def at: (index) ->
     @models.value()[index]
 
-  # @::remove.doc = 
+  # @::remove.doc =
   #   params: [
   #     ["model", AS.Model, true]
   #     ["options", Object, false, default: {}]
   #   ]
   #   desc: """
-  #     
+  #
   #   """
   def remove: (model, options={}) ->
     # Allow for passing both Model and ViewModels in
@@ -123,14 +123,14 @@ AS.Collection = AS.Object.extend ({def, include, delegate}) ->
 
     result
 
-  # @::_remove.doc = 
+  # @::_remove.doc =
   #   private: true
   #   params: [
   #     ["model", AS.Model, true]
   #     ["options", {}, false, default: {}]
   #   ]
   #   desc: """
-  #     
+  #
   #   """
   def _remove: (model, options={}) ->
     options.at = @models.indexOf(model).value()
@@ -143,29 +143,29 @@ AS.Collection = AS.Object.extend ({def, include, delegate}) ->
       event: "all"
       namespace: @objectId()
 
-  # @::filter.doc = 
+  # @::filter.doc =
   #   params: [
   #     ["filterBy", {}, true]
   #   ]
   #   return: AS.FilteredCollection
   #   desc: """
-  #     
+  #
   #   """
   def filter: (filterBy) ->
     AS.FilteredCollection.new(this, filterBy)
 
-  # @::groupBy.doc = 
+  # @::groupBy.doc =
   #   params: [
   #     ["key", String, true]
   #     ["metaData", Object, false]
   #   ]
   #   desc: """
-  #     
+  #
   #   """
   def groupBy: (key, metaData) ->
     AS.Models.Grouping.new(this, key, metaData)
-    
-  # @::_onModelEvent.doc = 
+
+  # @::_onModelEvent.doc =
   #   private: true
   #   params: [
   #     ["event", String, true]
@@ -174,7 +174,7 @@ AS.Collection = AS.Object.extend ({def, include, delegate}) ->
   #     ["options", Object, false]
   #   ]
   #   desc: """
-  #     
+  #
   #   """
   # # When an event is triggered from a model, it is bubbled up through the collection.
   def _onModelEvent: (event, model, collection, options) ->

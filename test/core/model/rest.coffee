@@ -32,7 +32,7 @@ plain =
     thing_id: 1
     thing_type: "Thing"
 
-sideLoading = 
+sideLoading =
   rested:
     id: 1
     field: "packed"

@@ -68,7 +68,7 @@ exports.View =
     test.equal subEl, returned
     test.equal subEl, view.childViews[0].el[0]
 
-    # child view is added to the bindingGroup's children so 'unbind' 
+    # child view is added to the bindingGroup's children so 'unbind'
     # will be called on the view object.
     test.equal view.childViews[0], view.bindingGroup.children.reverse()[0]
 
@@ -82,7 +82,7 @@ exports.View =
   #   test.equal "", view.html()
   #   test.done()
 
-  "binding()": 
+  "binding()":
     "creates a binding for a collection": (test) ->
       view = AS.View.new()
       collection = AS.Collection.new()
@@ -114,7 +114,7 @@ exports.View =
       test.equal 1, view.descendantViews(null, NS.SubView).length
       test.done()
 
-exports["View Integration"] = 
+exports["View Integration"] =
   "property binding with two children":
     setUp: (callback) ->
       NS.Parent = AS.Model.extend ({delegate, include, def, defs}) ->
@@ -126,7 +126,7 @@ exports["View Integration"] =
       NS.Child = AS.Model.extend ({delegate, include, def, defs}) ->
         @field 'name'
 
-      
+
       @item1 = NS.Item.new()
       @item2 = NS.Item.new()
 
@@ -159,7 +159,7 @@ exports["View Integration"] =
       test.equal 0, @view.el.find("ul li").length
       test.done()
 
-  "property binding nested ina property binding": 
+  "property binding nested ina property binding":
     setUp: (callback) ->
       NS.Model = AS.Model.extend ({delegate, include, def, defs}) ->
         @property "other"
@@ -199,9 +199,9 @@ exports["View Integration"] =
       test.ok @view.el.find("##{@thing2.objectId()}").is("*"), "renders second thing"
       test.ok @view.el.find("##{@thing2.children.at(0).objectId()}").is("*"), "renders second thing first child"
       test.ok @view.el.find("##{@thing2.children.at(1).objectId()}").is("*"), "renders second thing second child"
-      
+
       @model.other.set(@other2)
-      
+
       test.equal 1, @view.el.find(".model-other").length, "renders only one other"
       test.ok @view.el.find("##{@thing2.objectId()}").is("*"), "second thing still visiible"
       test.done()

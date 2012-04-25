@@ -8,13 +8,13 @@ AS.Model = AS.Object.extend ({delegate, include, def, defs}) ->
   include Taxi.Mixin
   include AS.Callbacks
 
-  @defineCallbacks 
+  @defineCallbacks
     # before: [
     #   'initialize'
     # ]
     after: [
       'initialize'
-    ] 
+    ]
 
   # @find.doc =
   #   params: [
@@ -33,7 +33,7 @@ AS.Model = AS.Object.extend ({delegate, include, def, defs}) ->
   #     ["attributes", Object, false, default: {}]
   #   ]
   #   desc: """
-  #     
+  #
   #   """
   def initialize: (attributes={}) ->
     attributes.id ?= AS.uniq()
@@ -56,14 +56,14 @@ AS.Model = AS.Object.extend ({delegate, include, def, defs}) ->
   #   ]
   #   desc: """
   #   """
-  def set: (attributes) ->    
+  def set: (attributes) ->
     for key, value of attributes
       continue if key is "_type"
       if key is "id"
         @setId(value)
       else
         property = @[key]
-        @[key]?.set(value) 
+        @[key]?.set(value)
 
   # @::setId.doc =
   #   params: [
@@ -75,7 +75,7 @@ AS.Model = AS.Object.extend ({delegate, include, def, defs}) ->
     if @id
       delete AS.All.byId[@id]
       delete AS.All.byIdRef["#{@id}-#{@constructor.path()}"]
-    
+
     @id = id
     @idRef = "#{@id}-#{@constructor.path()}"
 

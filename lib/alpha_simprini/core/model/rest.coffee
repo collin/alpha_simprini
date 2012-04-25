@@ -24,14 +24,14 @@ extractIds = (object) ->
 
 AS.Model.REST = AS.Module.extend ({delegate, include, def, defs}) ->
   defs mappings: AS.Map.new()
-    
+
   defs rootKey: ->
     underscore @_name()
-    
+
   defs resourcesURL: -> "/#{pluralize @rootKey()}"
-    
+
   defs resourceURL: (id) -> "#{@resourcesURL()}/#{id}"
-  
+
   defs load: (id, callback) ->
     unless model = AS.All.byId[id]
       model = @new()
@@ -57,7 +57,7 @@ AS.Model.REST = AS.Module.extend ({delegate, include, def, defs}) ->
     for klass in @appendedTo
       mappings[pluralize(camelize(klass.rootKey()))] = klass
     mappings
-    
+
 
   def loadData: (data) ->
     references = AS.Map.new()
@@ -68,7 +68,7 @@ AS.Model.REST = AS.Module.extend ({delegate, include, def, defs}) ->
 
     modelData = data[root]
     modelData = convertKeys(modelData)
-    
+
     [modelData, ids] = extractIds(modelData)
 
     @set(modelData)
@@ -94,13 +94,13 @@ AS.Model.REST = AS.Module.extend ({delegate, include, def, defs}) ->
   def resolveReferences: (ids) ->
     for key, references of ids
       continue unless references
-      
+
       if references.length is undefined
         relationKey = key.replace(/Id$/, '')
         path = @[relationKey].model().path()
         id = references
         @[relationKey].set AS.All.byIdRef["#{id}-#{path}"]
-      
+
       else
         relationKey = pluralize key.replace(/Ids$/, '')
         path = @[relationKey].model().path()

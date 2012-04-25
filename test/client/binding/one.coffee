@@ -7,7 +7,7 @@ exports.Binding =
     setUp: (callback) ->
       @model = BoundModel.new( owner: BoundModel.new() )
 
-      content_fn = (thing) -> 
+      content_fn = (thing) ->
         @div id: thing.cid.replace('.', '-')
 
       [mocks, binding] = mock_binding(AS.Binding.One, field: @model.owner, model: @model, fn: content_fn)
@@ -32,7 +32,7 @@ exports.Binding =
       test.done()
 
     "passes a model binding to the content_fn": (test) ->
-      @binding.fn = (model, binding) -> 
+      @binding.fn = (model, binding) ->
         test.equal AS.Binding.Model, binding.constructor
         test.done()
 

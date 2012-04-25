@@ -8,7 +8,7 @@ exports.Collection =
     C.Thing = AS.Model.extend()
     C.Thing.property("inverse")
     C.Thing.property("name")
-    C.ThingCollection = AS.Collection.extend -> 
+    C.ThingCollection = AS.Collection.extend ->
       @def model: -> C.Thing
       @def inverse: "inverse"
 
@@ -22,7 +22,7 @@ exports.Collection =
   "clears inverse if specified": (test) ->
     C.Thing = AS.Model.extend()
     C.Thing.property("inverse")
-    C.ThingCollection = AS.Collection.extend -> 
+    C.ThingCollection = AS.Collection.extend ->
       @def model: -> C.Thing
       @def inverse: "inverse"
 

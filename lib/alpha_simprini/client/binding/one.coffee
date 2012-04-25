@@ -5,7 +5,7 @@ jQuery = require "jquery"
 AS.Binding.One = AS.Binding.Field.extend ({delegate, include, def, defs}) ->
   def makeContent: ->
     AS.Binding.Container.new(@container[0])
-    
+
   def setContent: ->
     @content.empty()
     @bindingGroup.unbind()

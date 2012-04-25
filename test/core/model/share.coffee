@@ -18,7 +18,7 @@ indexedData =
       things: "Shared-1"
 
 
-shareData = 
+shareData =
   # index:
   #   "Indexed-1": "NS.Shared"
 
@@ -40,11 +40,11 @@ exports.ShareJSAdapter =
     @adapter = AS.Model.ShareJSAdapter.new({@model, @store})
     @adapter.didOpen makeDoc(null, shareData)
 
-    callback()    
+    callback()
 
   "loads embedded data": (test) ->
     test.deepEqual(
-      @model.things.backingCollection.models.value(), 
+      @model.things.backingCollection.models.value(),
       [NS.Shared.find("Shared-1"), NS.Shared.find("Shared-2")]
     )
 
@@ -55,25 +55,25 @@ exports.ShareJSAdapter =
     test.done()
 
 # Shared = NS.Shared = AS.Model.extend ({delegate, include, def, defs}) ->
-#   
+#
 #   @field "field"
 #   @hasMany "relations", model: -> SimpleShare
 #   # @hasOne "relation"
 #   @belongsTo "owner"
 
 # SimpleShare = NS.SimpleShare = AS.Model.extend ({delegate, include, def, defs}) ->
-#   
+#
 #   @field "field"
 #   @hasMany "relations", model: -> SimplerShare
 #   # @hasOne "relation"
 #   @belongsTo "owner"
 
 # SimplerShare = NS.SimplerShare = AS.Model.extend ({delegate, include, def, defs}) ->
-#   
+#
 #   @field "field"
 
 # IndexShare = NS.IndexShare = AS.Model.extend ({delegate, include, def, defs}) ->
-#   
+#
 #   @index "docs"
 #   @belongsTo "owner"
 
@@ -110,7 +110,7 @@ exports.ShareJSAdapter =
 #     test.deepEqual [], @model.share.at("embeds").get()
 #     test.done()
 
-#   "indexes": 
+#   "indexes":
 #     setUp: (callback) ->
 #       (@model = IndexShare.shared()).whenIndexed callback
 
@@ -130,10 +130,10 @@ exports.ShareJSAdapter =
 #             loaded.whenIndexed ->
 #               test.done()
 #           @model.share.emit(
-#             "remoteop", 
+#             "remoteop",
 #             @model.share.at("index:docs", other.id).set(SimpleShare.path())
 #           )
-          
+
 #     "loads models in indexes when opened": (test) ->
 #       indexed = SimpleShare.new()
 #       indexed.owner.set(indexed)
@@ -198,7 +198,7 @@ exports.ShareJSAdapter =
 
 #   "sets defaults when opening a new model": (test) ->
 #     NS.DefaultShared = AS.Model.extend ({delegate, include, def, defs}) ->
-#       
+#
 #       @field "defaulted", default: "value"
 
 #     model = NS.DefaultShared.shared("someid")
@@ -210,7 +210,7 @@ exports.ShareJSAdapter =
 #     AS.openSharedObject = (id, didOpen) ->
 #       didOpen makeDoc(id, defaulted: "REMOTE VALUE")
 #     NS.DefaultShared = AS.Model.extend ({delegate, include, def, defs}) ->
-#       
+#
 #       @field "defaulted", default: "value"
 
 #     model = NS.DefaultShared.shared("some other id")
@@ -222,7 +222,7 @@ exports.ShareJSAdapter =
 #   "loads lists of embedded models":
 #     setUp: (callback) ->
 #       NS.Embed = AS.Model.extend ({delegate, include, def, defs}) ->
-#         
+#
 
 #         @hasMany 'embeds'
 
