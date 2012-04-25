@@ -7,7 +7,7 @@ NS.Parent.belongsTo "owner", model: -> NS.Owner
 NS.Parent.field "name"
 
 NS.Owner = NS.Parent.extend()
-# NS.Owner.include AS.Model.Share
+# NS.Owner.
 
 exports.BelongsTo =
   "property is a Field": (test) ->

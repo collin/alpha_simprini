@@ -107,14 +107,14 @@ exports.HasMany =
       share.at().set({})
       o.children.add(child)
       o.children.syncWith(share)
-      test.deepEqual [{_type: "NS.Child", id: child.id}], share.at("children").get()
+      test.deepEqual [{id: child.id}], share.at("children").get()
       test.done()
 
     "propagate values from share to model on sync": (test) ->
       o = NS.Parent.new()
       child = NS.Child.new()
       share = makeDoc()
-      share.at().set children: [{_type: "NS.Child", id: child.id}]
+      share.at().set children: [{"NS.Child", id: child.id}]
       o.children.syncWith(share)
       test.equal child.id, o.children.at(0).id
       
@@ -133,13 +133,13 @@ exports.HasMany =
 
     "when an item is added to the field it is added to the share": (test) ->
       child = @o.children.add NS.Child.new()
-      test.deepEqual {id:child.id, _type:"NS.Child"}, @share.at('children', 0).get()
+      test.deepEqual {id:child.id}, @share.at('children', 0).get()
       test.done()
 
     "adds item to the share at the specified index": (test) ->
       child = @o.children.add NS.Child.new()
       child2 = @o.children.add NS.Child.new(), at: 0
-      test.deepEqual {id:child2.id, _type:"NS.Child"}, @share.at('children', 0).get()
+      test.deepEqual {id:child2.id}, @share.at('children', 0).get()
       test.done()
 
     "when an item is removed from the field it is removed from the share": (test) ->
@@ -150,7 +150,7 @@ exports.HasMany =
 
     "when an item is added to the share it is added to the field": (test) ->
       child = NS.Child.new()
-      @share.emit 'remoteop', @share.at('children').insert(0, id: child.id, _type:"NS.Child")
+      @share.emit 'remoteop', @share.at('children').insert(0, id: child.id)
       test.equal child.id, @o.children.first().value().id
       test.equal NS.Child, @o.children.first().value().constructor
       test.done()

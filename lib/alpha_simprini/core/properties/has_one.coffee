@@ -2,11 +2,26 @@ AS = require("alpha_simprini")
 _ = require("underscore")
 
 AS.Model.HasOne = AS.Model.Field.extend ({delegate, include, def, defs}) ->
+  # @::couldBe.doc = 
+  #   params: [
+  #     ["test", undefined, true]
+  #   ]
+  #   desc: """
+  #     
+  #   """
   def couldBe: (test) ->
     return true if test in @options.model?().ancestors
     @_super.apply(this, arguments)
 
 AS.Model.HasOne.Instance = AS.Model.Field.Instance.extend ({def}) ->
+  # @::initialize.doc = 
+  #   params: [
+  #     ["@object", AS.Model, true]
+  #     ["@options", Object, true]
+  #   ]
+  #   desc: """
+  #     
+  #   """
   def initialize: (@object, @options) ->
     @options.model ?= -> AS.Model
     @model = @options.model
@@ -14,9 +29,21 @@ AS.Model.HasOne.Instance = AS.Model.Field.Instance.extend ({def}) ->
     @_super.apply(this, arguments)
     @bind "destroy", => @set(null)
 
+  # @::get.doc = 
+  #   return: [AS.Model, null]
+  #   desc: """
+  #     
+  #   """
   def get: ->
     @value
 
+  # @::set.doc = 
+  #   params: [
+  #     ["value", AS.Model]
+  #   ]
+  #   desc: """
+  #     
+  #   """
   def set: (value) ->
     value = value.model if value?.model
     return @value if value is @value

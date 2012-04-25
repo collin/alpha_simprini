@@ -18,6 +18,14 @@ Taxi = require "taxi"
 AS.FilteredCollection = AS.Collection.extend ({delegate, include, def, defs}) ->
   delegate 'add', 'remove', to: 'parent'
 
+  # @::initialize.doc = 
+  #   params: [
+  #     ["@parent", AS.Collection, true]
+  #     ["conditions", Object, false, default: {}]
+  #   ]
+  #   desc: """
+  #     
+  #   """
   def initialize: (@parent, conditions={}) ->
     @_super()
 
@@ -49,23 +57,55 @@ AS.FilteredCollection = AS.Collection.extend ({delegate, include, def, defs}) ->
 
     @reFilter()
 
+  # @::determinePlacementInSelf.doc = 
+  #   params: [
+  #     ["model", AS.Model, true]
+  #   ]
+  #   desc: """
+  #     
+  #   """
   def determinePlacementInSelf: (model) ->
     if @filter(model) is true
       @addToSelf(model)
     else
       @removeFromSelf(model)
 
+  # @::addToSelf.doc = 
+  #   params: [
+  #     [model, AS.Model, true]
+  #   ]
+  #   desc: """
+  #     
+  #   """
   def addToSelf: (model) ->
     return if @models.include(model).value()
     @_add(model)
 
+  # @::removeFromSelf.doc = 
+  #   params: [
+  #     [model, AS.Modle, true]
+  #   ]
+  #   desc: """
+  #     
+  #   """
   def removeFromSelf: (model) ->
     return unless @models.include(model).value()
     @_remove(model)
 
+  # @::reFilter.doc = 
+  #   desc: """
+  #     
+  #   """
   def reFilter: ->
     @parent.each (model) => @determinePlacementInSelf(model)
 
+  # @::setConditions.doc = 
+  #   params: [
+  #     ["conditions", Object, true]
+  #   ]
+  #   desc: """
+  #     
+  #   """
   def setConditions: (conditions) ->
     @conditions.unbind()
     @conditions.set(key, value) for key, value of conditions
@@ -75,6 +115,13 @@ AS.FilteredCollection = AS.Collection.extend ({delegate, include, def, defs}) ->
       context: this
     @reFilter()
 
+  # @::filter.doc = 
+  #   params: [
+  #     ["model", AS.Model, true]
+  #   ]
+  #   desc: """
+  #     
+  #   """
   def filter: (model) ->
     for key, value of @conditions.toObject()
       modelValue = model[key].get()

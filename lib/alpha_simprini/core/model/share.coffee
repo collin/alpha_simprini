@@ -1,120 +1,105 @@
 AS = require "alpha_simprini"
 _ = require "underscore"
-ShareJs = require("share").client
+{keys} = _
+ShareJS = require("share").client
 
-AS.ShareJsURL = "http://#{window?.location.host or 'localhost'}/sjs"
+AS.ShareJSURL = "http://#{window?.location.host or 'localhost'}/sjs"
 
-AS.openSharedObject = (id, callback) ->
-  ShareJs.open id, "json", @ShareJsURL, (error, handle) ->
-    if error then console.log(error) else callback(handle)
+AS.Model.ShareJSAdapter = AS.Object.extend ({delegate, include, def, defs}) ->
+  INDEX = "index"
 
-AS.Model.Share = AS.Module.extend ({delegate, include, def, defs}) ->
-  defs index: (name, config) ->
-    @writeInheritableValue 'indeces', name, config
+  # delegate "adapterFor", to: "store"
+
+  def initialize: ({@store, @url, @model, @share}) ->
+    @model.adapter = this
+    @url ?= AS.ShareJSURL
 
 
-  defs shared: (id=AS.uniq(), indexer=(model) -> ) ->
-    model = AS.All.byId[id] or @new(id:id)
-    AS.openSharedObject id, (share) ->
-      model.didOpen(share)
-      indexer(model)
-    model
+  def open: () ->
+    ShareJS.open @model.id, "json", @url, (error, share) =>
+      if error
+        @store.trigger("share:open:error", error, this)
+      else
+        share.set(new Object) if share.get() is null
+        @didOpen(share)
 
-  defs load: (model, callback= ->) ->
-    AS.openSharedObject model.id, (share) ->
-      callback.call(model)
-      model.didLoad(share)
-    model
+  def sync: (data={}) ->
+    for property in @model.properties()
+      property.syncWith?(@model.share, data[property.options.name])
 
-  def new: ->
-    @share is undefined
-    
-  def whenIndexed: (fn) ->
-    if @hasIndexed
-      fn.call(this)
-    else
-      (@whenIndexedCallbacks ?= []).push fn
-
-  def didIndex: ->
-    return if @hasIndexed
-    @hasIndexed = true
-    for fn in @whenIndexedCallbacks ? []
-      fn.call(this)
-
+  # when all indexed data is loaded, "ready" event is triggered on @model
   def didOpen: (@share) ->
-    @share.at().set({}) if @share.at().get() in [null, undefined]
-    @buildIndeces()
-    @loadIndeces()
+    path = @model.constructor.path()
+
+    constructorGroup = @constructorGroup(path)
+    modelDocument = @modelDocument(constructorGroup)
+
+    @loadEmbeddedData()
+    @model.trigger("ready")
 
   def didLoad: (@share) ->
-    @share.at().set({}) if @share.at().get() in [null, undefined]
-    @buildIndeces()
-    @loadIndeces()
+    path = @model.constructor.path()
 
-  def didEmbed: (@share) ->
-    if @share.at().get() in [null, undefined]
-      @share.at().set({_type: @constructor.toString(), id:@id}) 
-    @buildIndeces()
-    @loadIndeces()
+    constructorGroup = @constructorGroup(path)
+    modelDocument = @modelDocument(constructorGroup)
 
-  def indeces: ->
-    @index(name) for name, config of @constructor.indeces
+    @model.share = modelDocument
+    @sync()
+    @model.trigger("ready")
+
+  def modelDocument: (constructorGroup) ->
+    modelDocument = constructorGroup.at(@model.id)
+    modelDocument.set(new Object) unless modelDocument.get()
+    modelDocument
     
-  def buildIndeces: ->
-    for index in @indeces()
-      index.set({}) unless index.get()
+  def constructorGroup: (path) ->
+    constructorGroup = @share.at(path)
+    constructorGroup.set(new Object) unless constructorGroup.get()
+    constructorGroup
 
-  def properties: ->
-    @[name] for name, config of @constructor.properties
-    
-  def bindShareEvents: ->
-    for property in @properties()
-      property?.syncWith?(@share)
+  def eachEmbed: (fn) ->
+    for key, value of @share.get()
+      continue if key is INDEX
+      fn.call(this, key, value)
 
-    for index in @indeces()
-      index.on "insert", (id, path) =>
-        constructor = AS.loadPath(path)
+  def loadEmbeddedData: ->
+    # @share.at().on "insert", -> console.log "INSERT"
+    # @share.at().on "replace", -> console.log "REPLACE"
+
+    # First Pass creates objects
+    @eachEmbed (path, data) ->
+      @share.at(path).set(new Object) unless @share.at(path).get()
+      constructor = AS.loadPath(path)
+      for id, datum of data
+        share = @share.at(path, id)
         model = constructor.find(id)
-        constructor.load model
-        @trigger("indexload", model)
+        model.share = share
 
-  def stopSync: ->
-    property.stopSync?() for property in @properties()
+    # Second Pass associates objects
+    @eachEmbed (path, data) ->
+      constructor = AS.loadPath(path)
+      for id, datum of data
+        model = constructor.find(id)
 
-  def index: (name) ->
-    @share.at("index:#{name}")
+        if model is @model
+          @sync()      
+        else
+          @adapterFor({model, @share}).sync()
 
-  def indexer: (name) ->
-    return (model) =>
-      @index(name).at(model.id).set model.constructor.path(), (error) ->
-        # AS.warn "FIXME: handle error in Model#indexer"
-        model.didIndex()
+        # model.set(datum)
 
-  def loadIndeces: ->
-    indeces = @indeces()
-    loadedIndex = _.after indeces.length, _.bind(@indecesDidLoad, this)
-    @loadIndex(index, loadedIndex) for index in indeces
+  def adapterFor: (options) ->
+    @store.adapterFor(options)
+            
 
-  def loadIndex: (index, callback) ->
-    specs = index.get()
-    count = _(specs).keys().length
-    loadedItem = _.after count, callback
-    for id, _type of specs
-      constructor = AS.loadPath(_type)
-      model = constructor.find(id)
+  # def loadIndexedData: ->
+  #   selfReady = => @model.trigger("ready")
 
-      model.bind "ready", -> loadedItem()
-      model.bind "destroy", -> index.at(id).remove()
+  #   index = @share.at(INDEX).get() or {}
+  #   loadedIndex = _.after keys(index).length, selfReady
 
-      model = constructor.load model, ->
-        # @indecesDidLoad()
-        
-  def indecesDidLoad: ->
-    @bindShareEvents()
-    @didIndex()
-    console.log "indecesDidLoad", @toString()
-    @trigger("ready")
-    
-    
-    
-
+  #   for id, path of index
+  #     constructor = AS.loadPath(path)
+  #     model = constructor.find(id)
+  #     model.bind "ready", loadedIndex
+  #     @adapterFor({model}).open()

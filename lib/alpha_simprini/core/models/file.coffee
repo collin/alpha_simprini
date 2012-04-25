@@ -52,6 +52,10 @@ AS.Models.File = AS.Model.extend ({delegate, include, def, defs}) ->
   #   konstructor = class_for_mime()
   #   # pass
 
+  # @::initialize.doc = 
+  #   desc: """
+  #     
+  #   """
   def initialize: ->
     @_super.apply(this, arguments)
     if file = @file.get()
@@ -64,14 +68,28 @@ AS.Models.File = AS.Model.extend ({delegate, include, def, defs}) ->
     #   @name image.attr("title") or image.attr("alt") or $.url(image.attr("src")).attr("file") or "Untitled Image"
     #   @bytes 0
 
+  # @::read.doc = 
+  #   params: [
+  #     ["callback", Function, true]
+  #   ]
+  #   desc: """
+  #     
+  #   """
   def read: (callback) ->
     # return callback(@dataURL) if @dataURL
     if @file.get()
-      @read_file(callback)
+      @readFile(callback)
     # else if @image()
-    #   @read_canvas(callback)
+    #   @readCanvas(callback)
 
-  def read_file: (callback) ->
+  # @::readFile.doc = 
+  #   params: [
+  #     ["callback", Function, true]
+  #   ]
+  #   desc: """
+  #     
+  #   """
+  def readFile: (callback) ->
     reader = new @FileReader
     reader.onload = (event) ->
       @dataURL = event.target.result
@@ -79,7 +97,7 @@ AS.Models.File = AS.Model.extend ({delegate, include, def, defs}) ->
     reader.readAsDataURL(@file.get())
     callback
 
-  # def read_canvas: (callback) ->
+  # def readCanvas: (callback) ->
   #   image = new Image
   #   image.onload = (event) =>
   #     canvas = document.createElement("canvas")
@@ -92,6 +110,10 @@ AS.Models.File = AS.Model.extend ({delegate, include, def, defs}) ->
   #   console.warn "FIXME: portable image proxy port"
   #   image.src = "http://catalogs.dev/?proxy_uri=#{@image().src}"
 
+  # @::upload.doc = 
+  #   desc: """
+  #     
+  #   """
   def upload: ->
     formdata = new FormData
     formdata.append "image[image]", @file.get()

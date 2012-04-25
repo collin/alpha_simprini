@@ -1,5 +1,5 @@
 AS = require("alpha_simprini")
-{uniqueId, toArray} = _ = require("underscore")
+{uniqueId, toArray, keys} = _ = require("underscore")
 Taxi = require("taxi")
 
 AS.All = byCid: {}, byId: {}, byIdRef: {}
@@ -16,19 +16,46 @@ AS.Model = AS.Object.extend ({delegate, include, def, defs}) ->
       'initialize'
     ] 
 
+  # @find.doc =
+  #   params: [
+  #     ["id", String, true]
+  #   ]
+  #   return: AS.Model
+  #   desc: """
+  #     If a model exsist by the `id` it is retrieved from an identity map.
+  #     Otherwise a model is created with `id`.
+  #   """
   defs find: (id) ->
     AS.All.byId[id] or @new(id:id)
 
+  # @::initialize.doc =
+  #   params: [
+  #     ["attributes", Object, false, default: {}]
+  #   ]
+  #   desc: """
+  #     
+  #   """
   def initialize: (attributes={}) ->
+    attributes.id ?= AS.uniq()
     @model = this
     if id = attributes.id
       delete attributes.id
       @setId(id)
-    else if !@id
-      @setId(AS.uniq())
     @set(attributes)
     @runCallbacks 'afterInitialize'
 
+  # @::properties.doc =
+  #   desc: """
+  #   """
+  def properties: ->
+    @[name] for name in keys(@constructor.properties)
+
+  # @::set.doc =
+  #   params: [
+  #     ["attributes", Object, true]
+  #   ]
+  #   desc: """
+  #   """
   def set: (attributes) ->    
     for key, value of attributes
       continue if key is "_type"
@@ -36,8 +63,14 @@ AS.Model = AS.Object.extend ({delegate, include, def, defs}) ->
         @setId(value)
       else
         property = @[key]
-        @[key].set(value) 
+        @[key]?.set(value) 
 
+  # @::setId.doc =
+  #   params: [
+  #     ["id", String, true]
+  #   ]
+  #   desc: """
+  #   """
   def setId: (id) ->
     if @id
       delete AS.All.byId[@id]
@@ -54,9 +87,19 @@ AS.Model = AS.Object.extend ({delegate, include, def, defs}) ->
     # Don't trigger 'change', this must be specifically listened for.
     @trigger("change:id")
 
+  # @::destroy.doc =
+  #   desc: """
+  #   """
   def destroy: ->
     @trigger("destroy")
 
+  # @::trigger.doc =
+  #   params: [
+  #     ["event", String, true]
+  #     ["..."]
+  #   ]
+  #   desc: """
+  #   """
   def trigger: ->
     args = toArray(arguments)
     args.splice(1, 0, this)
