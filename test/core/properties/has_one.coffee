@@ -8,78 +8,70 @@ NS.Parent.hasOne "other", model: -> NS.Other
 NS.Other = NS.Parent.extend()
 NS.Other.field "name"
 
-exports.HasOne =
-  "property is a HasOne": (test) ->
+module "HasOne" =
+test "property is a HasOne", ->
     o = NS.Parent.new()
-    test.ok o.other instanceof AS.Model.HasOne.Instance
-    test.done()
+    ok o.other instanceof AS.Model.HasOne.Instance
+          
+test "collection events trigger on property", ->
+  expect 1
+  o = NS.Parent.new other: name: "Juliet"
+  o.other.get().name.bind "change", -> ok true
+  o.other.get().name.set "Julio"
+  
+test "change event triggers when model is set", ->
+  expect 3, "fix field pass-through binding"
+  o = NS.Parent.new()
+  o.bind "change", -> ok true
+  o.bind "change:other", -> ok true
+  o.other.bind "change", -> ok true
+  o.other.set {}
+  
+test "clears object when set to null", ->
+  expect 4, "fix field pass-through binding"
+  o = NS.Parent.new()
+  o.bind "change", -> ok true
+  o.bind "change:other", -> ok true
+  o.other.bind "change", -> ok true
+  o.other.set null
+  equal undefined, o.other.get()
 
-  "is set when constructing the model":
-    "with a model": (test) ->
-      o = NS.Parent.new other: other = AS.Model.new()
-      test.equal other, o.other.get()
-      test.done()
+module "HasOne is set when constructing the model"
+test "with a model", ->
+  o = NS.Parent.new other: other = AS.Model.new()
+  equal other, o.other.get()
+  
+test "with a raw abject", ->
+  o = NS.Parent.new other: name: "Linus"
+  equal "Linus", o.other.get().name.get()
 
-    "with a raw abject": (test) ->
-      o = NS.Parent.new other: name: "Linus"
-      test.equal "Linus", o.other.get().name.get()
-      test.done()
+test "HasOne.bindPath"
+test "may bind through hasOne by name", ->
+  expect 2
+  otherother = NS.Other.new()
+  other = NS.Other.new(other:otherother)
+  o = NS.Parent.new other: other
 
-  "bindPath":
-    "may bind through hasOne by name": (test) ->
-      test.expect 2
-      otherother = NS.Other.new()
-      other = NS.Other.new(other:otherother)
-      o = NS.Parent.new other: other
+  o.bindPath ['other', 'other', 'name'], -> ok(true)
 
-      o.bindPath ['other', 'other', 'name'], -> test.ok(true)
+  otherother.name.set("other from another other's mother")
 
-      otherother.name.set("other from another other's mother")
+  other.other.set newother = NS.Other.new()
 
-      other.other.set newother = NS.Other.new()
+  otherother.name.set "simpler name"
+  newother.name.set "new name"
+  
+test "may bind through ancestral hierarchy", ->
+  expect 2
+  otherother = NS.Other.new()
+  other = NS.Other.new(other:otherother)
+  o = NS.Parent.new other: other
 
-      otherother.name.set "simpler name"
-      newother.name.set "new name"
-      test.done()
+  o.bindPath ['other', NS.Parent, 'name'], -> ok(true)
 
-    "may bind through ancestral hierarchy": (test) ->
-      test.expect 2
-      otherother = NS.Other.new()
-      other = NS.Other.new(other:otherother)
-      o = NS.Parent.new other: other
+  otherother.name.set("other from another other's mother")
 
-      o.bindPath ['other', NS.Parent, 'name'], -> test.ok(true)
+  other.other.set newother = NS.Other.new()
 
-      otherother.name.set("other from another other's mother")
-
-      other.other.set newother = NS.Other.new()
-
-      otherother.name.set "simpler name"
-      newother.name.set "new name"
-      test.done()
-
-  "collection events trigger on property": (test) ->
-    test.expect 1
-    o = NS.Parent.new other: name: "Juliet"
-    o.other.get().name.bind "change", -> test.ok true
-    o.other.get().name.set "Julio"
-    test.done()
-
-  "change event triggers when model is set": (test) ->
-    test.expect 3, "fix field pass-through binding"
-    o = NS.Parent.new()
-    o.bind "change", -> test.ok true
-    o.bind "change:other", -> test.ok true
-    o.other.bind "change", -> test.ok true
-    o.other.set {}
-    test.done()
-
-  "clears object when set to null": (test) ->
-    test.expect 4, "fix field pass-through binding"
-    o = NS.Parent.new()
-    o.bind "change", -> test.ok true
-    o.bind "change:other", -> test.ok true
-    o.other.bind "change", -> test.ok true
-    o.other.set null
-    test.equal undefined, o.other.get()
-    test.done()
+  otherother.name.set "simpler name"
+  newother.name.set "new name"

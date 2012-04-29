@@ -10,7 +10,7 @@ Model.field "boolean", type: Boolean
 Model.field "enum", type: AS.Enum, values: ["zero", "one", "two"]
 Model.property "other"
 
-exports.Field =
+module "Field"
   "is a property": (test) ->
     o = Model.new()
     test.equal "AlphaSimprini.Model.Field.Instance", o.name.constructor.path()

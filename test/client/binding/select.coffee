@@ -2,63 +2,57 @@
 SimpleModel, mock_binding, coreSetUp} = require require("path").resolve("./test/client_helper")
 exports.setUp = coreSetUp
 
-exports.Binding =
-  Select:
-    "must provide options option": (test) ->
-      test.throws (-> mock_binding(AS.Binding.Select)), AS.Binding.MissingOption
-      test.done()
+module "Binding.Select"
+test "must provide options option", ->
+  raises (-> mock_binding(AS.Binding.Select)), AS.Binding.MissingOption
+  
+test "uses provided Array for select options", ->
+  options = [1..3]
+  [mocks, binding] = mock_binding(AS.Binding.Select, options: options: options)
 
-    "uses provided Array for select options": (test) ->
-      options = [1..3]
-      [mocks, binding] = mock_binding(AS.Binding.Select, options: options: options)
+  equal binding.container.find("option").length, 3
+  equal binding.container.find("select").text(), "123"
 
-      test.equal binding.container.find("option").length, 3
-      test.equal binding.container.find("select").text(), "123"
+  
+test "uses provided Object for select options", ->
+  options =
+    "one": 1
+    "two": 2
+    "three": 3
+  [mocks, binding] = mock_binding(AS.Binding.Select, options: options: options)
 
-      test.done()
+  equal binding.container.find("option").length, 3
 
-    "uses provided Object for select options": (test) ->
-      options =
-        "one": 1
-        "two": 2
-        "three": 3
-      [mocks, binding] = mock_binding(AS.Binding.Select, options: options: options)
+  for key, value of options
+    equal $(binding.container.find("option[value='#{value}']")).text(), key
 
-      test.equal binding.container.find("option").length, 3
+  
+test "sets select value on initialization", ->
+  model = BoundModel.new field: "value"
+  options = ["notvalue", "value"]
+  [mocks, binding] = mock_binding(AS.Binding.Select, options: (options: options), model: model)
 
-      for key, value of options
-        test.equal $(binding.container.find("option[value='#{value}']")).text(), key
+  equal binding.container.find("select").val(), "value"
 
-      test.done()
+  
+test "sets value of dom when model value changes", ->
+  model = BoundModel.new field: "value"
+  options = ["notvalue", "value"]
+  [mocks, binding] = mock_binding(AS.Binding.Select, options: (options: options), model: model)
 
-    "sets select value on initialization": (test) ->
-      model = BoundModel.new field: "value"
-      options = ["notvalue", "value"]
-      [mocks, binding] = mock_binding(AS.Binding.Select, options: (options: options), model: model)
+  model.field.set("notvalue")
 
-      test.equal binding.container.find("select").val(), "value"
+  equal binding.container.find("select").val()[0], "notvalue"
 
-      test.done()
+  
+test "sets value on object when dom changes", ->
+  model = BoundModel.new field: "value"
+  options = ["notvalue", "value"]
+  [mocks, binding] = mock_binding(AS.Binding.Select, options: (options: options), model: model)
 
-    "sets value of dom when model value changes": (test) ->
-      model = BoundModel.new field: "value"
-      options = ["notvalue", "value"]
-      [mocks, binding] = mock_binding(AS.Binding.Select, options: (options: options), model: model)
+  binding.container.find("select").val("notvalue")
+  binding.container.find("select").trigger("change")
 
-      model.field.set("notvalue")
+  equal model.field.get(), "notvalue"
 
-      test.equal binding.container.find("select").val()[0], "notvalue"
-
-      test.done()
-
-    "sets value on object when dom changes": (test) ->
-      model = BoundModel.new field: "value"
-      options = ["notvalue", "value"]
-      [mocks, binding] = mock_binding(AS.Binding.Select, options: (options: options), model: model)
-
-      binding.container.find("select").val("notvalue")
-      binding.container.find("select").trigger("change")
-
-      test.equal model.field.get(), "notvalue"
-
-      test.done()
+      

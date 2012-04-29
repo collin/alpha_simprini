@@ -10,8 +10,8 @@ NS.Shared = AS.Model.extend ({delegate, include, def, defs}) ->
   @belongsTo 'owner', model: (-> NS.Shared), inverse: 'things'
 
 indexedData =
-  "NS.Shared":
-    "Indexed-1":
+test "NS.Shared":
+test "Indexed-1":
       name: "indexed"
       number: 0
       owner: "Shared-4"
@@ -33,27 +33,24 @@ shareData =
     "Shared-3": (name: "three", number: "3", owner: "shared-2")
     "Shared-4": (name: "four", number: "4", things: [])
 
-exports.ShareJSAdapter =
-  setUp: (callback) ->
+module "ShareJSAdapter",
+  setup: ->
     @model = NS.Shared.find("Shared-1")
     @store = AS.Model.Store.new(adapterClass: AS.Model.ShareJSAdapter)
     @adapter = AS.Model.ShareJSAdapter.new({@model, @store})
     @adapter.didOpen makeDoc(null, shareData)
 
-    callback()
-
-  "loads embedded data": (test) ->
-    test.deepEqual(
+test "loads embedded data", ->
+    deepEqual(
       @model.things.backingCollection.models.value(),
       [NS.Shared.find("Shared-1"), NS.Shared.find("Shared-2")]
     )
 
-    test.equal @model.thing.get().toString(), NS.Shared.find("Shared-3").toString()
-    test.equal @model.owner.get(), NS.Shared.find("Shared-4")
+    equal @model.thing.get().toString(), NS.Shared.find("Shared-3").toString()
+    equal @model.owner.get(), NS.Shared.find("Shared-4")
 
-    test.deepEqual ["NS.Shared", "Shared-1", "name"], @model.name.share.path
-    test.done()
-
+    deepEqual ["NS.Shared", "Shared-1", "name"], @model.name.share.path
+    
 # Shared = NS.Shared = AS.Model.extend ({delegate, include, def, defs}) ->
 #
 #   @field "field"
@@ -88,53 +85,47 @@ exports.ShareJSAdapter =
 #     AS.openSharedObject = ORIGINAL_OPEN
 #     callback()
 
-#   "default value is {}": (test) ->
-#     test.ok @model.share.get() isnt null
-#     test.done()
-
-#   "embedded objects are synced": (test) ->
+#   "default value is {}", ->
+#     ok @model.share.get() isnt null
+#     
+#   "embedded objects are synced", ->
 #      @model.embedded.set(SimpleShare.new())
 #      @model.embedded.get().field.set("Hello")
-#      test.equal "Hello", @model.share.at("embedded", "field").get()
-#      test.done()
-
-#   "embedded lists are synced": (test) ->
+#      equal "Hello", @model.share.at("embedded", "field").get()
+#      
+#   "embedded lists are synced", ->
 #     listenerCount = @model.share._listeners.length
 #     embed = @model.embeds.add()
 #     embed.field.set(":D")
 #     embed.embedded.set(SimpleShare.new())
-#     test.equal listenerCount * 3, @model.share._listeners.length
+#     equal listenerCount * 3, @model.share._listeners.length
 #     @model.embeds.remove(embed)
-#     test.equal listenerCount, @model.share._listeners.length
+#     equal listenerCount, @model.share._listeners.length
 #     embed.field.set("D:")
-#     test.deepEqual [], @model.share.at("embeds").get()
-#     test.done()
-
+#     deepEqual [], @model.share.at("embeds").get()
+#     
 #   "indexes":
 #     setUp: (callback) ->
 #       (@model = IndexShare.shared()).whenIndexed callback
 
-#     "index is share at correct path": (test) ->
-#       test.deepEqual ["index:docs"], @model.index("docs").path
-#       test.done()
-
-#     "index is a {} by default": (test) ->
-#       test.deepEqual {}, @model.index("docs").get()
-#       test.done()
-
-#     "loads models when indexes update": (test) ->
+#     "index is share at correct path", ->
+#       deepEqual ["index:docs"], @model.index("docs").path
+#       
+#     "index is a {} by default", ->
+#       deepEqual {}, @model.index("docs").get()
+#       
+#     "loads models when indexes update", ->
 #       (@model = IndexShare.shared()).whenIndexed =>
 #         (other = SimpleShare.shared()).whenIndexed  =>
 #           AS.openShareObject = (id, didOpen) -> didOpen other.share
 #           @model.bind "indexload", (loaded) =>
 #             loaded.whenIndexed ->
-#               test.done()
-#           @model.share.emit(
+#               #           @model.share.emit(
 #             "remoteop",
 #             @model.share.at("index:docs", other.id).set(SimpleShare.path())
 #           )
 
-#     "loads models in indexes when opened": (test) ->
+#     "loads models in indexes when opened", ->
 #       indexed = SimpleShare.new()
 #       indexed.owner.set(indexed)
 #       index = {}
@@ -153,15 +144,14 @@ exports.ShareJSAdapter =
 #         didOpen makeDoc(id, attrs)
 
 #       @model.bind "ready", =>
-#         test.notEqual AS.All.byId[indexed.id], undefined
-#         test.equal @model.owner.get().id, indexed.id
-#         test.ok @model.owner.get().share
-#         test.equal @model.owner.get(), @model.owner.get().owner.get()
-#         test.done()
-
+#         notEqual AS.All.byId[indexed.id], undefined
+#         equal @model.owner.get().id, indexed.id
+#         ok @model.owner.get().share
+#         equal @model.owner.get(), @model.owner.get().owner.get()
+#         
 #       @model.didOpen(doc)
 
-#     "removes indexed models from the index when they are destroy()ed": (test) ->
+#     "removes indexed models from the index when they are destroy()ed", ->
 #       indexed = SimpleShare.new()
 #       index = {}
 #       index[indexed.id] = SimpleShare.path()
@@ -177,36 +167,32 @@ exports.ShareJSAdapter =
 #       AS.openShareObject = (id, didOpen) ->
 #         didOpen makeDoc(id, indexed.attributesForSharing())
 
-#       test.expect 3
+#       expect 3
 #       @model.bind "ready", =>
 #         id = indexed.id
-#         test.ok @model.index("docs").at(id).get()
+#         ok @model.index("docs").at(id).get()
 #         @model.owner.get().destroy()
-#         test.ok not( @model.index("docs").at(id).get() ), "index is cleaned up"
-#         test.ok not( @model.owner.get() ), "references are removed"
-#         test.done()
-#       @model.didOpen(doc)
+#         ok not( @model.index("docs").at(id).get() ), "index is cleaned up"
+#         ok not( @model.owner.get() ), "references are removed"
+#         #       @model.didOpen(doc)
 
-#   "is new if share is undefined": (test) ->
+#   "is new if share is undefined", ->
 #     delete @model.share
-#     test.ok @model.new()
-#     test.done()
-
-#   "is new if constructed with new": (test) ->
-#     test.ok Shared.new(id:"an id").new()
-#     test.done()
-
-#   "sets defaults when opening a new model": (test) ->
+#     ok @model.new()
+#     
+#   "is new if constructed with new", ->
+#     ok Shared.new(id:"an id").new()
+#     
+#   "sets defaults when opening a new model", ->
 #     NS.DefaultShared = AS.Model.extend ({delegate, include, def, defs}) ->
 #
 #       @field "defaulted", default: "value"
 
 #     model = NS.DefaultShared.shared("someid")
-#     test.equal model.defaulted.get(), "value"
+#     equal model.defaulted.get(), "value"
 
-#     test.done()
-
-#   "overrides defaults when loading remotely": (test) ->
+#     
+#   "overrides defaults when loading remotely", ->
 #     AS.openSharedObject = (id, didOpen) ->
 #       didOpen makeDoc(id, defaulted: "REMOTE VALUE")
 #     NS.DefaultShared = AS.Model.extend ({delegate, include, def, defs}) ->
@@ -214,10 +200,9 @@ exports.ShareJSAdapter =
 #       @field "defaulted", default: "value"
 
 #     model = NS.DefaultShared.shared("some other id")
-#     test.equal model.defaulted.get(), "REMOTE VALUE"
+#     equal model.defaulted.get(), "REMOTE VALUE"
 
-#     test.done()
-
+#     
 # exports["Share Integration"] =
 #   "loads lists of embedded models":
 #     setUp: (callback) ->
@@ -228,7 +213,7 @@ exports.ShareJSAdapter =
 
 #       callback()
 
-#     "and doesn't double load models loaded from shareJS": (test) ->
+#     "and doesn't double load models loaded from shareJS", ->
 #       data = {
 #         embeds: [
 #           {_type: "NS.Embed", id: "model1"}
@@ -240,8 +225,8 @@ exports.ShareJSAdapter =
 
 #       o = NS.Embed.new()
 
-#       test.doesNotThrow -> o.didOpen(share)
+#       doesNotThrow -> o.didOpen(share)
 
-#       test.equal 2, o.embeds.backingCollection.length
+#       equal 2, o.embeds.backingCollection.length
 
-#       test.done()
+#       

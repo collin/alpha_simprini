@@ -2,95 +2,87 @@
 SimpleModel, mock_binding, coreSetUp} = require require("path").resolve("./test/client_helper")
 exports.setUp = coreSetUp
 
-exports.Binding =
-  Many:
-    setUp: (callback) ->
-      model = BoundModel.new()
-      items = model.items
-      items.add()
-      items.add()
-      items.add()
+module "Binding.Many",
+  setup: ->
+    model = BoundModel.new()
+    items = model.items
+    items.add()
+    items.add()
+    items.add()
 
 
-      content_fn = (thing) -> @div id: thing.cid.replace(".", "-")
+    content_fn = (thing) -> @div id: thing.cid.replace(".", "-")
 
-      [mocks, binding] = mock_binding(AS.Binding.Many, field: model.items, model: model, fn: content_fn)
+    [mocks, binding] = mock_binding(AS.Binding.Many, field: model.items, model: model, fn: content_fn)
 
-      @items = items
-      @binding = binding
-      callback()
+    @items = items
+    @binding = binding
 
-    "creates initial collection dom": (test) ->
-      test.expect 3
-      @items.each (item) =>
-        test.ok @binding.container.find("##{item.cid.replace(".", "-")}").is("div")
+test "creates initial collection dom", ->
+  expect 3
+  @items.each (item) =>
+    ok @binding.container.find("##{item.cid.replace(".", "-")}").is("div")
 
-      test.done()
+  
+test "adds additional dom elements when items added to collection", ->
+  expect 1
+  item = @items.add()
+  ok @binding.container.find("##{item.cid.replace(".", "-")}").is("div")
 
-    "adds additional dom elements when items added to collection": (test) ->
-      test.expect 1
-      item = @items.add()
-      test.ok @binding.container.find("##{item.cid.replace(".", "-")}").is("div")
+  
+test "adds new dom elements at correct index", ->
+  expect 1
+  item = @items.add({}, at: 0)
 
-      test.done()
+  ok @binding.container.children(":first").is("##{item.cid.replace(".", "-")}")
 
-    "adds new dom elements at correct index": (test) ->
-      test.expect 1
-      item = @items.add({}, at: 0)
+  
+test "removes dom elements when item removed from collection", ->
+  item = @items.at(0)
+  @items.remove item
+  ok @binding.container.find("##{item.cid.replace(".", "-")}")[0] is undefined
 
-      test.ok @binding.container.children(":first").is("##{item.cid.replace(".", "-")}")
+module "Binding.HasManyWithFilter"   
+  setup: ->
+    model = BoundModel.new()
+    items = model.items
 
-      test.done()
+    content_fn = (thing) -> @div id: thing.cid.replace(".", "-")
 
-    "removes dom elements when item removed from collection": (test) ->
-      item = @items.at(0)
-      @items.remove item
-      test.ok @binding.container.find("##{item.cid.replace(".", "-")}")[0] is undefined
-      test.done()
+    [mocks, binding] = mock_binding(AS.Binding.Many,
+        field: items,
+        model: model,
+        fn: content_fn
+        options: filter: (field: ["true", "43"])
+      )
 
-  HasManyWithFilter:
-    setUp: (callback) ->
-      model = BoundModel.new()
-      items = model.items
+    @items = items
+    @binding = binding
 
-      content_fn = (thing) -> @div id: thing.cid.replace(".", "-")
 
-      [mocks, binding] = mock_binding(AS.Binding.Many,
-          field: items,
-          model: model,
-          fn: content_fn
-          options: filter: (field: ["true", "43"])
-        )
+test "filters items in the collection", ->
+  one = @items.add field: "true"
+  two = @items.add field: "false"
+  three = @items.add field: "43"
 
-      @items = items
-      @binding = binding
-      callback()
+  equal @binding.container.find("##{one.cid.replace(".", "-")}")[0].id, one.cid.replace(".", "-")
+  equal @binding.container.find("##{two.cid.replace(".", "-")}")[0], undefined
+  equal @binding.container.find("##{three.cid.replace(".", "-")}")[0].id, three.cid.replace(".", "-")
+  
+test "moves items into place in the collection when their values change", ->
+  one = @items.add field: true
+  two = @items.add field: false
+  three = @items.add field: true
 
-    "filters items in the collection": (test) ->
-      one = @items.add field: "true"
-      two = @items.add field: "false"
-      three = @items.add field: "43"
+  two.field.set("43")
 
-      test.equal @binding.container.find("##{one.cid.replace(".", "-")}")[0].id, one.cid.replace(".", "-")
-      test.equal @binding.container.find("##{two.cid.replace(".", "-")}")[0], undefined
-      test.equal @binding.container.find("##{three.cid.replace(".", "-")}")[0].id, three.cid.replace(".", "-")
-      test.done()
+  equal @binding.container.children()[1].id, two.cid.replace(".", "-")
 
-    "moves items into place in the collection when their values change": (test) ->
-      one = @items.add field: true
-      two = @items.add field: false
-      three = @items.add field: true
+  
+test "removes items when their values change", ->
+  one = @items.add field: true
 
-      two.field.set("43")
+  one.field.set(false)
 
-      test.equal @binding.container.children()[1].id, two.cid.replace(".", "-")
-
-      test.done()
-
-    "removes items when their values change": (test) ->
-      one = @items.add field: true
-
-      one.field.set(false)
-
-      test.equal @binding.container.children().length, 0
-      test.done()
+  equal @binding.container.children().length, 0
+  

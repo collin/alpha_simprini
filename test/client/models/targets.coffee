@@ -14,8 +14,8 @@ class ClientRect
     @right = @left + @width
     @bottom = @top + @height
 
-exports.Targets =
-  setUp: (callback) ->
+module "Targets",
+  setup: (callback) ->
     body = $("body")
     body.empty()
     body.append "<target />"
@@ -36,164 +36,149 @@ exports.Targets =
     @t3.getBoundingClientRect = ->
       new ClientRect top: 100, width: 100, height: 50
 
-    callback()
-
-  "gathers targets": (test) ->
+test "gathers targets", ->
     targets = NS.SomeTargets.new().targets
-    test.equal targets.length, 3
-    test.equal targets[1].el[0], @t2
-    test.equal targets[1].rect.top, 50, 'top'
-    test.equal targets[1].rect.right, 100, 'right'
-    test.equal targets[1].rect.bottom, 100, 'bottom'
-    test.equal targets[1].rect.left, 0, 'left'
-    test.equal targets[1].rect.width, 100, 'width'
-    test.equal targets[1].rect.height, 50, 'height'
-    test.done()
-
-  "dropend triggers dropend event": (test) ->
+    equal targets.length, 3
+    equal targets[1].el[0], @t2
+    equal targets[1].rect.top, 50, 'top'
+    equal targets[1].rect.right, 100, 'right'
+    equal targets[1].rect.bottom, 100, 'bottom'
+    equal targets[1].rect.left, 0, 'left'
+    equal targets[1].rect.width, 100, 'width'
+    equal targets[1].rect.height, 50, 'height'
+    
+test "dropend triggers dropend event", ->
     targets = NS.SomeTargets.new()
-    test.expect 1
-    targets.bind "dropend", -> test.ok true
+    expect 1
+    targets.bind "dropend", -> ok true
     targets.dropend()
-    test.done()
-
-  "dropstart triggers dropstart event if current hit has a rect": (test) ->
+    
+test "dropstart triggers dropstart event if current hit has a rect", ->
     targets = NS.SomeTargets.new()
     hit = rect: true
     targets.current_hit = hit
-    test.expect 1
-    targets.bind "dropstart", (thehit) -> test.equal hit, thehit
+    expect 1
+    targets.bind "dropstart", (thehit) -> equal hit, thehit
     targets.dropstart()
-    test.done()
-
-  "dropstart is a noop if current hit lacks a rect": (test) ->
+    
+test "dropstart is a noop if current hit lacks a rect", ->
     targets = NS.SomeTargets.new()
-    test.expect 0
-    targets.bind "dropstart", -> test.ok true
+    expect 0
+    targets.bind "dropstart", -> ok true
     targets.dropstart()
-    test.done()
-
-  "dragend calls drop and triggers drop if current hit has a rect": (test) ->
+    
+test "dragend calls drop and triggers drop if current hit has a rect", ->
     targets = NS.SomeTargets.new()
     hit = rect: true
     data = new Object
     targets.current_hit = hit
-    test.expect 2
-    targets.bind "drop", (thehit) -> test.equal hit, thehit
-    targets.drop = (thedata) -> test.equal thedata, data
+    expect 2
+    targets.bind "drop", (thehit) -> equal hit, thehit
+    targets.drop = (thedata) -> equal thedata, data
     targets.dragend(data)
-    test.done()
-
-  "dragend is a noop if current hit lacks a rect": (test) ->
+    
+test "dragend is a noop if current hit lacks a rect", ->
     targets = NS.SomeTargets.new()
     data = new Object
-    test.expect 0
-    targets.bind "drop", (thehit) -> test.equal hit, thehit
-    targets.drop = (thedata) -> test.equal thedata, data
+    expect 0
+    targets.bind "drop", (thehit) -> equal hit, thehit
+    targets.drop = (thedata) -> equal thedata, data
     targets.dragend(data)
-    test.done()
-
-  "transition_hit()":
-    "noop if hit has no rect": (test) ->
+    
+test "noop if hit has no rect", ->
       targets = NS.SomeTargets.new()
-      targets.dropend = -> test.ok true
-      test.expect 0
+      targets.dropend = -> ok true
+      expect 0
       targets.transition_hit {}
-      test.done()
-
-    "noop if currenth hit equals hit": (test) ->
+      
+test "noop if currenth hit equals hit", ->
       targets = NS.SomeTargets.new()
       targets.current_hit = equals: -> true
-      targets.dropend = -> test.ok true
-      test.expect 0
+      targets.dropend = -> ok true
+      expect 0
       targets.transition_hit {}
-      test.done()
-
-    "transitions if current hit does not equal hit": (test) ->
+      
+test "transitions if current hit does not equal hit", ->
       targets = NS.SomeTargets.new()
       targets.current_hit = equals: -> false
       hit = rect: true
-      test.expect 2
+      expect 2
       targets.dropend = ->
-        test.ok targets.current_hit isnt hit
+        ok targets.current_hit isnt hit
       targets.dropstart = ->
-        test.ok targets.current_hit is hit
+        ok targets.current_hit is hit
       targets.transition_hit hit
-      test.done()
-
+      
 
 target_event = (x, y) ->
   return {
-    "jquery/event": originalEvent:
+test "jquery/event": originalEvent:
       clientX: x, clientY: y
   }
 
-exports.Targets.Edge =
-  setUp: (callback) ->
-    @targets = AS.Models.Targets.Edge.new()
-    @el = {}
-    @rect = new ClientRect width: 100, height: 50
-    @targets.targets = [
-      el: @el
-      rect: @rect
-    ]
+
+setupEdgeTargets = ->
+  @targets = AS.Models.Targets.Edge.new()
+  @el = {}
+  @rect = new ClientRect width: 100, height: 50
+  @targets.targets = [
+    el: @el
+    rect: @rect
+  ]
+
+module "Targets.Edge",
+
+module "Targets.Edge.vertical_target",
+  setup: ->
+    setupEdgeTargets.call(this)
+    @check = (x, y) =>
+      @targets.vertical_target target_event(x, y)
     callback()
 
-  "vertical_target":
-    setUp: (callback) ->
-      @check = (x, y) =>
-        @targets.vertical_target target_event(x, y)
-      callback()
-
-    "misses when not inside box": (test) ->
-      test.equal null, @check(-1, -1), "before"
-      test.equal null, @check(101, 51), "after"
-      test.equal null, @check(70, 101), "inside x, outside y"
-      test.equal null, @check(50, 130), "outside x, inside y"
-      test.done()
-
-    "hits when inside the box": (test) ->
-      test.ok @check(100, 80), "within edge x, inside y"
-      test.ok @check(0, -30), "within edge x, inside y"
-      test.done()
-
-    "hits TOP/BOTTOM": (test) ->
+test "misses when not inside box", ->
+      equal null, @check(-1, -1), "before"
+      equal null, @check(101, 51), "after"
+      equal null, @check(70, 101), "inside x, outside y"
+      equal null, @check(50, 130), "outside x, inside y"
+      
+test "hits when inside the box", ->
+      ok @check(100, 80), "within edge x, inside y"
+      ok @check(0, -30), "within edge x, inside y"
+      
+test "hits TOP/BOTTOM", ->
       hit = @check(0, 0)
-      test.equal hit.section, hit.TOP
+      equal hit.section, hit.TOP
 
       hit = @check(0, 50)
-      test.equal hit.section, hit.BOTTOM
-      test.done()
+      equal hit.section, hit.BOTTOM
+      
+module "Targets.Edge.horizontal_target",
+  setup: (callback) ->
+    setupEdgeTargets.call(this)
+    @check = (x, y) =>
+      @targets.horizontal_target target_event(x, y)
+    callback()
 
-  "horizontal_target":
-    setUp: (callback) ->
-      @check = (x, y) =>
-        @targets.horizontal_target target_event(x, y)
-      callback()
+test "misses when not inside box", ->
+  equal null, @check(-1, -1), "before"
+  equal null, @check(101, 51), "after"
+  equal null, @check(70, 101), "outside x, inside y"
+  equal null, @check(50, 50), "inside x, outside y"
+  
+test "hits when inside the box", ->
+  ok @check(130, 50), "within x, inside edge y"
+  ok @check(-30, 0), "within x, inside edge y"
+  
+test "hits LEFT/RIGHT", ->
+  hit = @check(0, 0)
+  equal hit.section, hit.LEFT
 
-    "misses when not inside box": (test) ->
-      test.equal null, @check(-1, -1), "before"
-      test.equal null, @check(101, 51), "after"
-      test.equal null, @check(70, 101), "outside x, inside y"
-      test.equal null, @check(50, 50), "inside x, outside y"
-      test.done()
+  hit = @check(100, 0)
+  equal hit.section, hit.RIGHT
 
-    "hits when inside the box": (test) ->
-      test.ok @check(130, 50), "within x, inside edge y"
-      test.ok @check(-30, 0), "within x, inside edge y"
-      test.done()
-
-    "hits LEFT/RIGHT": (test) ->
-      hit = @check(0, 0)
-      test.equal hit.section, hit.LEFT
-
-      hit = @check(100, 0)
-      test.equal hit.section, hit.RIGHT
-
-      test.done()
-
-exports.Targets.Thirds =
-  setUp: (callback) ->
+    
+module "Targets.Thirds",
+  setup: ->
     @targets = AS.Models.Targets.Thirds.new()
     @el = {}
     @rect = new ClientRect width: 100, height: 50
@@ -206,21 +191,18 @@ exports.Targets.Thirds =
       @targets.target target_event(x, y)
     callback()
 
-
-  "misses when not inside vertically": (test) ->
-    test.equal null, @check(0, -1), "before"
-    test.equal null, @check(0, 51), "after"
-    test.done()
-
-  "hits TOP/MIDDLE/BOTTOM": (test) ->
+test "misses when not inside vertically", ->
+    equal null, @check(0, -1), "before"
+    equal null, @check(0, 51), "after"
+    
+test "hits TOP/MIDDLE/BOTTOM", ->
     hit = @check(0, 0)
-    test.equal hit.section, hit.TOP
+    equal hit.section, hit.TOP
 
     hit = @check(0, 25)
-    test.equal hit.section, hit.MIDDLE
+    equal hit.section, hit.MIDDLE
 
     hit = @check(0, 50)
-    test.equal hit.section, hit.BOTTOM
+    equal hit.section, hit.BOTTOM
 
-    test.done()
-
+    

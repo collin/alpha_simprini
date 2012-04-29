@@ -1,74 +1,70 @@
 {AS, $, _, sinon} = require require("path").resolve("./test/client_helper")
-exports.BindingGroup =
-  "has a unique namespace": (test) ->
-    bg1 = AS.BindingGroup.new()
-    bg2 = AS.BindingGroup.new()
+module "BindingGroup"
+test "has a unique namespace", ->
+  bg1 = AS.BindingGroup.new()
+  bg2 = AS.BindingGroup.new()
 
-    test.notEqual bg1.namespace, bg2.namespace
-    test.equal bg1.namespace[0], "b"
+  notEqual bg1.namespace, bg2.namespace
+  equal bg1.namespace[0], "b"
 
-    test.done()
+  
+test "binds to jquery objects", ->
+  bg = AS.BindingGroup.new()
 
-  "binds to jquery objects": (test) ->
-    bg = AS.BindingGroup.new()
+  object = jquery: true, bind: ->
+  mock = sinon.mock(object)
+  handler = ->
 
-    object = jquery: true, bind: ->
-    mock = sinon.mock(object)
-    handler = ->
+  mock.expects("bind").withArgs("event.#{bg.namespace}")
+  bg.binds object, "event", handler
 
-    mock.expects("bind").withArgs("event.#{bg.namespace}")
-    bg.binds object, "event", handler
+  mock.verify()
 
-    mock.verify()
+  
+test "binds to AS.Event event model", ->
+  bg = AS.BindingGroup.new()
 
-    test.done()
+  object = bind: ->
+  mock = sinon.mock(object)
+  handler = ->
+  mock.expects("bind").withExactArgs
+      event: "event"
+      namespace: bg.namespace
+      handler: handler
+      context: object
+  bg.binds object, "event", handler, object
+  mock.verify()
 
-  "binds to AS.Event event model": (test) ->
-    bg = AS.BindingGroup.new()
+  
+test "unbinds bound objects", ->
+  bg = AS.BindingGroup.new()
 
-    object = bind: ->
-    mock = sinon.mock(object)
-    handler = ->
-    mock.expects("bind").withExactArgs
-        event: "event"
-        namespace: bg.namespace
-        handler: handler
-        context: object
-    bg.binds object, "event", handler, object
-    mock.verify()
+  object =
+    bind: ->
+    unbind: ->
 
-    test.done()
+  mock = sinon.mock(object)
+  handler = ->
+  mock.expects("unbind").withExactArgs("."+bg.namespace)
+  bg.binds object, "event", handler, object
+  bg.unbind()
+  mock.verify()
 
-  "unbinds bound objects": (test) ->
-    bg = AS.BindingGroup.new()
+  
 
-    object =
-      bind: ->
-      unbind: ->
+test "unbinds bound objects in nested binding groups", ->
+  parent = AS.BindingGroup.new()
+  child = parent.addChild()
 
-    mock = sinon.mock(object)
-    handler = ->
-    mock.expects("unbind").withExactArgs("."+bg.namespace)
-    bg.binds object, "event", handler, object
-    bg.unbind()
-    mock.verify()
+  object =
+    bind: ->
+    unbind: ->
 
-    test.done()
+  mock = sinon.mock(object)
+  handler = ->
+  mock.expects("unbind").withExactArgs("."+child.namespace)
+  child.binds object, "event", handler, object
+  parent.unbind()
+  mock.verify()
 
-
-  "unbinds bound objects in nested binding groups": (test) ->
-    parent = AS.BindingGroup.new()
-    child = parent.addChild()
-
-    object =
-      bind: ->
-      unbind: ->
-
-    mock = sinon.mock(object)
-    handler = ->
-    mock.expects("unbind").withExactArgs("."+child.namespace)
-    child.binds object, "event", handler, object
-    parent.unbind()
-    mock.verify()
-
-    test.done()
+    

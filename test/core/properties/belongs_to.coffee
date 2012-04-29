@@ -9,28 +9,25 @@ NS.Parent.field "name"
 NS.Owner = NS.Parent.extend()
 # NS.Owner.
 
-exports.BelongsTo =
-  "property is a Field": (test) ->
-    o = NS.Parent.new()
-    test.ok o.owner instanceof AS.Model.Field.Instance
-    test.done()
-
-  "property is an BelongsTo": (test) ->
-    o = NS.Parent.new()
-    test.ok o.owner instanceof AS.Model.BelongsTo.Instance
-    test.done()
-
-  "fetches model from AS.All if set by id": (test) ->
-    o = NS.Parent.new()
-    owner = NS.Owner.new()
-    o.owner.set(owner.id)
-    test.equal owner.id, o.owner.get().id
-    test.done()
-
-  # "re-binds events when model changes": (test) ->
-  #   test.expect(2)
+module "BelongsTo"
+test "property is a Field", ->
+  o = NS.Parent.new()
+  ok o.owner instanceof AS.Model.Field.Instance
+  
+test "property is an BelongsTo", ->
+  o = NS.Parent.new()
+  ok o.owner instanceof AS.Model.BelongsTo.Instance
+  
+test "fetches model from AS.All if set by id", ->
+  o = NS.Parent.new()
+  owner = NS.Owner.new()
+  o.owner.set(owner.id)
+  equal owner.id, o.owner.get().id
+    
+  # "re-binds events when model changes", ->
+  #   expect(2)
   #   o = NS.Parent.new()
-  #   o.owner.name.bind("change:name", -> test.ok(true))
+  #   o.owner.name.bind("change:name", -> ok(true))
   #   firstOwner = NS.Owner.new()
   #   secondOwner = NS.Owner.new()
 
@@ -40,84 +37,77 @@ exports.BelongsTo =
   #   o.owner.set(secondOwner)
   #   firstOwner.name.set("Janine")
   #   secondOwner.name.set("Lord High Executioner")
-  #   test.done()
+  #   
+module "BelongsTo.bindPath"
+test "may bind through belongsTo by name", ->
+  expect 2
+  otherother = NS.Owner.new()
+  other = NS.Owner.new(owner:otherother)
+  o = NS.Parent.new owner: other
 
-  "bindPath":
-    "may bind through belongsTo by name": (test) ->
-      test.expect 2
-      otherother = NS.Owner.new()
-      other = NS.Owner.new(owner:otherother)
-      o = NS.Parent.new owner: other
+  o.bindPath ['owner', 'owner', 'name'], -> ok(true)
 
-      o.bindPath ['owner', 'owner', 'name'], -> test.ok(true)
+  otherother.name.set("other from another other's mother")
 
-      otherother.name.set("other from another other's mother")
+  other.owner.set newother = NS.Owner.new()
 
-      other.owner.set newother = NS.Owner.new()
+  otherother.name.set "simpler name"
+  newother.name.set "new name"
+  
+test "may bind through belongsTo by constructor", ->
+  expect 2
+  otherother = NS.Owner.new()
+  other = NS.Owner.new(owner:otherother)
+  o = NS.Parent.new owner: other
 
-      otherother.name.set "simpler name"
-      newother.name.set "new name"
-      test.done()
+  o.bindPath ['owner', NS.Parent, 'name'], -> ok(true)
 
-    "may bind through belongsTo by constructor": (test) ->
-      test.expect 2
-      otherother = NS.Owner.new()
-      other = NS.Owner.new(owner:otherother)
-      o = NS.Parent.new owner: other
+  otherother.name.set("other from another other's mother")
 
-      o.bindPath ['owner', NS.Parent, 'name'], -> test.ok(true)
+  other.owner.set newother = NS.Owner.new()
 
-      otherother.name.set("other from another other's mother")
+  otherother.name.set "simpler name"
+  newother.name.set "new name"
+      
 
-      other.owner.set newother = NS.Owner.new()
+module "BelongsTo Sharing"
+"propagates field value to share on sync", ->
+  o = NS.Parent.new()
+  owner = NS.Owner.new()
+  share = makeDoc()
+  share.at().set({})
+  o.owner.set(owner)
+  o.owner.syncWith(share)
 
-      otherother.name.set "simpler name"
-      newother.name.set "new name"
-      test.done()
+  deepEqual owner.id, share.at('owner').get()
+  
+test "propagates share value to field on sync", ->
+  o = NS.Parent.new()
+  owner = NS.Owner.new()
+  share = makeDoc()
+  share.at().set({})
+  share.at('owner').set(owner.id)
+  o.owner.syncWith(share)
+  equal owner.id, o.owner.get().id
 
+  
+setUp: (callback) ->
+  @o = NS.Parent.new()
+  @share = makeDoc()
+  @share.at().set {}
+  @o.owner.syncWith(@share)
+  callback()
 
-  "Sharing":
-    "propagates field value to share on sync": (test) ->
-      o = NS.Parent.new()
-      owner = NS.Owner.new()
-      share = makeDoc()
-      share.at().set({})
-      o.owner.set(owner)
-      o.owner.syncWith(share)
-
-      test.deepEqual owner.id, share.at('owner').get()
-      test.done()
-
-    "propagates share value to field on sync": (test) ->
-      o = NS.Parent.new()
-      owner = NS.Owner.new()
-      share = makeDoc()
-      share.at().set({})
-      share.at('owner').set(owner.id)
-      o.owner.syncWith(share)
-      test.equal owner.id, o.owner.get().id
-
-      test.done()
-
-    setUp: (callback) ->
-      @o = NS.Parent.new()
-      @share = makeDoc()
-      @share.at().set {}
-      @o.owner.syncWith(@share)
-      callback()
-
-    "default share value is null": (test) ->
-      test.equal "", @share.at('owner').get()
-      test.done()
-
-    "value propagates from model to share": (test) ->
-      owner = NS.Owner.new()
-      @o.owner.set(owner)
-      test.equal owner.id, @share.at("owner").get()
-      test.done()
-
-    "value propagates from share to model": (test) ->
-      owner = NS.Owner.new()
-      @share.emit 'remoteop', @share.at('owner').set(owner.id)
-      test.equal owner.id, @o.owner.get().id
-      test.done()
+test "default share value is null", ->
+  equal "", @share.at('owner').get()
+  
+test "value propagates from model to share", ->
+  owner = NS.Owner.new()
+  @o.owner.set(owner)
+  equal owner.id, @share.at("owner").get()
+  
+test "value propagates from share to model", ->
+  owner = NS.Owner.new()
+  @share.emit 'remoteop', @share.at('owner').set(owner.id)
+  equal owner.id, @o.owner.get().id
+  

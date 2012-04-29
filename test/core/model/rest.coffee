@@ -55,23 +55,22 @@ sideLoading =
     {id: 5, field: "fifth"}
   ]
 
-exports.REST =
-  "loads a model from a simple JSON response": (test) ->
-    model = Rested.new()
-    model.loadData(plain)
-    test.equal "value", model.field.get()
-    test.equal null, model.owner.get()
-    test.equal 0, model.relations.backingCollection.length
-    test.equal "1", model.thingId.get()
-    test.equal "Thing", model.thingType.get()
-    test.done()
-
-  "loads a model from a JSON respons w/sideLoading": (test) ->
-    model = Rested.new()
-    model.loadData(sideLoading)
-    test.equal "packed", model.field.get()
-    test.ok sideloaded = AS.All.byIdRef["1-NS.SimpleRest"]
-    test.equal "first", sideloaded.field.get()
-    test.equal AS.All.byIdRef["1-NS.SimpleRest"], model.owner.get()
-    test.equal 5, model.relations.backingCollection.length
-    test.done()
+module "REST"
+test "loads a model from a simple JSON response", ->
+  model = Rested.new()
+  model.loadData(plain)
+  equal "value", model.field.get()
+  equal null, model.owner.get()
+  equal 0, model.relations.backingCollection.length
+  equal "1", model.thingId.get()
+  equal "Thing", model.thingType.get()
+  
+test "loads a model from a JSON respons w/sideLoading", ->
+  model = Rested.new()
+  model.loadData(sideLoading)
+  equal "packed", model.field.get()
+  ok sideloaded = AS.All.byIdRef["1-NS.SimpleRest"]
+  equal "first", sideloaded.field.get()
+  equal AS.All.byIdRef["1-NS.SimpleRest"], model.owner.get()
+  equal 5, model.relations.backingCollection.length
+  

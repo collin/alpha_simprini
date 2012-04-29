@@ -1,35 +1,35 @@
 {AS, $, _, sinon, coreSetUp} = require require("path").resolve("./test/client_helper")
 exports.setUp = coreSetUp
-exports.ViewEvents =
-  "delegates events": (test) ->
-    test.expect 3
 
-    BoundView = AS.View.extend ({def}) ->
-      def events:
-        "click": "click_handler"
-        "click button": "button_handler"
-        "event @member": "member_handler"
+module "ViewEvents"
+test "delegates events", ->
+  expect 3
 
-      def initialize: ->
-        @member = AS.Model.new()
-        @_super.apply(this, arguments)
-        @_button = @$ @button()
+  BoundView = AS.View.extend ({def}) ->
+    def events:
+      "click": "click_handler"
+      "click button": "button_handler"
+      "event @member": "member_handler"
 
-      def click_handler: -> test.ok true
-      def member_handler: -> test.ok true
-      def button_handler: -> test.ok true
-      def guard_fail_handler: -> test.ok true
-      def guard_pass_handler: -> test.ok true
+    def initialize: ->
+      @member = AS.Model.new()
+      @_super.apply(this, arguments)
+      @_button = @$ @button()
 
-    view = BoundView.new()
+    def click_handler: -> ok true
+    def member_handler: -> ok true
+    def button_handler: -> ok true
+    def guard_fail_handler: -> ok true
+    def guard_pass_handler: -> ok true
 
-    view.member.trigger("event")
-    view._button.trigger("click")
+  view = BoundView.new()
 
-    test.done()
+  view.member.trigger("event")
+  view._button.trigger("click")
 
+    
   # rethinkign stately and other types of event guarding
-  # "registers state event": (test) ->
+  # "registers state event", ->
   #   StatelyView = AS.View.extend ({def}) ->
   #     def left_events:
   #       "event": "event_handler"
@@ -42,14 +42,13 @@ exports.ViewEvents =
 
   #   view = StatelyView.new()
 
-  #   test.ok view.state_events.left instanceof AS.ViewEvents
-  #   test.ok view.state_events.right instanceof AS.ViewEvents
+  #   ok view.state_events.left instanceof AS.ViewEvents
+  #   ok view.state_events.right instanceof AS.ViewEvents
 
 
-  #   test.done()
-
-  # "bind and unbinds state events on state changes": (test) ->
-  #   test.expect 5
+  #   
+  # "bind and unbinds state events on state changes", ->
+  #   expect 5
 
   #   StatelyView = AS.View.extend ({def}) ->
 
@@ -59,15 +58,15 @@ exports.ViewEvents =
   #     def right_events:
   #       "click": "other_event_handler"
 
-  #     def event_handler: -> test.equal "left", @state
-  #     def other_event_handler: -> test.ok "right", @state
+  #     def event_handler: -> equal "left", @state
+  #     def other_event_handler: -> ok "right", @state
 
   #   view = StatelyView.new()
 
-  #   view.bind "exitstate:left", -> test.ok true
-  #   view.bind "enterstate:left", -> test.ok true
-  #   view.bind "exitstate:right", -> test.ok true
-  #   view.bind "enterstate:right", -> test.ok true
+  #   view.bind "exitstate:left", -> ok true
+  #   view.bind "enterstate:left", -> ok true
+  #   view.bind "exitstate:right", -> ok true
+  #   view.bind "enterstate:right", -> ok true
 
   #   view.transition_state from: undefined, to: "left"
   #   view.el.trigger "click"
@@ -76,9 +75,8 @@ exports.ViewEvents =
   #   view.el.trigger "click"
 
 
-  #   test.done()
-
-  # "bind state transition events": (test) ->
+  #   
+  # "bind state transition events", ->
   #   StatelyView = AS.View.extend ({def}) ->
   #     def left_events:
   #       "click": "event_handler"
@@ -90,8 +88,8 @@ exports.ViewEvents =
   #       "crank @": transition:
   #         from: "right", to: "left"
 
-  #     def event_handler: -> test.equal "left", @state
-  #     def other_event_handler: -> test.ok "right", @state
+  #     def event_handler: -> equal "left", @state
+  #     def other_event_handler: -> ok "right", @state
 
   #     def initialize: ->
   #       @_super()
@@ -99,8 +97,8 @@ exports.ViewEvents =
 
   #   view = StatelyView.new()
   #   view.trigger 'crank'
-  #   test.equal view.state, "right"
+  #   equal view.state, "right"
   #   view.trigger 'crank'
-  #   test.equal view.state, "left"
+  #   equal view.state, "left"
 
-  #   test.done()
+  #   

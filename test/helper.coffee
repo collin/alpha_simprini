@@ -10,10 +10,10 @@ AS.part("Core").require("model/share")
 
 require("nodeunit").assert.AssertionError.prototype.toString = ->
   if @message
-    "#{@name}: #{@message}"
+test "#{@name}: #{@message}"
   else
     [
-      "#{@name}:"
+test "#{@name}:"
       @expected.toString()
       @operator
       @actual.toString()
