@@ -1,4 +1,4 @@
-{AS, _, sinon, coreSetUp} = require require("path").resolve("./test/helper")
+{AS, _, sinon, coreSetUp} = require require("path").resolve("./helper")
 exports.setUp = coreSetUp
 
 WithCallbacks = AS.Object.extend ({include}) ->
@@ -6,23 +6,20 @@ WithCallbacks = AS.Object.extend ({include}) ->
   @defineCallbacks
     before: "this that".split(" ")
 
-exports.Callbacks =
-  definition: (test) ->
-    it = WithCallbacks
-    test.ok WithCallbacks.beforeThis
-    test.ok WithCallbacks.beforeThat
-    test.done()
+module "Callbacks"
+test "definition", ->
+  it = WithCallbacks
+  ok WithCallbacks.beforeThis
+  ok WithCallbacks.beforeThat
 
-  running: (test) ->
-    test.expect(2)
+test "running", ->
+  expect(2)
 
-    it = WithCallbacks
-    cb = -> test.ok(true)
-    it.beforeThis cb
-    it.beforeThat cb
+  it = WithCallbacks
+  cb = -> ok(true)
+  it.beforeThis cb
+  it.beforeThat cb
 
-    one = WithCallbacks.new()
-    one.runCallbacks "beforeThis"
-    one.runCallbacks "beforeThat"
-
-    test.done()
+  one = WithCallbacks.new()
+  one.runCallbacks "beforeThis"
+  one.runCallbacks "beforeThat"

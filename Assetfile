@@ -15,5 +15,5 @@ input "lib" do
 
     concat "AlphaSimprini-spade.js"
   end
-
 end
+

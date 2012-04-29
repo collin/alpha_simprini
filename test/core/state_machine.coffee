@@ -7,27 +7,22 @@ Car = NS.Car = AS.Object.extend ({include, def}) ->
 
   def initialize: -> @defaultState "off"
 
-exports.StateMachine =
-  hasDefaultState: (test) ->
-    test.equal Car.new().state, "off"
-    test.done()
+module "StateMachine"
+test "hasDefaultState",  ->
+  equal Car.new().state, "off"
 
-  "will not transition from the wrong state": (test) ->
-    car = Car.new()
-    car.transitionState from: "wrongstate", to: "on"
-    test.equal car.state, "off"
-    test.done()
+test "will not transition from the wrong state", ->
+  car = Car.new()
+  car.transitionState from: "wrongstate", to: "on"
+  equal car.state, "off"
 
-  "calls transition method with options for a valid transition": (test) ->
-    test.expect 2
-    car = Car.new()
-    car.exit_off = (options) ->
-      test.deepEqual from: "off", to: "on", options
+test "calls transition method with options for a valid transition", ->
+  expect 2
+  car = Car.new()
+  car.exit_off = (options) ->
+    deepEqual from: "off", to: "on", options
 
-    car.enter_on = (options) ->
-      test.deepEqual from: "off", to: "on", options
+  car.enter_on = (options) ->
+    deepEqual from: "off", to: "on", options
 
-    car.transitionState from: "off", to: "on"
-
-    test.done()
-
+  car.transitionState from: "off", to: "on"

@@ -1,45 +1,38 @@
-{AS, _, sinon, coreSetUp} = require require("path").resolve("./test/helper")
-exports.setUp = coreSetUp
+# {AS, _, sinon, coreSetUp} = require require("path").resolve("./test/helper")
+# exports.setUp = coreSetUp
 
-exports.utilities =
-  testIdentity: (test) ->
-    test.ok AS.Identity(10)(10)
-    test.done()
+module "utilities"
+test "testIdentity", ->
+  ok AS.Identity(10)(10)
 
-  constructorIdentity: (test) ->
-    class Fake
-    test.ok AS.ConstructorIdentity(Fake)(new Fake)
-    test.done()
+test "constructorIdentity", ->
+  class Fake
+  ok AS.ConstructorIdentity(Fake)(new Fake)
 
-  deepClone: (test) ->
-    test.notEqual AS.deepClone(it = []), it
-    test.notEqual AS.deepClone(it = {}), it
+test "deepClone", ->
+  notEqual AS.deepClone(it = []), it
+  notEqual AS.deepClone(it = {}), it
 
-    test.deepEqual AS.deepClone(it = []), it
-    test.deepEqual AS.deepClone(it = {}), it
+  deepEqual AS.deepClone(it = []), it
+  deepEqual AS.deepClone(it = {}), it
 
-    it = [
-      {a: 134, 3: [2, {}, [], [], "FOO"]},
-      23
-      "BAR"
-    ]
-    test.deepEqual AS.deepClone(it), it
-    not_it = AS.deepClone(it)
-    not_it.push "BAZ"
-    test.notDeepEqual it, not_it
+  it = [
+    {a: 134, 3: [2, {}, [], [], "FOO"]},
+    23, "BAR"
+  ]
+  deepEqual AS.deepClone(it), it
+  not_it = AS.deepClone(it)
+  not_it.push "BAZ"
+  notDeepEqual it, not_it
 
-    test.done()
+test "uniq", ->
+  ok AS.uniq().match /^.*-.*-.*$/
+  notEqual AS.uniq(), AS.uniq()
 
-  uniq: (test) ->
-    test.ok AS.uniq().match /^.*-.*-.*$/
-    test.notEqual AS.uniq(), AS.uniq()
-    test.done()
+test "humanSize", ->
+  sz = AS.humanSize
 
-  humanSize: (test) ->
-    sz = AS.humanSize
+  equal sz(100), "100.0 B"
 
-    test.equal sz(100), "100.0 B"
-
-    for prefix, index in ['KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
-      test.equal sz(Math.pow(1024, index + 1)), "1.0 #{prefix}"
-    test.done()
+  for prefix, index in ['KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+    equal sz(Math.pow(1024, index + 1)), "1.0 #{prefix}"

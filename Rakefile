@@ -1,4 +1,4 @@
-abort "Use Ruby 1.9 to build AlphaSimprini" unless RUBY_VERSION["1.9"]
+abort "Use Ruby 1.9 to build Pathology" unless RUBY_VERSION["1.9"]
 
 require 'rake-pipeline'
 
@@ -27,18 +27,9 @@ task :coffeescript => :clean do
   puts "Done"
 end
 
-desc "Build AlphaSimprini with documentation"
-task :doc_build => [:strip_whitespace] do
-  puts "Building AlphaSimprini Docs..."
-  doc_build.clean
-  doc_build.invoke
-  puts "Done"
-end
-
-
-desc "Build AlphaSimprini"
+desc "Build Pathology"
 task :dist => [:coffeescript, :strip_whitespace] do
-  puts "Building AlphaSimprini..."
+  puts "Building Pathology..."
   build.invoke
   puts "Done"
 end

@@ -8,8 +8,8 @@ C.Model = AS.Model.extend ({delegate, include, def, defs}) ->
 
 C.Collection = AS.Collection.extend ({delegate, include, def, defs}) ->
 
-exports.FilteredCollection =
-  "by default, all members are in the filtered collection": (test) ->
+module "FilteredCollection"
+  "by default, all members are in the filtered collection", ->
     c = C.Collection.new()
     f = c.filter()
 
@@ -17,10 +17,9 @@ exports.FilteredCollection =
     two = c.add C.Model.new()
     three = c.add C.Model.new()
 
-    test.deepEqual [one, two, three], f.models.value()
-    test.done()
-
-  "removes items from filter when they are removed from collection": (test) ->
+    deepEqual [one, two, three], f.models.value()
+    
+  "removes items from filter when they are removed from collection", ->
     c = C.Collection.new()
     f = c.filter()
 
@@ -30,10 +29,9 @@ exports.FilteredCollection =
 
     c.remove(two)
 
-    test.deepEqual [one, three], f.models.value()
-    test.done()
-
-  "respects filter function when adding models": (test) ->
+    deepEqual [one, three], f.models.value()
+    
+  "respects filter function when adding models", ->
     c = C.Collection.new()
     f = c.filter truth: false
 
@@ -41,10 +39,9 @@ exports.FilteredCollection =
     two = c.add C.Model.new(truth: true)
     three = c.add C.Model.new()
 
-    test.deepEqual [one, three], f.models.value()
-    test.done()
-
-  "add filtered items when they change": (test) ->
+    deepEqual [one, three], f.models.value()
+    
+  "add filtered items when they change", ->
     c = C.Collection.new()
     f = c.filter truth: false
 
@@ -53,10 +50,9 @@ exports.FilteredCollection =
     three = c.add C.Model.new()
     two.truth.set(false)
 
-    test.deepEqual [one, three, two], f.models.value()
-    test.done()
-
-  "remove filtered items when they change": (test) ->
+    deepEqual [one, three, two], f.models.value()
+    
+  "remove filtered items when they change", ->
     c = C.Collection.new()
     f = c.filter truth: false
 
@@ -66,17 +62,16 @@ exports.FilteredCollection =
 
     two.truth.set(true)
 
-    test.deepEqual [one, three], f.models.value()
-    test.done()
-
-  "triggers add/remove events": (test) ->
-    test.expect 5
+    deepEqual [one, three], f.models.value()
+    
+  "triggers add/remove events", ->
+    expect 5
 
     c = C.Collection.new()
     f = c.filter truth: false
 
-    f.bind "add", (model) -> test.ok(model)
-    f.bind "remove", (model) -> test.ok(model)
+    f.bind "add", (model) -> ok(model)
+    f.bind "remove", (model) -> ok(model)
 
     one = c.add C.Model.new()
     two = c.add C.Model.new(truth: true)
@@ -85,10 +80,9 @@ exports.FilteredCollection =
     two.truth.set(false)
     two.truth.set(true)
 
-    test.deepEqual [one, three], f.models.value()
-    test.done()
-
-  "re-filters when filter changes": (test) ->
+    deepEqual [one, three], f.models.value()
+    
+  "re-filters when filter changes", ->
     c = C.Collection.new()
     f = c.filter truth: false
 
@@ -98,8 +92,7 @@ exports.FilteredCollection =
 
     f.setConditions(truth: true)
 
-    test.deepEqual [two], f.models.value()
-    test.done()
-
+    deepEqual [two], f.models.value()
+    
 
 
