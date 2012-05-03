@@ -2,3 +2,7 @@
 examples/todo/node_modules/
 .DS_Store
 lib/
+dist/
+tmp/
+lib/
+vendor/

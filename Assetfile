@@ -13,7 +13,20 @@ input "lib" do
       id
     }
 
-    concat "AlphaSimprini-spade.js"
+    concat "alpha_simprini-spade.js"
   end
 end
 
+input "./", "alpha_simprini.erb" do
+  require "./version"
+  filter(Rake::Pipeline::Web::Filters::TiltFilter, {}, Object) do |input|
+    "alpha_simprini.html"
+  end
+end
+
+# output "dist/test"
+# input "tmp/test" do
+#   match "**/*.js" do
+#     neuter
+#   end
+# end

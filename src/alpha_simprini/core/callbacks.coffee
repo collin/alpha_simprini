@@ -1,4 +1,4 @@
-# {upperCamelize} = require("fleck")
+{upperCamelize} = fleck
 
 AS.Callbacks = AS.Module.extend ({def, defs}) ->
   defs defineCallbacks: (all) ->

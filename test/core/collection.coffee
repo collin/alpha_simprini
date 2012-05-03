@@ -1,6 +1,3 @@
-{AS, _, sinon, coreSetUp} = require require("path").resolve("./test/helper")
-exports.setUp = coreSetUp
-
 C = AS.Namespace.new("Collections")
 
 module "Collection"
@@ -17,7 +14,7 @@ test "sets the inverse is specified", ->
   things.add()
 
   equal "SOURCE", things.first().value().inverse.get()
-  
+
 test "clears inverse if specified", ->
   C.Thing = AS.Model.extend()
   C.Thing.property("inverse")
@@ -30,7 +27,7 @@ test "clears inverse if specified", ->
   thing = things.add()
   things.remove(thing)
   equal null, thing.inverse.get()
-  
+
 test "inserts item of specified type", ->
   C.Thing = AS.Model.extend()
   C.ThingCollection = AS.Collection.extend -> @def model: -> C.Thing
@@ -39,7 +36,7 @@ test "inserts item of specified type", ->
   things.add()
 
   ok things.first().value() instanceof C.Thing
-  
+
 test "inserts item at a specified index",->
   things = AS.Collection.new()
 
@@ -51,27 +48,27 @@ test "inserts item at a specified index",->
   equal things.length, 3
   equal things.at(1), thing
 
-  
+
 test "remove item from collection", ->
   things = AS.Collection.new()
   thing = things.add()
   things.remove(thing)
   equal things.length, 0
-  
+
 module "Events"
 test "add event", ->
   expect 1
   collection = AS.Collection.new()
   collection.bind "add", -> ok true
   collection.add()
-  
+
 test "remove event", ->
   expect 1
   collection = AS.Collection.new()
   thing = collection.add()
   collection.bind "remove", -> ok true
   collection.remove(thing)
-  
+
 test "model change events bubble through collection", ->
   expect 5
   C.Thing = AS.Model.extend()
@@ -84,7 +81,7 @@ test "model change events bubble through collection", ->
   thing.trigger "modelevent"
   thing.name.set("changed")
 
-  
+
 test "add/remove events capture on collection", ->
   expect 2
   thing = AS.Model.new()

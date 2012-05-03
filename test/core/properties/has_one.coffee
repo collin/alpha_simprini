@@ -1,35 +1,32 @@
-helper = require require("path").resolve("./test/helper")
-{AS, _, sinon, coreSetUp, RelationModel, FieldModel, NS} = helper
-exports.setUp = coreSetUp
+HO = Pathology.Namespace.new("Hasone")
+HO.Parent = AS.Model.extend()
+HO.Parent.hasOne "other", model: -> HO.Other
 
-NS.Parent = AS.Model.extend()
-NS.Parent.hasOne "other", model: -> NS.Other
+HO.Other = HO.Parent.extend()
+HO.Other.field "name"
 
-NS.Other = NS.Parent.extend()
-NS.Other.field "name"
-
-module "HasOne" =
+module "HasOne"
 test "property is a HasOne", ->
-    o = NS.Parent.new()
+    o = HO.Parent.new()
     ok o.other instanceof AS.Model.HasOne.Instance
-          
+
 test "collection events trigger on property", ->
   expect 1
-  o = NS.Parent.new other: name: "Juliet"
+  o = HO.Parent.new other: name: "Juliet"
   o.other.get().name.bind "change", -> ok true
   o.other.get().name.set "Julio"
-  
+
 test "change event triggers when model is set", ->
   expect 3, "fix field pass-through binding"
-  o = NS.Parent.new()
+  o = HO.Parent.new()
   o.bind "change", -> ok true
   o.bind "change:other", -> ok true
   o.other.bind "change", -> ok true
   o.other.set {}
-  
+
 test "clears object when set to null", ->
   expect 4, "fix field pass-through binding"
-  o = NS.Parent.new()
+  o = HO.Parent.new()
   o.bind "change", -> ok true
   o.bind "change:other", -> ok true
   o.other.bind "change", -> ok true
@@ -38,40 +35,40 @@ test "clears object when set to null", ->
 
 module "HasOne is set when constructing the model"
 test "with a model", ->
-  o = NS.Parent.new other: other = AS.Model.new()
+  o = HO.Parent.new other: other = AS.Model.new()
   equal other, o.other.get()
-  
+
 test "with a raw abject", ->
-  o = NS.Parent.new other: name: "Linus"
+  o = HO.Parent.new other: name: "Linus"
   equal "Linus", o.other.get().name.get()
 
-test "HasOne.bindPath"
+module "HasOne.bindPath"
 test "may bind through hasOne by name", ->
   expect 2
-  otherother = NS.Other.new()
-  other = NS.Other.new(other:otherother)
-  o = NS.Parent.new other: other
+  otherother = HO.Other.new()
+  other = HO.Other.new(other:otherother)
+  o = HO.Parent.new other: other
 
   o.bindPath ['other', 'other', 'name'], -> ok(true)
 
   otherother.name.set("other from another other's mother")
 
-  other.other.set newother = NS.Other.new()
+  other.other.set newother = HO.Other.new()
 
   otherother.name.set "simpler name"
   newother.name.set "new name"
-  
+
 test "may bind through ancestral hierarchy", ->
   expect 2
-  otherother = NS.Other.new()
-  other = NS.Other.new(other:otherother)
-  o = NS.Parent.new other: other
+  otherother = HO.Other.new()
+  other = HO.Other.new(other:otherother)
+  o = HO.Parent.new other: other
 
-  o.bindPath ['other', NS.Parent, 'name'], -> ok(true)
+  o.bindPath ['other', HO.Parent, 'name'], -> ok(true)
 
   otherother.name.set("other from another other's mother")
 
-  other.other.set newother = NS.Other.new()
+  other.other.set newother = HO.Other.new()
 
   otherother.name.set "simpler name"
   newother.name.set "new name"

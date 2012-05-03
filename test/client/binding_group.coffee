@@ -1,4 +1,3 @@
-{AS, $, _, sinon} = require require("path").resolve("./test/client_helper")
 module "BindingGroup"
 test "has a unique namespace", ->
   bg1 = AS.BindingGroup.new()
@@ -7,7 +6,7 @@ test "has a unique namespace", ->
   notEqual bg1.namespace, bg2.namespace
   equal bg1.namespace[0], "b"
 
-  
+
 test "binds to jquery objects", ->
   bg = AS.BindingGroup.new()
 
@@ -20,7 +19,7 @@ test "binds to jquery objects", ->
 
   mock.verify()
 
-  
+
 test "binds to AS.Event event model", ->
   bg = AS.BindingGroup.new()
 
@@ -35,7 +34,7 @@ test "binds to AS.Event event model", ->
   bg.binds object, "event", handler, object
   mock.verify()
 
-  
+
 test "unbinds bound objects", ->
   bg = AS.BindingGroup.new()
 
@@ -50,7 +49,7 @@ test "unbinds bound objects", ->
   bg.unbind()
   mock.verify()
 
-  
+
 
 test "unbinds bound objects in nested binding groups", ->
   parent = AS.BindingGroup.new()

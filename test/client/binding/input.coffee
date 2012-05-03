@@ -1,23 +1,19 @@
-{AS, NS, $, _, sinon, makeDoc, BoundModel,
-SimpleModel, mock_binding, coreSetUp} = require require("path").resolve("./test/client_helper")
-exports.setUp = coreSetUp
-
 module "Binding.Input"
 test "sets input value on initialization", ->
   [mocks, binding] = mock_binding(AS.Binding.Input)
   equal "value", binding.content.val()
-  
+
 test "updates input value when model changes", ->
   [mocks, binding] = mock_binding(AS.Binding.Input)
   binding.model.field.set("changed value")
   equal "changed value", binding.content.val()
-  
+
 test "updates model value when input changes", ->
   [mocks, binding] = mock_binding(AS.Binding.Input)
   binding.model.field.set("changed value")
   binding.content.val("user value").trigger("change")
   equal "user value", binding.model.field.get()
-  
+
 test "inherits from Field", ->
   equal AS.Binding.Input.__super__.constructor, AS.Binding.Field
   

@@ -1,28 +1,27 @@
-{AS, NS, _, sinon, coreSetUp, makeDoc} = require require("path").resolve("./test/helper")
-exports.setUp = coreSetUp
+Shared = Pathology.Namespace.new("Shared")
 
-
-NS.Shared = AS.Model.extend ({delegate, include, def, defs}) ->
+Shared.Shared = AS.Model.extend ({delegate, include, def, defs}) ->
   @field 'name'
   @field 'number'
-  @hasMany 'things', model: -> NS.Shared
-  @hasOne 'thing', model: -> NS.Shared
-  @belongsTo 'owner', model: (-> NS.Shared), inverse: 'things'
+  @hasMany 'things', model: -> Shared.Shared
+  @hasOne 'thing', model: -> Shared.Shared
+  @belongsTo 'owner', model: (-> Shared.Shared), inverse: 'things'
 
 indexedData =
-test "NS.Shared":
-test "Indexed-1":
+  "Shared.Shared":
+    "Indexed-1":
       name: "indexed"
       number: 0
       owner: "Shared-4"
       things: "Shared-1"
 
+makeDoc = NS.makeDoc
 
 shareData =
   # index:
-  #   "Indexed-1": "NS.Shared"
+  #   "Indexed-1": "Shared.Shared"
 
-  "NS.Shared":
+  "Shared.Shared":
     "Shared-1": (
         name: "one", number: "1",
         things: ["Shared-1", "Shared-2"]
@@ -35,7 +34,7 @@ shareData =
 
 module "ShareJSAdapter",
   setup: ->
-    @model = NS.Shared.find("Shared-1")
+    @model = Shared.Shared.find("Shared-1")
     @store = AS.Model.Store.new(adapterClass: AS.Model.ShareJSAdapter)
     @adapter = AS.Model.ShareJSAdapter.new({@model, @store})
     @adapter.didOpen makeDoc(null, shareData)
@@ -43,15 +42,15 @@ module "ShareJSAdapter",
 test "loads embedded data", ->
     deepEqual(
       @model.things.backingCollection.models.value(),
-      [NS.Shared.find("Shared-1"), NS.Shared.find("Shared-2")]
+      [Shared.Shared.find("Shared-1"), Shared.Shared.find("Shared-2")]
     )
 
-    equal @model.thing.get().toString(), NS.Shared.find("Shared-3").toString()
-    equal @model.owner.get(), NS.Shared.find("Shared-4")
+    equal @model.thing.get(), Shared.Shared.find("Shared-3")
+    equal @model.owner.get(), Shared.Shared.find("Shared-4")
 
-    deepEqual ["NS.Shared", "Shared-1", "name"], @model.name.share.path
-    
-# Shared = NS.Shared = AS.Model.extend ({delegate, include, def, defs}) ->
+    deepEqual ["Shared.Shared", "Shared-1", "name"], @model.name.share.path
+
+# Shared = Shared.Shared = AS.Model.extend ({delegate, include, def, defs}) ->
 #
 #   @field "field"
 #   @hasMany "relations", model: -> SimpleShare
@@ -87,12 +86,12 @@ test "loads embedded data", ->
 
 #   "default value is {}", ->
 #     ok @model.share.get() isnt null
-#     
+#
 #   "embedded objects are synced", ->
 #      @model.embedded.set(SimpleShare.new())
 #      @model.embedded.get().field.set("Hello")
 #      equal "Hello", @model.share.at("embedded", "field").get()
-#      
+#
 #   "embedded lists are synced", ->
 #     listenerCount = @model.share._listeners.length
 #     embed = @model.embeds.add()
@@ -103,17 +102,17 @@ test "loads embedded data", ->
 #     equal listenerCount, @model.share._listeners.length
 #     embed.field.set("D:")
 #     deepEqual [], @model.share.at("embeds").get()
-#     
+#
 #   "indexes":
 #     setUp: (callback) ->
 #       (@model = IndexShare.shared()).whenIndexed callback
 
 #     "index is share at correct path", ->
 #       deepEqual ["index:docs"], @model.index("docs").path
-#       
+#
 #     "index is a {} by default", ->
 #       deepEqual {}, @model.index("docs").get()
-#       
+#
 #     "loads models when indexes update", ->
 #       (@model = IndexShare.shared()).whenIndexed =>
 #         (other = SimpleShare.shared()).whenIndexed  =>
@@ -148,7 +147,7 @@ test "loads embedded data", ->
 #         equal @model.owner.get().id, indexed.id
 #         ok @model.owner.get().share
 #         equal @model.owner.get(), @model.owner.get().owner.get()
-#         
+#
 #       @model.didOpen(doc)
 
 #     "removes indexed models from the index when they are destroy()ed", ->
@@ -179,10 +178,10 @@ test "loads embedded data", ->
 #   "is new if share is undefined", ->
 #     delete @model.share
 #     ok @model.new()
-#     
+#
 #   "is new if constructed with new", ->
 #     ok Shared.new(id:"an id").new()
-#     
+#
 #   "sets defaults when opening a new model", ->
 #     NS.DefaultShared = AS.Model.extend ({delegate, include, def, defs}) ->
 #
@@ -191,7 +190,7 @@ test "loads embedded data", ->
 #     model = NS.DefaultShared.shared("someid")
 #     equal model.defaulted.get(), "value"
 
-#     
+#
 #   "overrides defaults when loading remotely", ->
 #     AS.openSharedObject = (id, didOpen) ->
 #       didOpen makeDoc(id, defaulted: "REMOTE VALUE")
@@ -202,7 +201,7 @@ test "loads embedded data", ->
 #     model = NS.DefaultShared.shared("some other id")
 #     equal model.defaulted.get(), "REMOTE VALUE"
 
-#     
+#
 # exports["Share Integration"] =
 #   "loads lists of embedded models":
 #     setUp: (callback) ->

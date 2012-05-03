@@ -1,6 +1,3 @@
-{AS, _, sinon, coreSetUp} = require require("path").resolve("./test/helper")
-exports.setUp = coreSetUp
-
 module "InstanceMethods"
 test "discoversInstanceMethods", ->
   HasMethods = AS.Object.extend ({def}) ->

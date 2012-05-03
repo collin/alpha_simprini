@@ -1,5 +1,3 @@
-{AS, $, _, sinon, jwerty} = require require("path").resolve("./test/client_helper")
-
 module "Application",
   setup: ->
     @app = AS.Application.new(el: @el = $("<div>"))
@@ -26,12 +24,12 @@ test "attaches global key handlers w/jwerty", ->
   for trigger in triggers
     jwerty.fire trigger, @el
 
-  
+
 test "initializes views into the application context", ->
   app_panel = @app.view AS.Views.Panel, key: "value"
   equal app_panel.application, @app
   equal app_panel.key, "value"
-  
+
 test "appends views into the app dom element", ->
   app_panel = @app.view AS.Views.Panel, key: "value"
   @app.append app_panel

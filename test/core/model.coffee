@@ -1,11 +1,7 @@
-helper = require require("path").resolve("./test/helper")
-{AS, _, sinon, coreSetUp, RelationModel, FieldModel} = helper
-exports.setUp = coreSetUp
-
 module "Model"
 test "has a place for all models", ->
   deepEqual AS.All, byCid: {}, byId: {}, byIdRef: {}
-  
+
 test "puts new models in that place", ->
   model = AS.Model.new()
   equal AS.All.byCid[model.cid], model, "puts model in AS.All.byCid"

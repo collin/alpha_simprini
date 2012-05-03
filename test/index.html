@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>QUnit Test Suite</title>
+  <link rel="stylesheet" href="qunit/qunit.css" type="text/css" media="screen">
+  <script type="text/javascript" src="qunit/qunit.js"></script>
+  <script type="text/javascript" src="../vendor/minispade.js"></script>
+  <script type="text/javascript" src="../vendor/fleck.js"></script>
+  <script type="text/javascript" src="../vendor/jquery.js"></script>
+  <script type="text/javascript" src="../vendor/jwerty.js"></script>
+  <script type="text/javascript" src="../vendor/underscore.js"></script>
+  <script type="text/javascript" src="../vendor/pathology.js"></script>
+  <script type="text/javascript" src="../vendor/taxi.js"></script>
+  <script type="text/javascript" src="../vendor/sharejs.js"></script>
+  <script type="text/javascript" src="../vendor/sharejs.json.js"></script>
+  <script type="text/javascript" src="../vendor/bcsocket.js"></script>
+  <script type="text/javascript" src="../vendor/rangy-core.js"></script>
+  <script type="text/javascript" src="../vendor/knead.js"></script>
+
+  <script type="text/javascript" src="../dist/alpha_simprini-spade.js"></script>
+
+  <script type="text/javascript" src="../tmp/test/helper.js"></script>
+</head>
+<body>
+  <h1 id="qunit-header">QUnit Test Suite</h1>
+  <h2 id="qunit-banner"></h2>
+  <div id="qunit-testrunner-toolbar"></div>
+  <h2 id="qunit-userAgent"></h2>
+  <ol id="qunit-tests"></ol>
+  <div id="qunit-fixture">test markup</div>
+
+  <script type="text/javascript">
+    var TYPES = {
+      js: "text/javascript",
+      coffee: "text/coffeescript"
+    };
+
+    function injectScript (src) {
+      var type = TYPES[ src.match(/\.(.*$)/)[1] ];
+      var scriptTag = unescape("%3Cscript type='"+type+"' src='../"+src+"'%3E%3C/script%3E");
+      document.write( scriptTag );
+    }
+
+    function injectScripts (scripts) {
+      if (!scripts) return;
+      scripts = scripts.split(",");
+      for (var i = scripts.length - 1; i >= 0; i--) {
+        script = scripts[i];
+        injectScript(script);
+      };
+    }
+
+    var params = QUnit.urlParams;
+    console.log("running "+params.tests.split(',').length+" test(s)");
+    injectScripts(params.tests);
+  </script>
+</body>
+</html>

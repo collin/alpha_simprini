@@ -1,4 +1,3 @@
-{AS, $, _, sinon} = require require("path").resolve("./test/client_helper")
 module "Views Regions"
 test "regions for cardinal directions/center extend Region", ->
   ok AS.Views.Region.new() instanceof AS.View

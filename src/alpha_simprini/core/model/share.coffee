@@ -1,6 +1,8 @@
 {keys} = _
-require("share")
-ShareJS = share.client
+require("bcsocket")
+require("sharejs")
+require("sharejs.json")
+window.ShareJS = sharejs.client
 
 AS.ShareJSURL = "http://#{window?.location.host or 'localhost'}/sjs"
 

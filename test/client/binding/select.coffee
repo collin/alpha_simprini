@@ -1,11 +1,7 @@
-{AS, NS, $, _, sinon, makeDoc, BoundModel,
-SimpleModel, mock_binding, coreSetUp} = require require("path").resolve("./test/client_helper")
-exports.setUp = coreSetUp
-
 module "Binding.Select"
 test "must provide options option", ->
   raises (-> mock_binding(AS.Binding.Select)), AS.Binding.MissingOption
-  
+
 test "uses provided Array for select options", ->
   options = [1..3]
   [mocks, binding] = mock_binding(AS.Binding.Select, options: options: options)
@@ -13,7 +9,7 @@ test "uses provided Array for select options", ->
   equal binding.container.find("option").length, 3
   equal binding.container.find("select").text(), "123"
 
-  
+
 test "uses provided Object for select options", ->
   options =
     "one": 1
@@ -26,7 +22,7 @@ test "uses provided Object for select options", ->
   for key, value of options
     equal $(binding.container.find("option[value='#{value}']")).text(), key
 
-  
+
 test "sets select value on initialization", ->
   model = BoundModel.new field: "value"
   options = ["notvalue", "value"]
@@ -34,7 +30,7 @@ test "sets select value on initialization", ->
 
   equal binding.container.find("select").val(), "value"
 
-  
+
 test "sets value of dom when model value changes", ->
   model = BoundModel.new field: "value"
   options = ["notvalue", "value"]
@@ -44,7 +40,7 @@ test "sets value of dom when model value changes", ->
 
   equal binding.container.find("select").val()[0], "notvalue"
 
-  
+
 test "sets value on object when dom changes", ->
   model = BoundModel.new field: "value"
   options = ["notvalue", "value"]

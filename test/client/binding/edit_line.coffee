@@ -1,7 +1,3 @@
-{AS, NS, $, _, sinon, makeDoc, BoundModel,
-SimpleModel, mock_binding, coreSetUp} = require require("path").resolve("./test/client_helper")
-exports.setUp = coreSetUp
-
 # exports.Binding =
 #  EditLine:
 #     setUp: (callback) ->
@@ -45,7 +41,7 @@ exports.setUp = coreSetUp
 #     #   for event in ['textInput', 'keydown', 'keyup', 'select', 'cut', 'paste', 'click', 'focus']
 #     #     binding.content.trigger(event)
 #     #   mocks.verify()
-#     #   
+#     #
 #     # "applies change if content has changed on edit event", ->
 #     #   model = SharedBoundModel.open()
 #     #   model.field("value")
@@ -54,7 +50,7 @@ exports.setUp = coreSetUp
 #     #     binding.content[0].innerHTML += " change"
 #     #     binding.generate_operation()
 #     #     deepEqual model.share.get(), model.attributes_for_sharing()
-#     #     
+#     #
 #     # "applies change from remote operation", ->
 #     #   model = SharedBoundModel.open()
 #     #   model.field("value")

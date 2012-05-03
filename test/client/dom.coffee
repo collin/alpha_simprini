@@ -1,5 +1,3 @@
-{AS, $, _, sinon} = require require("path").resolve("./test/client_helper")
-
 module "DOM"
 test "creates document fragments", ->
   html = AS.DOM.new().html ->
@@ -16,11 +14,11 @@ test "creates document fragments", ->
   equal $(html).find("p").text(), "I'm the body copy :D"
   equal $(html).find("[data-custom]").data().custom, "attributes!"
 
-  
+
 test "appends raw (scary html) content", ->
   raw = AS.DOM.new().raw("<html>")
   ok $(raw).find("html").is("html")
-  
+
 test "appends escaped (non-scary html) content": (test)->
   raw = AS.DOM.new().span -> @text("<html>")
   equal $(raw).find("html")[0], undefined

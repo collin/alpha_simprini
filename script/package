@@ -1,0 +1,12 @@
+#! /usr/bin/env coffee
+pathname = require "path"
+ModuleLoader = require "module_loader"
+
+loader = new ModuleLoader
+  serve: false
+  env: "production"
+  module_root: pathname.resolve("./node_modules")
+  ignorefile: pathname.resolve("./.stitchignore")
+  packages: "jquery underscore underscore.string rangy-core knead jwerty pathology taxi alpha_simprini fleck".split(" ")
+
+console.log loader.build_universe()

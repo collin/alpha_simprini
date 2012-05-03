@@ -1,7 +1,3 @@
-{AS, NS, $, _, sinon, makeDoc, BoundModel,
-SimpleModel, mock_binding, coreSetUp} = require require("path").resolve("./test/client_helper")
-exports.setUp = coreSetUp
-
 module "Binding.Model"
 test "paints styles", ->
   context = AS.View.new()
@@ -36,7 +32,7 @@ test "paints styles", ->
 
   model.field1.trigger("change")
 
-  
+
 test "paints attributes", ->
   context = AS.View.new()
   context_mock = sinon.mock context

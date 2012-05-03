@@ -1,6 +1,3 @@
-{AS, _, sinon, coreSetUp} = require require("path").resolve("./helper")
-exports.setUp = coreSetUp
-
 WithCallbacks = AS.Object.extend ({include}) ->
   include AS.Callbacks
   @defineCallbacks

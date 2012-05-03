@@ -1,7 +1,3 @@
-{AS, NS, $, _, sinon, makeDoc, BoundModel,
-SimpleModel, mock_binding, coreSetUp} = require require("path").resolve("./test/client_helper")
-exports.setUp = coreSetUp
-
 module "Binding.Many",
   setup: ->
     model = BoundModel.new()
@@ -23,26 +19,26 @@ test "creates initial collection dom", ->
   @items.each (item) =>
     ok @binding.container.find("##{item.cid.replace(".", "-")}").is("div")
 
-  
+
 test "adds additional dom elements when items added to collection", ->
   expect 1
   item = @items.add()
   ok @binding.container.find("##{item.cid.replace(".", "-")}").is("div")
 
-  
+
 test "adds new dom elements at correct index", ->
   expect 1
   item = @items.add({}, at: 0)
 
   ok @binding.container.children(":first").is("##{item.cid.replace(".", "-")}")
 
-  
+
 test "removes dom elements when item removed from collection", ->
   item = @items.at(0)
   @items.remove item
   ok @binding.container.find("##{item.cid.replace(".", "-")}")[0] is undefined
 
-module "Binding.HasManyWithFilter"   
+module "Binding.HasManyWithFilter"
   setup: ->
     model = BoundModel.new()
     items = model.items
@@ -68,7 +64,7 @@ test "filters items in the collection", ->
   equal @binding.container.find("##{one.cid.replace(".", "-")}")[0].id, one.cid.replace(".", "-")
   equal @binding.container.find("##{two.cid.replace(".", "-")}")[0], undefined
   equal @binding.container.find("##{three.cid.replace(".", "-")}")[0].id, three.cid.replace(".", "-")
-  
+
 test "moves items into place in the collection when their values change", ->
   one = @items.add field: true
   two = @items.add field: false
@@ -78,7 +74,7 @@ test "moves items into place in the collection when their values change", ->
 
   equal @binding.container.children()[1].id, two.cid.replace(".", "-")
 
-  
+
 test "removes items when their values change", ->
   one = @items.add field: true
 

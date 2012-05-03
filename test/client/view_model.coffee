@@ -1,7 +1,3 @@
-{AS, NS, $, _, sinon, coreSetUp} = require require("path").resolve("./test/client_helper")
-
-exports.setUp = coreSetUp
-
 NS.AView = AS.View.extend()
 NS.Viewed = AS.Model.extend ({def}) ->
   @field "field"
@@ -28,14 +24,14 @@ test "builds viewmodels", ->
   equal vm.view, view
   equal vm.model, model
 
-  
+
 test "caches constructors", ->
   vm1 = AS.ViewModel.build NS.AView.new(), NS.Viewed.new()
   vm2 = AS.ViewModel.build NS.AView.new(), NS.Viewed.new()
 
   equal vm1.constructor, vm2.constructor
 
-  
+
 test "configures constructor", ->
   vm = AS.ViewModel.build NS.AView.new(), NS.Viewed.new()
   bindables = vm.constructor.bindables

@@ -1,5 +1,3 @@
-{AS, NS, $, _, sinon} = require require("path").resolve("./test/client_helper")
-
 NS.SomeTargets = AS.Models.Targets.extend ({def}) ->
   def selector: "target"
 
@@ -46,13 +44,13 @@ test "gathers targets", ->
     equal targets[1].rect.left, 0, 'left'
     equal targets[1].rect.width, 100, 'width'
     equal targets[1].rect.height, 50, 'height'
-    
+
 test "dropend triggers dropend event", ->
     targets = NS.SomeTargets.new()
     expect 1
     targets.bind "dropend", -> ok true
     targets.dropend()
-    
+
 test "dropstart triggers dropstart event if current hit has a rect", ->
     targets = NS.SomeTargets.new()
     hit = rect: true
@@ -60,13 +58,13 @@ test "dropstart triggers dropstart event if current hit has a rect", ->
     expect 1
     targets.bind "dropstart", (thehit) -> equal hit, thehit
     targets.dropstart()
-    
+
 test "dropstart is a noop if current hit lacks a rect", ->
     targets = NS.SomeTargets.new()
     expect 0
     targets.bind "dropstart", -> ok true
     targets.dropstart()
-    
+
 test "dragend calls drop and triggers drop if current hit has a rect", ->
     targets = NS.SomeTargets.new()
     hit = rect: true
@@ -76,7 +74,7 @@ test "dragend calls drop and triggers drop if current hit has a rect", ->
     targets.bind "drop", (thehit) -> equal hit, thehit
     targets.drop = (thedata) -> equal thedata, data
     targets.dragend(data)
-    
+
 test "dragend is a noop if current hit lacks a rect", ->
     targets = NS.SomeTargets.new()
     data = new Object
@@ -84,20 +82,20 @@ test "dragend is a noop if current hit lacks a rect", ->
     targets.bind "drop", (thehit) -> equal hit, thehit
     targets.drop = (thedata) -> equal thedata, data
     targets.dragend(data)
-    
+
 test "noop if hit has no rect", ->
       targets = NS.SomeTargets.new()
       targets.dropend = -> ok true
       expect 0
       targets.transition_hit {}
-      
+
 test "noop if currenth hit equals hit", ->
       targets = NS.SomeTargets.new()
       targets.current_hit = equals: -> true
       targets.dropend = -> ok true
       expect 0
       targets.transition_hit {}
-      
+
 test "transitions if current hit does not equal hit", ->
       targets = NS.SomeTargets.new()
       targets.current_hit = equals: -> false
@@ -108,11 +106,11 @@ test "transitions if current hit does not equal hit", ->
       targets.dropstart = ->
         ok targets.current_hit is hit
       targets.transition_hit hit
-      
+
 
 target_event = (x, y) ->
   return {
-test "jquery/event": originalEvent:
+      "jquery/event": originalEvent
       clientX: x, clientY: y
   }
 
@@ -140,18 +138,18 @@ test "misses when not inside box", ->
       equal null, @check(101, 51), "after"
       equal null, @check(70, 101), "inside x, outside y"
       equal null, @check(50, 130), "outside x, inside y"
-      
+
 test "hits when inside the box", ->
       ok @check(100, 80), "within edge x, inside y"
       ok @check(0, -30), "within edge x, inside y"
-      
+
 test "hits TOP/BOTTOM", ->
       hit = @check(0, 0)
       equal hit.section, hit.TOP
 
       hit = @check(0, 50)
       equal hit.section, hit.BOTTOM
-      
+
 module "Targets.Edge.horizontal_target",
   setup: (callback) ->
     setupEdgeTargets.call(this)
@@ -164,11 +162,11 @@ test "misses when not inside box", ->
   equal null, @check(101, 51), "after"
   equal null, @check(70, 101), "outside x, inside y"
   equal null, @check(50, 50), "inside x, outside y"
-  
+
 test "hits when inside the box", ->
   ok @check(130, 50), "within x, inside edge y"
   ok @check(-30, 0), "within x, inside edge y"
-  
+
 test "hits LEFT/RIGHT", ->
   hit = @check(0, 0)
   equal hit.section, hit.LEFT
@@ -176,7 +174,7 @@ test "hits LEFT/RIGHT", ->
   hit = @check(100, 0)
   equal hit.section, hit.RIGHT
 
-    
+
 module "Targets.Thirds",
   setup: ->
     @targets = AS.Models.Targets.Thirds.new()
@@ -194,7 +192,7 @@ module "Targets.Thirds",
 test "misses when not inside vertically", ->
     equal null, @check(0, -1), "before"
     equal null, @check(0, 51), "after"
-    
+
 test "hits TOP/MIDDLE/BOTTOM", ->
     hit = @check(0, 0)
     equal hit.section, hit.TOP
@@ -205,4 +203,4 @@ test "hits TOP/MIDDLE/BOTTOM", ->
     hit = @check(0, 50)
     equal hit.section, hit.BOTTOM
 
-    
+

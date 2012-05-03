@@ -1,6 +1,3 @@
-{AS, _, sinon, coreSetUp} = require require("path").resolve("./test/helper")
-exports.setUp = coreSetUp
-
 C = AS.Namespace.new("Collections")
 
 C.Model = AS.Model.extend ({delegate, include, def, defs}) ->
@@ -18,7 +15,7 @@ test "by default, all members are in the filtered collection", ->
   three = c.add C.Model.new()
 
   deepEqual [one, two, three], f.models.value()
-  
+
 test "removes items from filter when they are removed from collection", ->
   c = C.Collection.new()
   f = c.filter()
@@ -30,7 +27,7 @@ test "removes items from filter when they are removed from collection", ->
   c.remove(two)
 
   deepEqual [one, three], f.models.value()
-  
+
 test "respects filter function when adding models", ->
   c = C.Collection.new()
   f = c.filter truth: false
@@ -40,7 +37,7 @@ test "respects filter function when adding models", ->
   three = c.add C.Model.new()
 
   deepEqual [one, three], f.models.value()
-  
+
 test "add filtered items when they change", ->
   c = C.Collection.new()
   f = c.filter truth: false
@@ -51,7 +48,7 @@ test "add filtered items when they change", ->
   two.truth.set(false)
 
   deepEqual [one, three, two], f.models.value()
-  
+
 test "remove filtered items when they change", ->
   c = C.Collection.new()
   f = c.filter truth: false
@@ -63,7 +60,7 @@ test "remove filtered items when they change", ->
   two.truth.set(true)
 
   deepEqual [one, three], f.models.value()
-  
+
 test "triggers add/remove events", ->
   expect 5
 
@@ -81,7 +78,7 @@ test "triggers add/remove events", ->
   two.truth.set(true)
 
   deepEqual [one, three], f.models.value()
-  
+
 test "re-filters when filter changes", ->
   c = C.Collection.new()
   f = c.filter truth: false
@@ -93,6 +90,6 @@ test "re-filters when filter changes", ->
   f.setConditions(truth: true)
 
   deepEqual [two], f.models.value()
-  
+
 
 

@@ -1,4 +1,3 @@
-{AS, $, _, sinon, NS} = require require("path").resolve("./test/client_helper")
 module "View"
 test "generates klass strings", ->
   equal AS.View.new().klassString(), "View", "basic klassString is ASView"
@@ -7,25 +6,25 @@ test "generates klass strings", ->
 
   equal NS.SomeView.new().klassString(), "View SomeView", "subclasses include parent class string"
 
-  
+
 test "builds an element", ->
   ok AS.View.new().el.is("div")
   NS.ListView = AS.View.extend ({def}) ->
     def tagName: "ol"
 
   ok NS.ListView.new().el.is("ol.View.ListView")
-  
+
 test "sets options from constructor", ->
   equal AS.View.new(this: "that").this, "that"
-  
+
 test "turns Model options into AS.ViewModels", ->
   it = AS.Model.new()
   view = AS.View.new(it:it)
   ok view.it instanceof AS.ViewModel
-  
+
 test "has a root binding group", ->
   ok AS.View.new().bindingGroup instanceof AS.BindingGroup
-  
+
 test "pluralizes text", ->
   view = AS.View.new()
   equal view.pluralize("cat", 4), "cats"
@@ -33,7 +32,7 @@ test "pluralizes text", ->
   equal view.pluralize("duck", 1), "duck"
   equal view.pluralize("duck", -1), "duck"
   equal view.pluralize("cat", -4), "cats"
-  
+
 test "delegates view methods to @el", ->
   methods = ['addClass', 'removeClass', 'show', 'hide', 'html']
   expect methods.length
@@ -44,15 +43,15 @@ test "delegates view methods to @el", ->
     el[method] = -> ok(true)
     view[method]()
 
-  
+
 test "allows view element to be set as an option in the constructor", ->
   el = $("<div>")
   view = AS.View.new(el:el)
   equal el[0], view.currentNode
-  
+
 test "stashes childViews", ->
   deepEqual [], AS.View.new().childViews
-  
+
 test "views have a 'view' method to create child views", ->
   view = AS.View.new()
   returned = view.view AS.View, el: subEl = view.div()
@@ -63,26 +62,26 @@ test "views have a 'view' method to create child views", ->
   # will be called on the view object.
   equal view.childViews[0], view.bindingGroup.children.reverse()[0]
 
-  
+
 # "when view is unbound it is removed from it's parents childViews and from the DOM", ->
 #   view = AS.View.new()
 #   view.view(AS.View, el: view.div(-> @h1()))
 #   view.bindingGroup.unbind()
 #   deepEqual [], view.childViews
 #   equal "", view.html()
-#   
+#
 
 module "View.binding()"
 test "creates a binding for a collection", ->
   view = AS.View.new()
   collection = AS.Collection.new()
   ok view.binding(collection, ->).constructor is AS.Binding.Many
-  
+
 test "creates a binding for a model", ->
   view = AS.View.new()
   model = AS.Model.new()
   ok view.binding(model).constructor is AS.Binding.Model
-      
+
 
 module "View.descendantViews()"
 test "returns all descendantViews", ->
@@ -91,7 +90,7 @@ test "returns all descendantViews", ->
   view.childViews[0].view AS.View
 
   equal 2, view.descendantViews().length
-  
+
 test "filters descendantViews by constructor", ->
   NS.SubView = AS.View.extend()
   view = AS.View.new()
@@ -99,7 +98,7 @@ test "filters descendantViews by constructor", ->
   view.childViews[0].view AS.View
 
   equal 1, view.descendantViews(null, NS.SubView).length
-      
+
 module "View Integration: "
 test "property binding with two children cleans up all content when property changes", ->
   NS.Parent = AS.Model.extend ({delegate, include, def, defs}) ->
@@ -139,7 +138,7 @@ test "property binding with two children cleans up all content when property cha
   @parent.item.set(null)
   equal 0, @view.el.find("ol li").length
   equal 0, @view.el.find("ul li").length
-      
+
 test "property binding nested ina property binding test cleans up bindings", ->
   NS.Model = AS.Model.extend ({delegate, include, def, defs}) ->
     @property "other"

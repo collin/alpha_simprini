@@ -1,6 +1,3 @@
-{AS, $, _, sinon, coreSetUp} = require require("path").resolve("./test/client_helper")
-exports.setUp = coreSetUp
-
 module "ViewEvents"
 test "delegates events", ->
   expect 3
@@ -27,7 +24,7 @@ test "delegates events", ->
   view.member.trigger("event")
   view._button.trigger("click")
 
-    
+
   # rethinkign stately and other types of event guarding
   # "registers state event", ->
   #   StatelyView = AS.View.extend ({def}) ->
@@ -46,7 +43,7 @@ test "delegates events", ->
   #   ok view.state_events.right instanceof AS.ViewEvents
 
 
-  #   
+  #
   # "bind and unbinds state events on state changes", ->
   #   expect 5
 
@@ -75,7 +72,7 @@ test "delegates events", ->
   #   view.el.trigger "click"
 
 
-  #   
+  #
   # "bind state transition events", ->
   #   StatelyView = AS.View.extend ({def}) ->
   #     def left_events:

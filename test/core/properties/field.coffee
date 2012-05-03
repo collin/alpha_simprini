@@ -1,7 +1,3 @@
-helper = require require("path").resolve("./test/helper")
-{NS, AS, _, sinon, makeDoc, coreSetUp, RelationModel, FieldModel} = helper
-exports.setUp = coreSetUp
-
 Model = NS.Model = AS.Model.extend()
 Model.field "name"
 Model.field "band", default: "the Tijuana Brass"

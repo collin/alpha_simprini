@@ -1,32 +1,25 @@
-AS = exports.AS = require "alpha_simprini"
+minispade.require "alpha_simprini"
+minispade.require "jquery"
+minispade.require "jwerty"
+minispade.require "underscore"
 
-NS = exports.NS = AS.Namespace.new("NS")
-_ = exports._ = require "underscore"
-sinon = exports.sinon = require "sinon"
-$ = exports.$ = require "jquery"
-exports.jwerty = require("jwerty").jwerty
+
+NS = window.NS = AS.Namespace.new("NS")
+# sinon = NS.sinon = require "sinon"
+# _ = NS._ = require "underscore"
+# $ = NS.$ = require "jquery"
+# NS.jwerty = require("jwerty").jwerty
 AS.part("Core").require("model/share")
 # AS.suppress_logging()
 
-require("nodeunit").assert.AssertionError.prototype.toString = ->
-  if @message
-test "#{@name}: #{@message}"
-  else
-    [
-test "#{@name}:"
-      @expected.toString()
-      @operator
-      @actual.toString()
-    ].join(" ")
-
-exports.coreSetUp = (callback) ->
+window.QUnit.testStart = ({module, name}) ->
+  console.info("testStart: #{module} - #{name}") if QUnit.urlParams.debug
   AS.All =
     byCid: {}
     byId: {}
     byIdRef: {}
-  callback()
 
-BoundModel = exports.BoundModel = NS.BoundModel = AS.Model.extend()
+BoundModel = NS.BoundModel = NS.BoundModel = AS.Model.extend()
 
 BoundModel.field "field"
 BoundModel.field "maybe", type: Boolean
@@ -36,10 +29,10 @@ BoundModel.hasOne "owner"
 # class SharedBoundModel extends BoundModel
 #   AS.Model.Share.extends this, "ShareBoundModel"
 
-SimpleModel = exports.SimpleModel = NS.SimpleModel = AS.Model.extend()
+SimpleModel = NS.SimpleModel = NS.SimpleModel = AS.Model.extend()
 SimpleModel.field "field"
 
-exports.mock_binding = (binding_class, _options={}) ->
+NS.mock_binding = (binding_class, _options={}) ->
   context = _options.context or AS.View.new()
   model = _options.model or BoundModel.new field: "value"
   field = _options.field or model["field"]
@@ -66,13 +59,13 @@ exports.mock_binding = (binding_class, _options={}) ->
    [mocks, binding]
 
 
-exports.makeDoc = (name="document_name-#{_.uniqueId()}", snapshot=null) ->
-  share = require "share"
-  Doc = share.client.Doc
-  doc = new Doc {}, name, 0, share.types.json, snapshot
+NS.makeDoc = (name="document_name-#{_.uniqueId()}", snapshot=null) ->
+  Doc = sharejs.Doc
+  doc = new Doc {}, name, {type:'json'}
+  doc.snapshot = snapshot
   # FIXME: get proper share server running in the tests
   # as it is we seem to be able to skip over the "pendingOp" stuff
-  # but it'd be nicer to properly test his out.
+  # but it'd be nicer to properly test this out.
   doc.submitOp = (op, callback) ->
     op = @type.normalize(op) if @type.normalize?
     @snapshot = @type.apply @snapshot, op
@@ -96,18 +89,13 @@ exports.makeDoc = (name="document_name-#{_.uniqueId()}", snapshot=null) ->
   doc
 
 
-# class exports.FieldModel extends AS.Model
+# class NS.FieldModel extends AS.Model
 #   @field "name"
 
-# class exports.RelationModel extends AS.Model
+# class NS.RelationModel extends AS.Model
 #   @embeds_many "embeds"
 #   @embeds_one "embed"
 #   @has_many "relations"
 #   @has_one "relation"
 #   @belongsTo "owner"
-
-
-global.document = $("body")[0]._ownerDocument
-global.window = document._parentWindow
-
 

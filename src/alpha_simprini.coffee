@@ -1,10 +1,13 @@
 # Bootstraps
 require "pathology"
 require "taxi"
-require "alpha_simprini/string"
-require "alpha_simprini/core/logging"
+require "fleck"
 
 window.AS = Pathology.Namespace.new("AlphaSimprini")
+
+require "alpha_simprini/core/string"
+require "alpha_simprini/core/logging"
+
 
 AS.unimplemented = (method) ->
   return ->
@@ -34,6 +37,7 @@ AS.require = (framework="alpha_simprini", libraries) ->
     for library in libraries.split(/\s+/)
       continue if library.blank()
       require "alpha_simprini/#{framework}/#{library}"
+  return
 
 # Core libs, should run well in Node.js or in a Browser
 require "alpha_simprini/core"

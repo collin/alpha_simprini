@@ -1,7 +1,3 @@
-{AS, NS, _, sinon, coreSetUp} = require require("path").resolve("./test/helper")
-exports.setUp = coreSetUp
-
-
 Car = NS.Car = AS.Object.extend ({include, def}) ->
   include AS.StateMachine
 

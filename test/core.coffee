@@ -1,6 +1,3 @@
-# {AS, _, sinon, coreSetUp} = require require("path").resolve("./test/helper")
-# exports.setUp = coreSetUp
-
 module "utilities"
 test "testIdentity", ->
   ok AS.Identity(10)(10)
