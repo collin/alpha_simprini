@@ -1,3 +1,4 @@
+{mockBinding,BoundModel} = NS
 module "Binding.Many",
   setup: ->
     model = BoundModel.new()
@@ -9,7 +10,7 @@ module "Binding.Many",
 
     content_fn = (thing) -> @div id: thing.cid.replace(".", "-")
 
-    [mocks, binding] = mock_binding(AS.Binding.Many, field: model.items, model: model, fn: content_fn)
+    [mocks, binding] = mockBinding(AS.Binding.Many, field: model.items, model: model, fn: content_fn)
 
     @items = items
     @binding = binding
@@ -45,7 +46,7 @@ module "Binding.HasManyWithFilter"
 
     content_fn = (thing) -> @div id: thing.cid.replace(".", "-")
 
-    [mocks, binding] = mock_binding(AS.Binding.Many,
+    [mocks, binding] = mockBinding(AS.Binding.Many,
         field: items,
         model: model,
         fn: content_fn

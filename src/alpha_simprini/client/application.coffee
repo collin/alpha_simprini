@@ -1,4 +1,6 @@
 {each} = _
+domready = jQuery
+require("jwerty")
 
 AS.Application =  AS.Object.extend ({def, include}) ->
   include Taxi.Mixin
@@ -18,7 +20,7 @@ AS.Application =  AS.Object.extend ({def, include}) ->
     handlers =
       '⎋': 'escape'
       '⌘+↩': 'accept'
-      # 'backspace': 'delete'
+      'backspace': 'delete'
 
       #TODO: add to test suite
       "↩": "open"

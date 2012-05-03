@@ -1,11 +1,12 @@
+{mockBinding,BoundModel} = NS
 module "Binding.One",
-  setup: (callback) ->
+  setup: ->
     @model = BoundModel.new( owner: BoundModel.new() )
 
     content_fn = (thing) ->
       @div id: thing.cid.replace('.', '-')
 
-    [mocks, binding] = mock_binding(AS.Binding.One, field: @model.owner, model: @model, fn: content_fn)
+    [mocks, binding] = mockBinding(AS.Binding.One, field: @model.owner, model: @model, fn: content_fn)
 
     @binding = binding
 

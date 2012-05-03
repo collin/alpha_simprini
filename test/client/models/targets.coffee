@@ -8,14 +8,13 @@ class ClientRect
   height: 0
 
   constructor: (properties) ->
-    require("underscore").extend(this, properties)
+    _.extend(this, properties)
     @right = @left + @width
     @bottom = @top + @height
 
 module "Targets",
-  setup: (callback) ->
+  setup: ->
     body = $("body")
-    body.empty()
     body.append "<target />"
     body.append "<target />"
     body.append "<target />"
@@ -33,6 +32,9 @@ module "Targets",
 
     @t3.getBoundingClientRect = ->
       new ClientRect top: 100, width: 100, height: 50
+
+  teardown: ->
+    $("target").remove()
 
 test "gathers targets", ->
     targets = NS.SomeTargets.new().targets
@@ -110,8 +112,9 @@ test "transitions if current hit does not equal hit", ->
 
 target_event = (x, y) ->
   return {
-      "jquery/event": originalEvent
-      clientX: x, clientY: y
+      "jquery/event": originalEvent:
+        clientX: x
+        clientY: y
   }
 
 
@@ -124,14 +127,11 @@ setupEdgeTargets = ->
     rect: @rect
   ]
 
-module "Targets.Edge",
-
 module "Targets.Edge.vertical_target",
   setup: ->
     setupEdgeTargets.call(this)
     @check = (x, y) =>
       @targets.vertical_target target_event(x, y)
-    callback()
 
 test "misses when not inside box", ->
       equal null, @check(-1, -1), "before"
@@ -151,11 +151,10 @@ test "hits TOP/BOTTOM", ->
       equal hit.section, hit.BOTTOM
 
 module "Targets.Edge.horizontal_target",
-  setup: (callback) ->
+  setup: ->
     setupEdgeTargets.call(this)
     @check = (x, y) =>
       @targets.horizontal_target target_event(x, y)
-    callback()
 
 test "misses when not inside box", ->
   equal null, @check(-1, -1), "before"
@@ -187,7 +186,6 @@ module "Targets.Thirds",
 
     @check = (x, y) =>
       @targets.target target_event(x, y)
-    callback()
 
 test "misses when not inside vertically", ->
     equal null, @check(0, -1), "before"

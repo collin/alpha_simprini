@@ -1,11 +1,12 @@
+{BoundModel,mockBinding} = NS
 module "Binding.Field"
 
 test "sets appropriate initial content", ->
-  [mocks, binding] = mock_binding(AS.Binding.Field)
+  [mocks, binding] = mockBinding(AS.Binding.Field)
   equal binding.container.find("span").text(), "value"
 
 test "clears content when value undefined", ->
-  [mocks, binding] = mock_binding AS.Binding.Field,
+  [mocks, binding] = mockBinding AS.Binding.Field,
     fn: ->
       @h1 -> @span "fn value"
 
@@ -13,7 +14,7 @@ test "clears content when value undefined", ->
   equal "", binding.container.html()
 
 test "clears content when value null", ->
-  [mocks, binding] = mock_binding AS.Binding.Field,
+  [mocks, binding] = mockBinding AS.Binding.Field,
     fn: ->
       @h1 -> @span "fn value"
 
@@ -21,12 +22,12 @@ test "clears content when value null", ->
   equal "", binding.container.html()
 
 test "updates content when model changes", ->
-  [mocks, binding] = mock_binding(AS.Binding.Field)
+  [mocks, binding] = mockBinding(AS.Binding.Field)
   binding.model.field.set("new value")
   equal binding.container.find("span").text(), "new value"
 
 test "uses given fn to generate content", ->
-  [mocks, binding] = mock_binding AS.Binding.Field,
+  [mocks, binding] = mockBinding AS.Binding.Field,
     fn: ->
       @h1 -> @span "fn value"
 
@@ -34,7 +35,7 @@ test "uses given fn to generate content", ->
 
 test "updates fn content when value changes", ->
   model = BoundModel.new field: "value"
-  [mocks, binding] = mock_binding AS.Binding.Field,
+  [mocks, binding] = mockBinding AS.Binding.Field,
     model: model
     fn: ->
       @h1 -> @span model.field.get()

@@ -1,10 +1,12 @@
+{mockBinding, BoundModel} = NS
+
 module "Binding.Select"
 test "must provide options option", ->
-  raises (-> mock_binding(AS.Binding.Select)), AS.Binding.MissingOption
+  raises (-> mockBinding(AS.Binding.Select)), AS.Binding.MissingOption
 
 test "uses provided Array for select options", ->
   options = [1..3]
-  [mocks, binding] = mock_binding(AS.Binding.Select, options: options: options)
+  [mocks, binding] = mockBinding(AS.Binding.Select, options: options: options)
 
   equal binding.container.find("option").length, 3
   equal binding.container.find("select").text(), "123"
@@ -15,7 +17,7 @@ test "uses provided Object for select options", ->
     "one": 1
     "two": 2
     "three": 3
-  [mocks, binding] = mock_binding(AS.Binding.Select, options: options: options)
+  [mocks, binding] = mockBinding(AS.Binding.Select, options: options: options)
 
   equal binding.container.find("option").length, 3
 
@@ -26,7 +28,7 @@ test "uses provided Object for select options", ->
 test "sets select value on initialization", ->
   model = BoundModel.new field: "value"
   options = ["notvalue", "value"]
-  [mocks, binding] = mock_binding(AS.Binding.Select, options: (options: options), model: model)
+  [mocks, binding] = mockBinding(AS.Binding.Select, options: (options: options), model: model)
 
   equal binding.container.find("select").val(), "value"
 
@@ -34,7 +36,7 @@ test "sets select value on initialization", ->
 test "sets value of dom when model value changes", ->
   model = BoundModel.new field: "value"
   options = ["notvalue", "value"]
-  [mocks, binding] = mock_binding(AS.Binding.Select, options: (options: options), model: model)
+  [mocks, binding] = mockBinding(AS.Binding.Select, options: (options: options), model: model)
 
   model.field.set("notvalue")
 
@@ -44,7 +46,7 @@ test "sets value of dom when model value changes", ->
 test "sets value on object when dom changes", ->
   model = BoundModel.new field: "value"
   options = ["notvalue", "value"]
-  [mocks, binding] = mock_binding(AS.Binding.Select, options: (options: options), model: model)
+  [mocks, binding] = mockBinding(AS.Binding.Select, options: (options: options), model: model)
 
   binding.container.find("select").val("notvalue")
   binding.container.find("select").trigger("change")

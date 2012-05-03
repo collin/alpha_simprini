@@ -3,13 +3,13 @@ minispade.require "jquery"
 minispade.require "jwerty"
 minispade.require "underscore"
 
-
 NS = window.NS = AS.Namespace.new("NS")
 # sinon = NS.sinon = require "sinon"
 # _ = NS._ = require "underscore"
 # $ = NS.$ = require "jquery"
 # NS.jwerty = require("jwerty").jwerty
 AS.part("Core").require("model/share")
+AS.require("client")
 # AS.suppress_logging()
 
 window.QUnit.testStart = ({module, name}) ->
@@ -32,7 +32,7 @@ BoundModel.hasOne "owner"
 SimpleModel = NS.SimpleModel = NS.SimpleModel = AS.Model.extend()
 SimpleModel.field "field"
 
-NS.mock_binding = (binding_class, _options={}) ->
+NS.mockBinding = (binding_class, _options={}) ->
   context = _options.context or AS.View.new()
   model = _options.model or BoundModel.new field: "value"
   field = _options.field or model["field"]

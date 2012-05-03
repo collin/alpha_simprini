@@ -131,8 +131,7 @@ AS.View = AS.DOM.extend ({delegate, include, def, defs}) ->
       @standardEvents = AS.ViewEvents.new(this, @events)
       @standardEvents.applyBindings()
 
-    stateEvents = _(@constructor::).chain().keys().filter (key) ->
-      _(key).endsWith("_events")
+    stateEvents = _(@constructor::).chain().keys().filter (key) -> key.match(/_events$/)?
     @stateEvents = {}
     for key in stateEvents.value()
       state = key.replace(/_events$/, '')

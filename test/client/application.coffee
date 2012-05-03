@@ -9,9 +9,10 @@ test "attaches global key handlers w/jwerty", ->
     "escape", "accept", "delete"
   ]
 
+  app = @app
   for event in events
     do (event) =>
-      @app.bind event, (_event) -> ok(_event)
+      app.bind event, (_event) -> ok(_event, "handled #{event}")
 
   triggers = [
     "esc", "cmd+enter", "backspace", "enter", "up", "down",
@@ -23,7 +24,6 @@ test "attaches global key handlers w/jwerty", ->
 
   for trigger in triggers
     jwerty.fire trigger, @el
-
 
 test "initializes views into the application context", ->
   app_panel = @app.view AS.Views.Panel, key: "value"

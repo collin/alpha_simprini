@@ -4,7 +4,21 @@
   <meta charset="UTF-8" />
   <title>QUnit Test Suite</title>
   <link rel="stylesheet" href="qunit/qunit.css" type="text/css" media="screen">
+  <!-- Load sinon first, as it tries clobber module from QUnit :( -->
+  <script type="text/javascript" src="sinon.js"></script>
+
   <script type="text/javascript" src="qunit/qunit.js"></script>
+
+
+  <script type="text/javascript">
+    // Freeze window.module so module loader scripts don't get the wrong idea.
+    if (Object.freeze) {
+      Object.freeze(window.module);
+    }
+  </script>
+
+  <script type="text/javascript" src="sinon-qunit.js"></script>
+
   <script type="text/javascript" src="../vendor/minispade.js"></script>
   <script type="text/javascript" src="../vendor/fleck.js"></script>
   <script type="text/javascript" src="../vendor/jquery.js"></script>

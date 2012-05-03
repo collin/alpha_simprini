@@ -1,3 +1,4 @@
+mockBinding = NS.mockBinding
 # exports.Binding =
 #  EditLine:
 #     setUp: (callback) ->
@@ -36,7 +37,7 @@
 #     #   expect 8
 #     #   EditLine = AS.Binding.EditLine.extend ({def}) ->
 #     #     def generate_operation: -> ok true
-#     #   [mocks, binding] = mock_binding(EditLine)
+#     #   [mocks, binding] = mockBinding(EditLine)
 #     #   mocks.binding.expects("applyChange").exactly(0)
 #     #   for event in ['textInput', 'keydown', 'keyup', 'select', 'cut', 'paste', 'click', 'focus']
 #     #     binding.content.trigger(event)
@@ -46,7 +47,7 @@
 #     #   model = SharedBoundModel.open()
 #     #   model.field("value")
 #     #   model.when_indexed =>
-#     #     [mocks, binding] = mock_binding(AS.Binding.EditLine, model: model)
+#     #     [mocks, binding] = mockBinding(AS.Binding.EditLine, model: model)
 #     #     binding.content[0].innerHTML += " change"
 #     #     binding.generate_operation()
 #     #     deepEqual model.share.get(), model.attributes_for_sharing()
@@ -55,7 +56,7 @@
 #     #   model = SharedBoundModel.open()
 #     #   model.field("value")
 #     #   model.when_indexed =>
-#     #     [mocks, binding] = mock_binding(AS.Binding.EditLine, model: model)
+#     #     [mocks, binding] = mockBinding(AS.Binding.EditLine, model: model)
 #     #     @remote model.share.at("field").insert(0, "remote "), model
 #     #     equal binding.content[0].innerHTML, "remote value"
 #     #     equal model.share.at("field").get(), "remote value"

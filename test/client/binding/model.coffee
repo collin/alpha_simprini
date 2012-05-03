@@ -1,14 +1,20 @@
 module "Binding.Model"
+
+BM = Pathology.Namespace.new("BindingModel")
+BM.Model = AS.Model.extend ({delegate, include, def, defs}) ->
+  @field 'field1'
+  @field 'field2'
+
 test "paints styles", ->
   context = AS.View.new()
   context_mock = sinon.mock context
   content = $("<div>")
   content_mock = sinon.mock content
-  model = AS.Model.new()
+  model = BM.Model.new()
   binding = AS.Binding.Model.new context, model, content
 
-  context_mock.expects('binds').withArgs(model, "change:field1")
-  context_mock.expects('binds').withArgs(model, "change:field2")
+  context_mock.expects('binds').withArgs(model, ["field1"])
+  context_mock.expects('binds').withArgs(model, ["field2"])
 
   binding.css
     "background-color":
@@ -31,6 +37,9 @@ test "paints styles", ->
     "background-color": "bgcolor"
 
   model.field1.trigger("change")
+  model.field2.trigger("change")
+
+  content_mock.verify()
 
 
 test "paints attributes", ->
@@ -38,11 +47,11 @@ test "paints attributes", ->
   context_mock = sinon.mock context
   content = $("<div>")
   content_mock = sinon.mock content
-  model = AS.Model.new()
+  model = BM.Model.new()
   binding = AS.Binding.Model.new context, model, content
 
-  context_mock.expects('binds').withArgs(model, "field1")
-  context_mock.expects('binds').withArgs(model, "field2")
+  context_mock.expects('binds').withArgs(model, ["field1"])
+  context_mock.expects('binds').withArgs(model, ["field2"])
 
   binding.attr
     "data-property":
@@ -65,5 +74,7 @@ test "paints attributes", ->
     "data-property": "value2"
 
   model.field2.trigger("change")
+  content_mock.verify()
+
 
   

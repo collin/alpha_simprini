@@ -94,7 +94,7 @@ def test_url(tests)
   url = "file://localhost#{File.dirname(__FILE__)}/test/index.html"
   files = Dir["tmp/test/**/*.js"]
   if tests == :all
-    files.reject!(/helper\.js/)
+    files.reject! {|file| file[/helper\.js/]}
   else
     files = Dir["tmp/test/**/*.js"]
     files = files.find_all do |test|
