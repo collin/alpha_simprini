@@ -2,6 +2,7 @@ abort "Use Ruby 1.9 to build Alpha Simprini" unless RUBY_VERSION["1.9"]
 
 require 'rake-pipeline'
 require 'colored'
+require 'github_uploader'
 
 def err(*args)
   STDERR.puts(*args)
@@ -52,12 +53,13 @@ desc "upload versions"
 task :upload => :test do
   load "./version.rb"
   uploader = GithubUploader.setup_uploader
-  GithubUploader.upload_file uploader, "Alpha Simprini-#{AS_VERSION}.js", "Alpha Simprini #{AS_VERSION}", "dist/Alpha Simprini.js"
-  GithubUploader.upload_file uploader, "Alpha Simprini-#{AS_VERSION}-spade.js", "Alpha Simprini #{AS_VERSION} (minispade)", "dist/Alpha Simprini-spade.js"
-  GithubUploader.upload_file uploader, "Alpha Simprini-#{AS_VERSION}.html", "Alpha Simprini #{AS_VERSION} (html_package)", "dist/Alpha Simprini.html"
+  # TODO: release a raw distribution
+  # GithubUploader.upload_file uploader, "Alpha Simprini-#{AS_VERSION}.js", "Alpha Simprini #{AS_VERSION}", "dist/alpha_simprini.js"
+  GithubUploader.upload_file uploader, "Alpha Simprini-#{AS_VERSION}-spade.js", "Alpha Simprini #{AS_VERSION} (minispade)", "dist/alpha_simprini-spade.js"
+  GithubUploader.upload_file uploader, "Alpha Simprini-#{AS_VERSION}.html", "Alpha Simprini #{AS_VERSION} (html_package)", "dist/alpha_simprini.html"
 
-  GithubUploader.upload_file uploader, 'Alpha Simprini-latest.js', "Current Alpha Simprini", "dist/Alpha Simprini.js"
-  GithubUploader.upload_file uploader, 'Alpha Simprini-latest-spade.js', "Current Alpha Simprini (minispade)", "dist/Alpha Simprini-spade.js"
+  # GithubUploader.upload_file uploader, 'Alpha Simprini-latest.js', "Current Alpha Simprini", "dist/alpha_simprini.js"
+  GithubUploader.upload_file uploader, 'Alpha Simprini-latest-spade.js', "Current Alpha Simprini (minispade)", "dist/alpha_simprini-spade.js"
 end
 
 desc "Create json document object"

@@ -7,3 +7,4 @@ tmp/
 lib/
 vendor/
 vendor/
+.github-upload-token
