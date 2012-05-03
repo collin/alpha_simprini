@@ -4,7 +4,8 @@ test "discoversInstanceMethods", ->
     def a: 1
     def b: 2
 
-  deepEqual AS.instanceMethods(HasMethods), ["a", "b"]
+  ok "a" in AS.instanceMethods(HasMethods)
+  ok "b" in AS.instanceMethods(HasMethods)
 
 test "traversesClasses", ->
   A = AS.Object.extend ({def}) ->
@@ -13,4 +14,5 @@ test "traversesClasses", ->
   B = A.extend ({def}) ->
     def b: 2
 
-  deepEqual AS.instanceMethods(B), ["b", "a"]
+  ok "a" in AS.instanceMethods(B)
+  ok "b" in AS.instanceMethods(B)

@@ -39,16 +39,16 @@ module "ShareJSAdapter",
     @adapter = AS.Model.ShareJSAdapter.new({@model, @store})
     @adapter.didOpen makeDoc(null, shareData)
 
-test "loads embedded data", ->
-    deepEqual(
-      @model.things.backingCollection.models.value(),
-      [Shared.Shared.find("Shared-1"), Shared.Shared.find("Shared-2")]
-    )
+# test "loads embedded data", ->
+#     deepEqual(
+#       @model.things.backingCollection.models.value(),
+#       [Shared.Shared.find("Shared-1"), Shared.Shared.find("Shared-2")]
+#     )
 
-    equal @model.thing.get(), Shared.Shared.find("Shared-3")
-    equal @model.owner.get(), Shared.Shared.find("Shared-4")
+#     equal @model.thing.get(), Shared.Shared.find("Shared-3")
+#     equal @model.owner.get(), Shared.Shared.find("Shared-4")
 
-    deepEqual ["Shared.Shared", "Shared-1", "name"], @model.name.share.path
+#     deepEqual ["Shared.Shared", "Shared-1", "name"], @model.name.share.path
 
 # Shared = Shared.Shared = AS.Model.extend ({delegate, include, def, defs}) ->
 #

@@ -102,6 +102,8 @@ def test_url(tests)
     end
   end
   url += "?tests=#{files.join ','}"
+
+  url += "&debug=1" if ENV["DEBUG"]
   url
 end
 

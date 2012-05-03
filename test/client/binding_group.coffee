@@ -8,48 +8,40 @@ test "has a unique namespace", ->
 
 
 test "binds to jquery objects", ->
+  expect 1
   bg = AS.BindingGroup.new()
 
-  object = jquery: true, bind: ->
-  mock = sinon.mock(object)
-  handler = ->
+  object = $("<target>")
 
-  mock.expects("bind").withArgs("event.#{bg.namespace}")
-  bg.binds object, "event", handler
+  bg.binds object, "event", -> ok(true)
 
-  mock.verify()
-
+  object.trigger("event")
 
 test "binds to AS.Event event model", ->
+  expect 4
+
   bg = AS.BindingGroup.new()
+  _handler = ->
+  object = bind: ({event, namespace, handler, context}) ->
+    equal event, "event"
+    equal namespace, bg.namespace
+    equal handler, _handler
+    equal context, object
 
-  object = bind: ->
-  mock = sinon.mock(object)
-  handler = ->
-  mock.expects("bind").withExactArgs
-      event: "event"
-      namespace: bg.namespace
-      handler: handler
-      context: object
-  bg.binds object, "event", handler, object
-  mock.verify()
-
+  bg.binds object, "event", _handler, object
 
 test "unbinds bound objects", ->
+  expect 1
   bg = AS.BindingGroup.new()
 
   object =
     bind: ->
-    unbind: ->
+    unbind: (namespace) ->
+      equal namespace,  "."+bg.namespace
 
-  mock = sinon.mock(object)
   handler = ->
-  mock.expects("unbind").withExactArgs("."+bg.namespace)
   bg.binds object, "event", handler, object
   bg.unbind()
-  mock.verify()
-
-
 
 test "unbinds bound objects in nested binding groups", ->
   parent = AS.BindingGroup.new()
@@ -57,13 +49,11 @@ test "unbinds bound objects in nested binding groups", ->
 
   object =
     bind: ->
-    unbind: ->
+    unbind: (namespace) ->
+      equal namespace, "."+child.namespace
 
-  mock = sinon.mock(object)
   handler = ->
-  mock.expects("unbind").withExactArgs("."+child.namespace)
   child.binds object, "event", handler, object
   parent.unbind()
-  mock.verify()
 
     

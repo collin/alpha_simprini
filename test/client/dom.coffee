@@ -16,8 +16,9 @@ test "creates document fragments", ->
 
 
 test "appends raw (scary html) content", ->
-  raw = AS.DOM.new().raw("<html>")
-  ok $(raw).find("html").is("html")
+  raw = AS.DOM.new().raw("<p>")
+  ok $(raw).find("p").is("p")
+  ok $(raw).is("span")
 
 test "appends escaped (non-scary html) content", ->
   raw = AS.DOM.new().span -> @text("<html>")

@@ -1,4 +1,8 @@
-Model = NS.Model = AS.Model.extend()
+{makeDoc} = NS
+
+F = Pathology.Namespace.new("Field")
+
+Model = F.Model = AS.Model.extend()
 Model.field "name"
 Model.field "band", default: "the Tijuana Brass"
 Model.field "number", type: Number
@@ -7,115 +11,102 @@ Model.field "enum", type: AS.Enum, values: ["zero", "one", "two"]
 Model.property "other"
 
 module "Field"
-  "is a property": (test) ->
-    o = Model.new()
-    test.equal "AlphaSimprini.Model.Field.Instance", o.name.constructor.path()
-    test.done()
+test "is a property", ->
+  o = Model.new()
+  equal "AlphaSimprini.Model.Field.Instance", o.name.constructor.path()
 
-  "is set when constructing a model": (test) ->
-    o = Model.new name: "Herb Alpert"
-    test.equal "Herb Alpert", o.name.get()
-    test.done()
+test "is set when constructing a model", ->
+  o = Model.new name: "Herb Alpert"
+  equal "Herb Alpert", o.name.get()
 
-  "may specify a default value for a field": (test) ->
-    o = Model.new()
-    test.equal "the Tijuana Brass", o.band.get()
-    test.done()
+test "may specify a default value for a field", ->
+  o = Model.new()
+  equal "the Tijuana Brass", o.band.get()
 
-  "default type is String": (test) ->
-    test.equal Model.properties.name.options.type, String
-    test.done()
+test "default type is String", ->
+  equal Model.properties.name.options.type, String
 
-  "number fields are cast as numbers": (test) ->
-    o = Model.new( number: "44.89" )
-    test.equal 44.89, o.number.get()
-    o.number.set "44"
-    test.equal 44, o.number.get()
-    test.done()
+test "number fields are cast as numbers", ->
+  o = Model.new( number: "44.89" )
+  equal 44.89, o.number.get()
+  o.number.set "44"
+  equal 44, o.number.get()
 
-  "boolean fields are cast as booleans": (test) ->
-    o = Model.new( boolean: "true" )
-    test.equal true, o.boolean.get()
-    o.boolean.set "false"
-    test.equal false, o.boolean.get()
-    test.done()
+test "boolean fields are cast as booleans", ->
+  o = Model.new( boolean: "true" )
+  equal true, o.boolean.get()
+  o.boolean.set "false"
+  equal false, o.boolean.get()
 
-  "change event triggers on model and field": (test) ->
-    test.expect 4
-    o = Model.new()
-    o.bind "change", -> test.ok true
-    o.bind "change:boolean", -> test.ok true
-    o.boolean.bind "change", -> test.ok true
-    o.boolean.set(true)
-    o.number.set 43
-    test.done()
+test "change event triggers on model and field", ->
+  expect 4
+  o = Model.new()
+  o.bind "change", -> ok true
+  o.bind "change:boolean", -> ok true
+  o.boolean.bind "change", -> ok true
+  o.boolean.set(true)
+  o.number.set 43
 
-  "Enum":
-    "reads enums": (test) ->
-      o = Model.new()
-      o.enum.value = 0
-      test.equal o.enum.get(), "zero"
-      test.done()
+module "Field.Enum"
+test "reads enums", ->
+  o = Model.new()
+  o.enum.value = 0
+  equal o.enum.get(), "zero"
 
-    "writes enums": (test) ->
-      o = Model.new()
-      o.enum.set("two")
-      test.equal 2, o.enum.value
-      test.done()
+test "writes enums", ->
+  o = Model.new()
+  o.enum.set("two")
+  equal 2, o.enum.value
 
-  "bindPath":
-    "may be used in path bindings": (test) ->
-      o = Model.new()
-      o.bindPath ['boolean'], -> test.done()
-      o.boolean.set(true)
+module "Field.bindPath"
+test "may be used in path bindings", ->
+  expect 1
+  o = Model.new()
+  o.bindPath ['boolean'], -> ok true
+  o.boolean.set(true)
 
-    "may be nested in path bindings": (test) ->
-      other = Model.new()
-      o = Model.new(other:other)
-      o.bindPath ['other', 'boolean'], -> test.done()
-      other.boolean.set(true)
+test "may be nested in path bindings", ->
+  expect 1
+  other = Model.new()
+  o = Model.new(other:other)
+  o.bindPath ['other', 'boolean'], -> ok true
+  other.boolean.set(true)
 
-  "Sharing":
-    "propagate share value to model on sync": (test) ->
-      o = Model.new()
-      share = makeDoc()
-      share.at().set name: "from share"
-      o.name.syncWith(share)
-      test.equal "from share", o.name.get()
-      test.done()
+module "Field.Sharing"
+  setup: ->
+    @o = Model.new()
+    @share = makeDoc(null, {})
+    @o.name.syncWith(@share)
 
-    "propagate field value to @share on sync": (test) ->
-      o = Model.new(name: "from model")
-      share = makeDoc()
-      share.at().set {}
-      o.name.syncWith(share)
-      test.equal "from model", share.at('name').get()
-      test.done()
+test "propagate share value to model on sync", ->
+  o = Model.new()
+  share = makeDoc()
+  share.at().set name: "from share"
+  o.name.syncWith(share)
+  equal "from share", o.name.get()
 
-    setUp: (callback) ->
-      @o = Model.new()
-      @share = makeDoc(null, {})
-      @o.name.syncWith(@share)
-      callback()
+test "propagate field value to @share on sync", ->
+  o = Model.new(name: "from model")
+  share = makeDoc()
+  share.at().set {}
+  o.name.syncWith(share)
+  equal "from model", share.at('name').get()
 
-    "field updates when share is set": (test) ->
-      @share.emit "remoteop", @share.at('name').set("SET VALUE")
-      test.equal "SET VALUE", @o.name.get()
-      test.done()
 
-    "share updates when field is set": (test) ->
-      @o.name.set("NOTIFIED")
-      test.equal "NOTIFIED", @share.at('name').get()
-      test.done()
+test "field updates when share is set", ->
+  @share.emit "remoteop", @share.at('name').set("SET VALUE")
+  equal "SET VALUE", @o.name.get()
 
-    "field updates on share insert": (test) ->
-      @o.name.set("abc")
-      @share.emit "remoteop", @share.at('name').insert(0, "123")
-      test.equal "123abc", @o.name.get()
-      test.done()
+test "share updates when field is set", ->
+  @o.name.set("NOTIFIED")
+  equal "NOTIFIED", @share.at('name').get()
 
-    "field updates on share delete": (test) ->
-      @o.name.set("Co123llin")
-      @share.emit "remoteop", @share.at('name').del(2, 3)
-      test.equal "Collin", @o.name.get()
-      test.done()
+test "field updates on share insert", ->
+  @o.name.set("abc")
+  @share.emit "remoteop", @share.at('name').insert(0, "123")
+  equal "123abc", @o.name.get()
+
+test "field updates on share delete", ->
+  @o.name.set("Co123llin")
+  @share.emit "remoteop", @share.at('name').del(2, 3)
+  equal "Collin", @o.name.get()

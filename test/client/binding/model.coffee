@@ -7,74 +7,43 @@ BM.Model = AS.Model.extend ({delegate, include, def, defs}) ->
 
 test "paints styles", ->
   context = AS.View.new()
-  context_mock = sinon.mock context
   content = $("<div>")
-  content_mock = sinon.mock content
   model = BM.Model.new()
   binding = AS.Binding.Model.new context, model, content
 
-  context_mock.expects('binds').withArgs(model, ["field1"])
-  context_mock.expects('binds').withArgs(model, ["field2"])
+  model.field1.set("rgb(34, 34, 34)")
 
   binding.css
-    "background-color":
-      fn: (model) -> model.bgcolor or "mock-color"
-      field: ["field1"]
+    "background-color": ["field1"]
 
-  binding.css
-    "background-color":
-      fn: (model) -> model.bgcolor or "mock-color"
-      field: ["field2"]
-
-  content_mock.expects("css").withExactArgs
-    "background-color": "mock-color"
 
   binding.paint()
+  equal content.css("background-color"), "rgb(34, 34, 34)"
 
-  model.bgcolor = "bgcolor"
-
-  content_mock.expects("css").withExactArgs
-    "background-color": "bgcolor"
-
-  model.field1.trigger("change")
-  model.field2.trigger("change")
-
-  content_mock.verify()
+  model.field1.set("rgb(0, 0, 0)")
+  equal content.css("background-color"), "rgb(0, 0, 0)"
 
 
 test "paints attributes", ->
   context = AS.View.new()
-  context_mock = sinon.mock context
   content = $("<div>")
-  content_mock = sinon.mock content
   model = BM.Model.new()
   binding = AS.Binding.Model.new context, model, content
-
-  context_mock.expects('binds').withArgs(model, ["field1"])
-  context_mock.expects('binds').withArgs(model, ["field2"])
-
   binding.attr
     "data-property":
       fn: (model) -> model.property or "mock-value"
       field: ["field1"]
 
-  binding.attr
-    "data-property":
-      fn: (model) -> model.property or "mock-value"
-      field: ["field2"]
-
-  content_mock.expects("attr").withExactArgs
-    "data-property": "mock-value"
 
   binding.paint()
+  equal content.data().property, "mock-value"
 
-  model.property = "value2"
+  binding.attr
+    "data-property2": ["field2"]
 
-  content_mock.expects("attr").withExactArgs
-    "data-property": "value2"
+  model.field2.set("value2")
 
-  model.field2.trigger("change")
-  content_mock.verify()
+  equal content.attr('data-property2'), "value2"
 
 
   

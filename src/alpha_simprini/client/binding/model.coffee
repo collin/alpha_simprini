@@ -8,14 +8,14 @@ AS.Binding.Model = AS.Object.extend ({def}) ->
       do (property, options) =>
         if _.isArray(options)
           @styles[property] = => @model.readPath(options)
-          painter = => _.defer =>
+          painter = =>
             value = @styles[property]()
             @content.css property, value
 
           @context.binds @model, options, painter, this
         else
           @styles[property] = => options.fn(@model)
-          painter = => _.defer => @content.css property, @styles[property]()
+          painter = => @content.css property, @styles[property]()
           @context.binds @model, options.field, painter, this
 
   def attr: (attrs) ->
@@ -31,7 +31,7 @@ AS.Binding.Model = AS.Object.extend ({def}) ->
               else
                 value
 
-            painter = => _.defer =>
+            painter = =>
               @content.attr property, @attrs[property]()
 
             bindingPath = options
@@ -41,9 +41,15 @@ AS.Binding.Model = AS.Object.extend ({def}) ->
               if options.fn
                 options.fn(@model)
               else
-                if @model[options.field].get() then "yes" else "no"
+                value = @model[options.field].get()
+                if value is true
+                  "yes"
+                else if vaule is false
+                  "no"
+                else
+                  value
 
-            painter = => _.defer =>
+            painter = =>
               @content.attr property, @attrs[property]()
 
             @context.binds @model, options.field, painter, this

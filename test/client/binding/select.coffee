@@ -40,7 +40,7 @@ test "sets value of dom when model value changes", ->
 
   model.field.set("notvalue")
 
-  equal binding.container.find("select").val()[0], "notvalue"
+  equal binding.container.find("select").val(), "notvalue"
 
 
 test "sets value on object when dom changes", ->
