@@ -9,14 +9,28 @@ AS.Application =  AS.Object.extend ({def, include}) ->
     _.extend(this, config)
     @params = AS.params
     @el ?= $("body")
-    @god_given_key_handlers()
+    @godGivenKeyHandlers()
     domready =>
       @boot()
+  # @::initialize.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
 
   def boot: ->
+  # @::boot.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
-  def god_given_key_handlers: ->
+  def godGivenKeyHandlers: ->
     handlers =
       '⎋': 'escape'
       '⌘+↩': 'accept'
@@ -39,13 +53,33 @@ AS.Application =  AS.Object.extend ({def, include}) ->
       jwerty.key key, ( (event) => @trigger(trigger, event) ), @el
 
     jwerty.key "backspace", (event) =>
-      event.preventDefault()
       @trigger("delete", event)
+  # @::godGivenKeyHandlers.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def view: (constructor, options={}) ->
     options.application = this
     constructor.new options
+  # @::view.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def append: (view) ->
     @el.append view.el
+  # @::append.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 

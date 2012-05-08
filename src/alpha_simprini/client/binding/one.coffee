@@ -1,6 +1,13 @@
 AS.Binding.One = AS.Binding.Field.extend ({delegate, include, def, defs}) ->
   def makeContent: ->
     AS.Binding.Container.new(@container[0])
+  # @::makeContent.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def setContent: ->
     @content.empty()
@@ -11,3 +18,10 @@ AS.Binding.One = AS.Binding.Field.extend ({delegate, include, def, defs}) ->
       @context.withinBindingGroup @bindingGroup, =>
         @context.withinNode @content, =>
           @fn.call(@context, value, AS.Binding.Model.new(@context, @model, @container))
+  # @::setContent.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """

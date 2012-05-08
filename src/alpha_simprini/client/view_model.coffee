@@ -40,24 +40,73 @@ AS.ViewModel = AS.Object.extend ({delegate, include, def, defs}) ->
     @model.bind("change:id", (=> @id = @model.id))
     for key, config of @model.constructor.properties
       @[key] = @model[key]
+  # @::initialize.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def binding: (field, options, fn) ->
     if _.isFunction(options)
       [fn, options] = [options, {}]
 
     @constructor.bindables[field].new(@view, @model, @model[field], options, fn)
+  # @::binding.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def input: (field, options) ->
     AS.Binding.Input.new(@view, @model, field, options)
+  # @::input.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def file: (field, options) ->
     AS.Binding.File.new(@view, @model, field, options)
+  # @::file.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def checkbox: (field, options) ->
     AS.Binding.CheckBox.new(@view, @model, field, options)
+  # @::checkbox.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def select: (field, options) ->
     AS.Binding.Select.new(@view, @model, field, options)
+  # @::select.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def editline: (field, options) ->
     AS.Binding.EditLine.new(@view, @model, field, options)
+  # @::editline.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """

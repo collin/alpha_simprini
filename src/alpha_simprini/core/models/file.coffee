@@ -117,7 +117,7 @@ AS.Models.File = AS.Model.extend ({delegate, include, def, defs}) ->
       data: formdata
       processData: false
       contentType: false
-      error: => require("alpha_simprini").error("POST /images failed", this)
+      error: => AS.error("POST /images failed", this)
       success: (data, status, xhr) =>
         @url.set xhr.getResponseHeader("Location")
         @trigger("uploaded")

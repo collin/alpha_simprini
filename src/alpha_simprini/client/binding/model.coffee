@@ -2,6 +2,13 @@ AS.Binding.Model = AS.Object.extend ({def}) ->
   def initialize: (@context, @model, @content=$([])) ->
     @styles = {}
     @attrs = {}
+  # @::initialize.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def css: (properties) ->
     for property, options of properties
@@ -17,6 +24,13 @@ AS.Binding.Model = AS.Object.extend ({def}) ->
           @styles[property] = => options.fn(@model)
           painter = => @content.css property, @styles[property]()
           @context.binds @model, options.field, painter, this
+  # @::css.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def attr: (attrs) ->
      for property, options of attrs
@@ -53,6 +67,13 @@ AS.Binding.Model = AS.Object.extend ({def}) ->
               @content.attr property, @attrs[property]()
 
             @context.binds @model, options.field, painter, this
+  # @::attr.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def paint: ->
     attrs = {}
@@ -63,5 +84,10 @@ AS.Binding.Model = AS.Object.extend ({def}) ->
 
     @content.attr attrs
     @content.css styles
-    @content.width @width_fn() if @width_fn
-    @content.height @height_fn() if @height_fn
+  # @::paint.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """

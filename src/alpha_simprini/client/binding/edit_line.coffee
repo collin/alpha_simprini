@@ -13,18 +13,39 @@ AS.Binding.EditLine = AS.Binding.extend ({def}) ->
 
     doc.del commonStart, oldval.length - commonStart - commonEnd unless oldval.length == commonStart + commonEnd
     doc.insert commonStart, newval[commonStart ... newval.length - commonEnd] unless newval.length == commonStart + commonEnd
+  # @::applyChange.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def transformInsertCursor = (text, position, cursor) ->
     if position < cursor
       cursor + text.length
     else
       cursor
+  # @::transformInsertCursor.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def transformDeleteCursor = (text, position, cursor) ->
     if position < cursor
       cursor - Math.min(text.length, cursor - position)
     else
       cursor
+  # @::transformDeleteCursor.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def initialize: ->
     @_super.apply(this, arguments)
@@ -42,17 +63,38 @@ AS.Binding.EditLine = AS.Binding.extend ({def}) ->
 
     for event in ['textInput', 'keydown', 'keyup', 'select', 'cut', 'paste', 'click', 'focus']
       @context.binds @content, event, @generateOperation, this
+  # @::initialize.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def updateUnlessFocused: (event) ->
     # Defer this because we want text input to feel fluid!
     _.defer ->
       return if @context.$(this.elem).closest(":focus")[0]
       @elem.innerHTML = @fieldValue()
+  # @::updateUnlessFocused.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def makeContent: ->
     @context.$ @context.span(@options)
+  # @::makeContent.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
-  def replace_text: (new_text="") ->
+  def replaceText: (new_text="") ->
     range = @rangy.createRange()
     selection = @rangy.getSelection()
 
@@ -64,18 +106,39 @@ AS.Binding.EditLine = AS.Binding.extend ({def}) ->
     range.setStart(selection.anchorNode || @elem.childNodes[0] || @elem, @selection.start)
     range.collapse(true)
     selection.setSingleRange(range)
+  # @::replaceText.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def insert: (model, position, text) ->
     @selection.start = transformInsertCursor(text, position, @selection.start)
     @selection.end = transformInsertCursor(text, position, @selection.end)
 
-    @replace_text @elem.innerHTML[...position] + text + @elem.innerHTML[position..]
+    @replaceText @elem.innerHTML[...position] + text + @elem.innerHTML[position..]
+  # @::insert.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def delete: (model, position, text) ->
     @selection.start = transformDeleteCursor(text, position, @selection.start)
     @selection.end = transformDeleteCursor(text, position, @selection.end)
 
-    @replace_text @elem.innerHTML[...position] + @elem.innerHTML[position + text.length..]
+    @replaceText @elem.innerHTML[...position] + @elem.innerHTML[position + text.length..]
+  # @::delete.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def generateOperation: ->
     selection = @rangy.getSelection()
@@ -91,3 +154,10 @@ AS.Binding.EditLine = AS.Binding.extend ({def}) ->
       # should only have unix newlines.
       @applyChange @model.share.at(@field), @model.share.at(@field).getText(), @elem.innerHTML.replace(/\r\n/g, '\n')
       @model[@field] @model.share.at(@field).getText(), remote: true
+  # @::generateOperation.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """

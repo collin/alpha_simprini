@@ -13,15 +13,36 @@ AS.Binding.Many = AS.Binding.extend ({def}) ->
     @context.binds @collection, "add", @insertItem, this
     @context.binds @collection, "remove", @removeItem, this
     @context.binds @collection, "change", @changeItem, this
+  # @::initialize.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def makeAll: ->
     @sortedModels().each _.bind @makeItemContent, this
+  # @::makeAll.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def sortedModels: ->
     if sortField = @options.order_by
       @collection.sortBy((item) -> item[sortField].get())
     else
       @collection
+  # @::sortedModels.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def skipItem: (item) ->
     return false unless @options.filter
@@ -32,6 +53,13 @@ AS.Binding.Many = AS.Binding.extend ({def}) ->
       return true unless _(expectedValue).include(valueOnItem)
 
     false
+  # @::skipItem.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def insertItem: (item) ->
     return if @skipItem(item)
@@ -50,8 +78,14 @@ AS.Binding.Many = AS.Binding.extend ({def}) ->
     else
       @context.$(siblings.get(index)).before(content)
 
-    debugger if window.DEBUG
     @sorting = @sortedModels()
+  # @::insertItem.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def removeItem: (item) ->
     if @contents[item.cid]
@@ -62,6 +96,13 @@ AS.Binding.Many = AS.Binding.extend ({def}) ->
       delete @bindingGroups[item.cid]
 
     @sorting = @sortedModels()
+  # @::removeItem.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def moveItem: (item) ->
     content = @contents[item.cid]
@@ -73,6 +114,13 @@ AS.Binding.Many = AS.Binding.extend ({def}) ->
       @context.$(siblings[newIndex]).after(content)
     else if newIndex < currentIndex
       @context.$(siblings[newIndex]).before(content)
+  # @::moveItem.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def changeItem: (item) ->
     if @options.order_by and @sorting.indexOf(item).value() isnt @sortedModels().indexOf(item).value()
@@ -83,6 +131,13 @@ AS.Binding.Many = AS.Binding.extend ({def}) ->
       @removeItem(item)
     else if @contents[item.cid] is undefined
       @insertItem(item)
+  # @::changeItem.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def makeItemContent: (item) ->
     return unless item
@@ -103,7 +158,21 @@ AS.Binding.Many = AS.Binding.extend ({def}) ->
 
     @contents[item.cid] = content
     return content
+  # @::makeItemContent.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def makeContent: ->
     AS.Binding.Container.new(@container[0])
+  # @::makeContent.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
     

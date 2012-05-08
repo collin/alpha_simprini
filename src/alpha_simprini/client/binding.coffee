@@ -16,23 +16,65 @@ AS.Binding = AS.Object.extend ({def}) ->
         @bindingGroup = bindingGroup
 
     @setup()
+  # @::initialize.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def makeContent: ->
     @context.$ []
+  # @::makeContent.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def willGroupBindings: ->
     @constructor.willGroupBindings or _.isFunction(@fn)
+  # @::willGroupBindings.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def fieldValue: ->
     if _.isArray(@field)
       @model.readPath(@field)
     else
       @field.get()
+  # @::fieldValue.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def require_option: (name) ->
     return unless @options[name] is undefined
     throw new AS.Binding.MissingOption("You must specify the #{name} option for #{@constructor.name} bindings.")
+  # @::requireOption.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def setup: ->
+  # @::setup.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
 class AS.Binding.MissingOption extends Error

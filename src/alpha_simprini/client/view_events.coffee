@@ -6,6 +6,13 @@ AS.ViewEvents = AS.Object.extend ({def}) ->
     @events = @unifyOptions(events)
     @validateOptions()
     @cacheHandlers()
+  # @::initialize.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def unifyOptions: (events) ->
     for key, options of events
@@ -20,6 +27,13 @@ AS.ViewEvents = AS.Object.extend ({def}) ->
 
 
     return events
+  # @::unifyOptions.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def validateOptions: ->
     for key, options of @events
@@ -45,6 +59,13 @@ AS.ViewEvents = AS.Object.extend ({def}) ->
         Specified method for event #{key} that is not a function.
         Specify only a function as a method for an event handler.
         """
+  # @::validateOptions.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def cacheHandlers: ->
     for key, options of @events
@@ -55,9 +76,23 @@ AS.ViewEvents = AS.Object.extend ({def}) ->
             options.method.apply(@view, arguments)
           else if options.transition
             @view.transitionState options.transition
+  # @::cacheHandlers.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def revokeBindings: ->
     @revokeBinding(options) for key, options of @events
+  # @::revokeBindings.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def revokeBinding: (options) ->
     [selector, eventName] = [options.selector, options.eventName]
@@ -71,9 +106,23 @@ AS.ViewEvents = AS.Object.extend ({def}) ->
       target = @view.$(selector, @view.el[0])
       target.off @namespace
       target.click() # bug with drag/drop allows for one last drag after revoking bindings :(
+  # @::revokeBinding.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def applyBindings: ->
     @applyBinding(options) for key, options of @events
+  # @::applyBindings.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def applyBinding: (options) ->
     [selector, eventName, handler] = [options.selector, options.eventName, options.handler]
@@ -92,3 +141,10 @@ AS.ViewEvents = AS.Object.extend ({def}) ->
     else
       selector = selector.replace /\$/g, "#"+@view.el.attr('id')
       @view.el.delegate selector, eventName, handler
+  # @::applyBinding.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """

@@ -27,4 +27,12 @@ test "unchecking the box sets the field to false", ->
   [mocks, binding] = mockBinding(AS.Binding.CheckBox, model: model, field: model.maybe)
   binding.content.click().trigger("change")
   equal model.maybe.get(), false
-  
+
+test "setting the model value checks/unchecks the box", ->
+  model = BoundModel.new maybe: true
+  [mocks, binding] = mockBinding(AS.Binding.CheckBox, model: model, field: model.maybe)
+  equal binding.content.parent().find(":checked").length, 1, 'starts out checked'
+  model.maybe.set false
+  equal binding.content.parent().find(":checked").length, 0, 'unchecks properly'
+  model.maybe.set true
+  equal binding.content.parent().find(":checked").length, 1, 'rechecks properly'

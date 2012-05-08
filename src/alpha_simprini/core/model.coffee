@@ -2,6 +2,8 @@
 
 AS.All = byCid: {}, byId: {}, byIdRef: {}
 
+makeIdRef = (id, constructor) -> "#{id}-#{constructor.path()}"
+
 AS.Model = AS.Object.extend ({delegate, include, def, defs}) ->
   include Taxi.Mixin
   include AS.Callbacks
@@ -15,7 +17,8 @@ AS.Model = AS.Object.extend ({delegate, include, def, defs}) ->
     ]
 
   defs find: (id) ->
-    AS.All.byId[id] or @new(id:id)
+    idRef = makeIdRef(id, this)
+    AS.All.byIdRef[idRef] or @new(id:id)
   # @find.doc =
   #   params: [
   #     ["id", String, true]
@@ -69,7 +72,7 @@ AS.Model = AS.Object.extend ({delegate, include, def, defs}) ->
       delete AS.All.byIdRef["#{@id}-#{@constructor.path()}"]
 
     @id = id
-    @idRef = "#{@id}-#{@constructor.path()}"
+    @idRef = makeIdRef(@id, @constructor)
 
     # NEVER CHANGE THE CID
     @cid ?= @idRef or uniqueId("c")

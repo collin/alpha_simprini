@@ -4,7 +4,7 @@ require "json"
 
 output "dist"
 input "lib" do
-  match "/**/*.js" do
+  match "**/*.js" do
     minispade rewrite_requires: true, string: true, module_id_generator: proc { |input|
      id = input.path.dup
       id.sub!('/lib/', '/')
@@ -17,22 +17,9 @@ input "lib" do
   end
 end
 
-# TODO: include a raw distribution
-# input "lib", "**/*.js" do
-#   neuter { "alpha_simprini.js" }
-# end
-
 input "./", "alpha_simprini.erb" do
   require "./version"
   filter(Rake::Pipeline::Web::Filters::TiltFilter, {}, Object) do |input|
     "alpha_simprini.html"
   end
 end
-
-
-# output "dist/test"
-# input "tmp/test" do
-#   match "**/*.js" do
-#     neuter
-#   end
-# end

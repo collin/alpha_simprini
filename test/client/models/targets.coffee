@@ -56,7 +56,7 @@ test "dropend triggers dropend event", ->
 test "dropstart triggers dropstart event if current hit has a rect", ->
     targets = NS.SomeTargets.new()
     hit = rect: true
-    targets.current_hit = hit
+    targets.currentHit = hit
     expect 1
     targets.bind "dropstart", (thehit) -> equal hit, thehit
     targets.dropstart()
@@ -71,7 +71,7 @@ test "dragend calls drop and triggers drop if current hit has a rect", ->
     targets = NS.SomeTargets.new()
     hit = rect: true
     data = new Object
-    targets.current_hit = hit
+    targets.currentHit = hit
     expect 2
     targets.bind "drop", (thehit) -> equal hit, thehit
     targets.drop = (thedata) -> equal thedata, data
@@ -89,28 +89,28 @@ test "noop if hit has no rect", ->
       targets = NS.SomeTargets.new()
       targets.dropend = -> ok true
       expect 0
-      targets.transition_hit {}
+      targets.transitionHit {}
 
 test "noop if currenth hit equals hit", ->
       targets = NS.SomeTargets.new()
-      targets.current_hit = equals: -> true
+      targets.currentHit = equals: -> true
       targets.dropend = -> ok true
       expect 0
-      targets.transition_hit {}
+      targets.transitionHit {}
 
 test "transitions if current hit does not equal hit", ->
       targets = NS.SomeTargets.new()
-      targets.current_hit = equals: -> false
+      targets.currentHit = equals: -> false
       hit = rect: true
       expect 2
       targets.dropend = ->
-        ok targets.current_hit isnt hit
+        ok targets.currentHit isnt hit
       targets.dropstart = ->
-        ok targets.current_hit is hit
-      targets.transition_hit hit
+        ok targets.currentHit is hit
+      targets.transitionHit hit
 
 
-target_event = (x, y) ->
+targetEvent = (x, y) ->
   return {
       "jquery/event": originalEvent:
         clientX: x
@@ -127,11 +127,11 @@ setupEdgeTargets = ->
     rect: @rect
   ]
 
-module "Targets.Edge.vertical_target",
+module "Targets.Edge.verticalTarget",
   setup: ->
     setupEdgeTargets.call(this)
     @check = (x, y) =>
-      @targets.vertical_target target_event(x, y)
+      @targets.verticalTarget targetEvent(x, y)
 
 test "misses when not inside box", ->
       equal null, @check(-1, -1), "before"
@@ -150,11 +150,11 @@ test "hits TOP/BOTTOM", ->
       hit = @check(0, 50)
       equal hit.section, hit.BOTTOM
 
-module "Targets.Edge.horizontal_target",
+module "Targets.Edge.horizontalTarget",
   setup: ->
     setupEdgeTargets.call(this)
     @check = (x, y) =>
-      @targets.horizontal_target target_event(x, y)
+      @targets.horizontalTarget targetEvent(x, y)
 
 test "misses when not inside box", ->
   equal null, @check(-1, -1), "before"
@@ -185,7 +185,7 @@ module "Targets.Thirds",
     ]
 
     @check = (x, y) =>
-      @targets.target target_event(x, y)
+      @targets.target targetEvent(x, y)
 
 test "misses when not inside vertically", ->
     equal null, @check(0, -1), "before"

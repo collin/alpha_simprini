@@ -2,6 +2,13 @@ AS.Binding.Select = AS.Binding.Input.extend ({def}) ->
   def initialize: ->
     @_super.apply(this, arguments)
     @require_option "options"
+  # @::initialize.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def makeContent: ->
     @select?.remove()
@@ -13,17 +20,22 @@ AS.Binding.Select = AS.Binding.Input.extend ({def}) ->
       else
         for key, value of options
           @option value: value, -> key
+  # @::makeContent.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def setContent: () ->
     fieldValue = @fieldValue()
     fieldValue = fieldValue.id if fieldValue?.id
     @content.val fieldValue
-
-  def setField: ->
-    value = @select.val()
-    value = if _.isArray value then value[0] else value
-
-    if _.isArray @field
-      @model.writePath @field, value
-    else
-      @field.set value
+  # @::setCantent.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """

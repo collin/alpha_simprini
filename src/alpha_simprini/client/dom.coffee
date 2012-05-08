@@ -32,17 +32,45 @@ AS.DOM = AS.Object.extend ({delegate, include, def, defs}) ->
     # TODO: DOUBLE EXPRESS VERIFY THIS ASSUMPTION AND PASTE
     #   LINKS TO SUPPORTING EVIDENCE IN THE CODE.
     @currentNode.appendChild document.createTextNode(textContent)
+  # @::text.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def raw: (html) ->
     @$(@span()).html(html)
+  # @::raw.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def tag: (name, attrs, content) ->
     node = document.createElement(name)
     return @_tag node, attrs, content
+  # @::tag.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def svgTag: (name, attrs, content) ->
     node = document.createElementNS(SVG.ns, name)
     return @_tag node, attrs, content
+  # @::svgTag.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def _tag: (node, attrs, content) ->
     @currentNode ?= document.createDocumentFragment()
@@ -70,6 +98,13 @@ AS.DOM = AS.Object.extend ({delegate, include, def, defs}) ->
         @text(last) if _.isString(last)
 
     return node
+  # @::_tag.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def withinNode: (node, fn) ->
     node = node[0] if node?.jquery
@@ -78,8 +113,22 @@ AS.DOM = AS.Object.extend ({delegate, include, def, defs}) ->
     content = fn.call(this)
     @currentNode = priorNode
     content
+  # @::withinNode.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def danglingContent: (fn) -> @withinNode(null, fn)
+  # @::danglingContent.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
 DOM_ELEMENTS.each (element) ->
   AS.DOM::[element] = -> @tag.apply this, _(arguments).unshift(element)

@@ -17,6 +17,14 @@ AS.View = AS.DOM.extend ({delegate, include, def, defs}) ->
     baseAttributes["id"] = undefined if @el.attr("id")
     @el.attr(baseAttributes)
     @el.data().view = this
+  # @::_ensureElement.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
+
 
   def initialize: (config={}) ->
     config.el = @$(config.el) if config.el and !(config.el.jquery)
@@ -40,11 +48,32 @@ AS.View = AS.DOM.extend ({delegate, include, def, defs}) ->
     @delegateEvents()
     @bindAttrs()
     @runCallbacks "afterContent"
+  # @::initialize.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def content: ->
     # Make your content here.
+  # @::content.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def append: (view) -> @el.append view.el
+  # @::append.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def processAttr: (node, key, value) ->
   #   if value instanceof Function
@@ -55,9 +84,23 @@ AS.View = AS.DOM.extend ({delegate, include, def, defs}) ->
   #     #   false
   #   else
     node.setAttribute(key, value)
+  # @::processAttr.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def groupBindings: (fn) ->
     @withinBindingGroup @bindingGroup.addChild(), fn
+  # @::groupBindings.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def withinBindingGroup: (bindingGroup, fn) ->
     currentGroup = @bindingGroup
@@ -65,8 +108,22 @@ AS.View = AS.DOM.extend ({delegate, include, def, defs}) ->
     content = fn.call(this, bindingGroup)
     @bindingGroup = currentGroup
     content
+  # @::withinBindingGroup.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def binds: -> @bindingGroup.binds.apply(@bindingGroup, arguments)
+  # @::binds.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def klassString: ->
     classes = []
@@ -75,14 +132,35 @@ AS.View = AS.DOM.extend ({delegate, include, def, defs}) ->
       classes.push ancestor._name()
 
     classes.join(" ")
+  # @::klassString.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def baseAttributes: ->
     attrs =
       class: @klassString()
       id: @objectId()
+  # @::baseAttributes.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def buildElement: ->
     @currentNode = @[@tagName]()
+  # @::buildElement.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def view: (constructor, options={}) ->
     options.application = @application
@@ -92,6 +170,13 @@ AS.View = AS.DOM.extend ({delegate, include, def, defs}) ->
     @bindingGroup.addChild(view)
     @currentNode?.appendChild view.el[0]
     view.el[0]
+  # @::view.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def descendantViews: (views=[], constructor) ->
     for view in @childViews
@@ -102,29 +187,71 @@ AS.View = AS.DOM.extend ({delegate, include, def, defs}) ->
       view.descendantViews(views, constructor)
 
     views
+  # @::descendantViews.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def removeChild: (child) ->
     @childViews = _.without(@childViews, child)
+  # @::removeChild.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   # DO NOT OVERRIDE #unbind
+  # find out why, AND MENTION IT HERE
+  # because ANY event unbinding will remove the child view
   def unbind: ->
     # AS.warn("Do not OVERRIDE View.unbind")
     @_super.apply(this, arguments)
-  #   @parentView?.removeChild(this)
-  #   @el.remove()
+  # @::unbind.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def binding: (bindable, options, fnOrElement) ->
     if bindable instanceof AS.Collection or bindable instanceof AS.Model.HasMany.Instance
       AS.Binding.Many.new(this, bindable, bindable, options, fnOrElement)
     else if bindable instanceof AS.Model
       AS.Binding.Model.new(this, bindable, options or fnOrElement)
+  # @::binding.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def modelBinding: ->
     @_modelBinding ?= AS.Binding.Model.new(this, @model, @el)
+  # @::modelBinding.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def bindAttrs: ->
     return unless @attrBindings
     @modelBinding().attr @attrBindings
+  # @::bindAttrs.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def delegateEvents: () ->
     if @events
@@ -145,6 +272,13 @@ AS.View = AS.DOM.extend ({delegate, include, def, defs}) ->
         @["enter_#{state}"] = ->
           @trigger("enterstate:#{state}")
           @stateEvents[state].applyBindings()
+  # @::delegateEvents.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   # TODO: put these into modules or something.
   def pluralize: (thing, count) ->
@@ -153,34 +287,45 @@ AS.View = AS.DOM.extend ({delegate, include, def, defs}) ->
     else
       fleck.pluralize(thing)
 
-  def reset_cycle: (args...) ->
+  # @::pluralize.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
+
+  def resetCycle: (args...) ->
     delete @_cycles[args.join()] if @_cycles
+  # @::resetCycle.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def cycle: (args...) ->
     @_cycles ?= {}
     @_cycles[args.join()] ?= 0
     count = @_cycles[args.join()] += 1
     args[count % args.length]
+  # @::cycle.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 
   def toggle: ->
     @button class:"toggle expand"
     @button class:"toggle collapse"
-
-  def field: (_label, options = {}, fn = ->) ->
-    if _.isFunction options
-      fn = options
-      options = {}
-
-    @div ->
-      @label _label
-      @input(options)
-      fn?.call(this)
-
-  def choice: (_label, options = {}, fn = ->) ->
-    if _.isFunction options
-      fn = options
-      options = {}
-    options.type = "checkbox"
-
-    @field _label, options, fn
+  # @::toggle.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
 

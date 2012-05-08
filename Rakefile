@@ -55,11 +55,11 @@ task :upload => :test do
   uploader = GithubUploader.setup_uploader
   # TODO: release a raw distribution
   # GithubUploader.upload_file uploader, "Alpha Simprini-#{AS_VERSION}.js", "Alpha Simprini #{AS_VERSION}", "dist/alpha_simprini.js"
-  GithubUploader.upload_file uploader, "Alpha Simprini-#{AS_VERSION}-spade.js", "Alpha Simprini #{AS_VERSION} (minispade)", "dist/alpha_simprini-spade.js"
-  GithubUploader.upload_file uploader, "Alpha Simprini-#{AS_VERSION}.html", "Alpha Simprini #{AS_VERSION} (html_package)", "dist/alpha_simprini.html"
+  GithubUploader.upload_file uploader, "alpha_simprini-#{AS_VERSION}-spade.js", "Alpha Simprini #{AS_VERSION} (minispade)", "dist/alpha_simprini-spade.js"
+  GithubUploader.upload_file uploader, "alpha_simprini-#{AS_VERSION}.html", "Alpha Simprini #{AS_VERSION} (html_package)", "dist/alpha_simprini.html"
 
   # GithubUploader.upload_file uploader, 'Alpha Simprini-latest.js', "Current Alpha Simprini", "dist/alpha_simprini.js"
-  GithubUploader.upload_file uploader, 'Alpha Simprini-latest-spade.js', "Current Alpha Simprini (minispade)", "dist/alpha_simprini-spade.js"
+  GithubUploader.upload_file uploader, 'alpha_simprini-latest-spade.js', "Current Alpha Simprini (minispade)", "dist/alpha_simprini-spade.js"
 end
 
 desc "Create json document object"
