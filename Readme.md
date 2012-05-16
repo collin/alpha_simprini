@@ -108,39 +108,38 @@ Todo.Application = AS.Application.extend
 
 ```
 
-Now you're off to the races
+## dependencies
 
-## Serving Assets/Packages
-### This is mostly terrible and will be replaced with a [bpm](https://github.com/bpm/bpm) based solution
+You can get a package of dependencies with <a href="https://github.com/collin/html_package"> html_package </a>.
 
-AlphaSimprini currently uses [module_loader](https://github.com/collin/module_loader) to server node modules
-and provide an implementation of 'require' in the browser.
+```sh
+curl http://spader.herokuapp.com/minispade.js > vendor/minispade.js
+gem install html_package
+hip install \
+    --file="http://cloud.github.com/downloads/collin/alpha_simprini/alpha_simprini-0.5.0.html" \ 
+    --out="vendor/alpha_simprini"
+```
 
-module_loader requires a node server and can be set-up like this:
+## minispade
+
+The best supported use of Alpha Simprini is through minispade.
+The javascript files downloaded by `hip install` are pre-wrapped in minispade
+
+A copy of minispade can be downloaded here, or from <a href="https://github.com/wycats/minispade/blob/master/lib/main.js">Github</a>.
+```sh
+curl http://spader.herokuapp.com/minispade.js > vendor/minispade.js
+```
+
+Get all those files into your application,
+for example, with the Rails asset pipeline:
 
 ```coffee
-pathname = require("path")
-ModuleLoader = require("../lib/module_loader")
+#= require 'vendor/minispade'
+#= require_dir 'vendor/alpha_simprini'
 
-# see https://github.com/collin/module_loader for complete
-# configuration options (including specifying your own http server)
-new ModuleLoader 
-  module_root: pathname.resolve("./node_modules")
-  packages: ["underscore", "underscore.string", "project"]
+minispade.require 'alpha_simprini'
 ```
 
-To include your project, you must specify a package.json and install that package. If your project was called
-'project' you could use npm like so in development.
+Now you're off to the races.
 
-```
-npm link project && npm link
-```
 
-Then in your application:
-
-```html
-<script src="//localhost:2334/node_modules.js"></script>
-<script> 
-  require("project").boot()
-</script>
-```
