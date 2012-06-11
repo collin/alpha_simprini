@@ -4,6 +4,10 @@ require 'rake-pipeline'
 require 'colored'
 require 'github_uploader'
 
+def done
+  puts "Done".green
+end
+
 def err(*args)
   STDERR.puts(*args)
 end
@@ -26,19 +30,23 @@ task :strip_whitespace do
   end
 end
 
-desc "Compile CoffeeScript"
-task :coffeescript => :clean do
+desc "Compile CoffeeScript..."
+task :coffeescript do
   puts "Compiling CoffeeScript"
   `coffee -co lib/ src/`
   `coffee -co tmp/test test/`
-  puts "Done"
+  done
+end
+
+desc "Build Alpha Simprini Distribution"
+task :dist => [:coffeescript, :build] do
 end
 
 desc "Build Alpha Simprini"
-task :dist => [:coffeescript, :strip_whitespace] do
+task :build do
   puts "Building Alpha Simprini..."
   build.invoke
-  puts "Done"
+  done
 end
 
 desc "Clean build artifacts from previous builds"
@@ -46,7 +54,7 @@ task :clean do
   puts "Cleaning build..."
   `rm -rf ./lib/*`
   build.clean
-  puts "Done"
+  done
 end
 
 desc "upload versions"
@@ -140,7 +148,7 @@ task :test, [:tests] => [:phantomjs, :dist, :vendor] do |t, args|
 end
 
 desc "tag/upload release"
-task :release, [:version] => :test do |t, args|
+task :release, [:version] => [:clean, :test] do |t, args|
   unless args[:version] and args[:version].match(/^[\d]+\.[\d]+\.[\d].*$/)
     raise "SPECIFY A VERSION curent version: #{AS_VERSION}"
   end
