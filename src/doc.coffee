@@ -21,23 +21,31 @@ jQuery ->
     classes.append """
       <a href="##{klass.path()}">#{klass.path()}</a>
     """
+    for name in klass.instanceMethods or []
+      continue unless klass.instanceMethod(name).definedOn is klass.path()
+      classes.append """
+        <a href="##{klass.path()}.instanceMethod.#{name}">##{name}</a>
+      """
 
     classArticle = -> article id: @klass.path(), ->
       h1 @klass.path()
 
       h2 "Ancestors"
       nav class:'ancestors', ->
-        for ancestor, index in @klass.ancestors
+        for ancestor in @klass.ancestors[..-2]
           continue if ancestor is @klass
           a href:"##{ancestor.path()}", -> ancestor.path()
-          text " < " unless index is @klass.ancestors.length - 1
+          text " < "
+
+        for ancestor, index in @klass.ancestors[-1..]
+          a href:"##{ancestor.path()}", -> ancestor.path()
 
 
       h2 "Class Methods"
       ul ->
         for name in @klass.classMethods or []
           continue unless method = @klass.classMethod(name)
-          continue unless method.definedOn is @klass.path()
+          # continue unless method.definedOn is @klass.path()
           li id: @klass.path() + ".classMethod." + name, ->
             h1 method.name
             span class:"private", -> "private api" if method.private
@@ -49,7 +57,7 @@ jQuery ->
       ul ->
         for name in @klass.instanceMethods or []
           continue unless method = @klass.instanceMethod(name)
-          continue unless method.definedOn is @klass.path()
+          # continue unless method.definedOn is @klass.path()
           li id: @klass.path() + ".instanceMethod." + name, ->
             h1 method.name
             span class:"private", -> "private api" if method.private

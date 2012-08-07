@@ -15,14 +15,51 @@
   <script type="text/javascript" src="doc.js"></script>
   <link rel="stylesheet" type="text/css" href="docco.css">
   <style type="text/css">
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: Helvetica;
+    }
+
+    #classes {
+      width: 300px;
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      overflow: scroll;
+      background-color: #dedede;
+    }
+
     #classes a {
       display: block;
     }
 
+    #classdocs {
+      position: absolute;
+      top: 0;
+      left: 300px;
+      right: 0;
+      bottom: 0;
+      overflow: scroll;
+      margin-left: 50px;
+    }
+
+    #search {
+      padding: 10px;
+    }
+  
+    #search input {
+      width: 100%;
+    }
   </style>
 </head>
 <body>
   <nav id="classes">
+    <section id="search">
+      <input type="search" placeholder="Filter">
+    </section>
   </nav>
 
   <section id="classdocs">

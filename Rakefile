@@ -72,7 +72,7 @@ end
 
 desc "Create json document object"
 task :doc do
-  puts "Building Alpha Simprini Docs"
+  puts "Building Alpha Simprini Docs".blue
   doc_build.invoke
   done
 end

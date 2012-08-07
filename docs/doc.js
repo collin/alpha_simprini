@@ -29,8 +29,14 @@
     classes = $("#classes");
     classdocs = $("#classdocs");
     each([Pathology.Object].concat(Pathology.Object.descendants), function(klass) {
-      var classArticle;
+      var classArticle, name, _i, _len, _ref;
       classes.append("<a href=\"#" + (klass.path()) + "\">" + (klass.path()) + "</a>");
+      _ref = klass.instanceMethods || [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        name = _ref[_i];
+        if (klass.instanceMethod(name).definedOn !== klass.path()) continue;
+        classes.append("<a href=\"#" + (klass.path()) + ".instanceMethod." + name + "\">#" + name + "</a>");
+      }
       classArticle = function() {
         return article({
           id: this.klass.path()
@@ -40,34 +46,38 @@
           nav({
             "class": 'ancestors'
           }, function() {
-            var ancestor, index, _len, _ref, _results;
-            _ref = this.klass.ancestors;
-            _results = [];
-            for (index = 0, _len = _ref.length; index < _len; index++) {
-              ancestor = _ref[index];
+            var ancestor, index, _j, _len2, _len3, _ref2, _ref3, _results;
+            _ref2 = this.klass.ancestors.slice(0, -1);
+            for (_j = 0, _len2 = _ref2.length; _j < _len2; _j++) {
+              ancestor = _ref2[_j];
               if (ancestor === this.klass) continue;
               a({
                 href: "#" + (ancestor.path())
               }, function() {
                 return ancestor.path();
               });
-              if (index !== this.klass.ancestors.length - 1) {
-                _results.push(text(" < "));
-              } else {
-                _results.push(void 0);
-              }
+              text(" < ");
+            }
+            _ref3 = this.klass.ancestors.slice(-1);
+            _results = [];
+            for (index = 0, _len3 = _ref3.length; index < _len3; index++) {
+              ancestor = _ref3[index];
+              _results.push(a({
+                href: "#" + (ancestor.path())
+              }, function() {
+                return ancestor.path();
+              }));
             }
             return _results;
           });
           h2("Class Methods");
           ul(function() {
-            var method, name, _i, _len, _ref, _results;
-            _ref = this.klass.classMethods || [];
+            var method, name, _j, _len2, _ref2, _results;
+            _ref2 = this.klass.classMethods || [];
             _results = [];
-            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-              name = _ref[_i];
+            for (_j = 0, _len2 = _ref2.length; _j < _len2; _j++) {
+              name = _ref2[_j];
               if (!(method = this.klass.classMethod(name))) continue;
-              if (method.definedOn !== this.klass.path()) continue;
               _results.push(li({
                 id: this.klass.path() + ".classMethod." + name
               }, function() {
@@ -89,13 +99,12 @@
           });
           h2("Instance Methods");
           return ul(function() {
-            var method, name, _i, _len, _ref, _results;
-            _ref = this.klass.instanceMethods || [];
+            var method, name, _j, _len2, _ref2, _results;
+            _ref2 = this.klass.instanceMethods || [];
             _results = [];
-            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-              name = _ref[_i];
+            for (_j = 0, _len2 = _ref2.length; _j < _len2; _j++) {
+              name = _ref2[_j];
               if (!(method = this.klass.instanceMethod(name))) continue;
-              if (method.definedOn !== this.klass.path()) continue;
               _results.push(li({
                 id: this.klass.path() + ".instanceMethod." + name
               }, function() {
