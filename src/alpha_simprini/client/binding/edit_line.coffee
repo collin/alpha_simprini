@@ -23,7 +23,7 @@ AS.Binding.EditLine = AS.Binding.extend ({def}) ->
   #
   #   """
 
-  def transformInsertCursor = (text, position, cursor) ->
+  def transformInsertCursor: (text, position, cursor) ->
     if position < cursor
       cursor + text.length
     else
@@ -36,7 +36,7 @@ AS.Binding.EditLine = AS.Binding.extend ({def}) ->
   #
   #   """
 
-  def transformDeleteCursor = (text, position, cursor) ->
+  def transformDeleteCursor: (text, position, cursor) ->
     if position < cursor
       cursor - Math.min(text.length, cursor - position)
     else

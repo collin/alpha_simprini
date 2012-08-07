@@ -62,7 +62,7 @@ AS.FilteredCollection = AS.Collection.extend ({delegate, include, def, defs}) ->
     @_add(model)
   # @::addToSelf.doc =
   #   params: [
-  #     [model, AS.Model, true]
+  #     ["model", AS.Model, true]
   #   ]
   #   desc: """
   #
@@ -73,7 +73,7 @@ AS.FilteredCollection = AS.Collection.extend ({delegate, include, def, defs}) ->
     @_remove(model)
   # @::removeFromSelf.doc =
   #   params: [
-  #     [model, AS.Modle, true]
+  #     ["model", AS.Modle, true]
   #   ]
   #   desc: """
   #

@@ -27,7 +27,7 @@ AS.Model.HasMany.Instance = AS.Model.Field.Instance.extend ({def, delegate}) ->
   # @::initialize.doc =
   #   params: [
   #     ["@object", AS.Model, true]
-  #     ["@options", Obect, false, default: {}]
+  #     ["@options", Object, false, default: {}]
   #   ]
   #   desc: """
   #
@@ -135,7 +135,7 @@ AS.Model.HasMany.Instance = AS.Model.Field.Instance.extend ({def, delegate}) ->
 
   def pluck: (key) ->
     @map (item) -> item[key].get()
-  # @::pluc.doc =
+  # @::pluck.doc =
   #   params: [
   #     ["key", String, true]
   #   ]

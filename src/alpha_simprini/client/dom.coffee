@@ -137,7 +137,15 @@ AS.DOM = AS.Object.extend ({delegate, include, def, defs}) ->
   #   """
 
 DOM_ELEMENTS.each (element) ->
-  AS.DOM::[element] = -> @tag.apply this, _(arguments).unshift(element)
+  definition = {}
+  definition[element] = -> @tag.apply this, _(arguments).unshift(element)
+  AS.DOM.def definition
+  # AS.DOM::[element].doc = 
+  #   params: [
+  #   ]
+  #   desc: """
+  #     HTML <#{element}> element.
+  #   """
 
 SVG_ELEMENTS.each (element) ->
   # Be wary of conflicts with regular HTML elements
@@ -146,5 +154,14 @@ SVG_ELEMENTS.each (element) ->
   if htmlSvgConflict or methodConflict
     safeElement = "svg_#{element}"
 
-  AS.DOM::[safeElement or element] = -> @svgTag.apply this, _(arguments).unshift(element)
+  definition = {}
+  definition[safeElement or element] = -> @svgTag.apply this, _(arguments).unshift(element)
+  AS.DOM.def definition
+  # AS.DOM::[safeElement or element].doc = 
+  #   params: [
+  #   ]
+  #   desc: """
+  #     SVG <#{element}> element.
+  #   """
+
 

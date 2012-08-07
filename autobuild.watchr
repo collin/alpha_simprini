@@ -28,6 +28,9 @@ load File.expand_path("./Rakefile")
 def build
   Rake::Task["build"].reenable
   Rake::Task["build"].invoke
+
+  Rake::Task["doc"].reenable
+  Rake::Task["doc"].invoke
 end
 
 watch "(test)(/.*)+.coffee" do |match|

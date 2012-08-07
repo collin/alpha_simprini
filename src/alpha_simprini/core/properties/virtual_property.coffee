@@ -52,7 +52,7 @@ AS.Model.VirtualProperty.Instance = AS.Property.Instance.extend ({def}) ->
       AS.warn "Can't set a VirtualProperty name: #{@options.name}, dependencies: #{@options.dependencies.join(',')}"
   # @::set.doc =
   #   params: [
-  #     [value, "*", true]
+  #     ["value", "*", true]
   #   ]
   #   desc: """
   #
@@ -96,7 +96,7 @@ AS.Model.VirtualProperty.Instance = AS.Property.Instance.extend ({def}) ->
   #
   #   """
 
-  def rawValue: null
+  def rawValue: -> undefined
 
 AS.Model.defs virtualProperties: (dependencies..., properties) ->
   for name, fn of properties

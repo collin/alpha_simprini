@@ -90,7 +90,7 @@ AS.Application =  AS.Object.extend ({def, include}) ->
     constructor = AS.loadPath(path)
     model = constructor.find(id)
     model.takeOver(_model)
-  # @::takeOverMadel.doc = 
+  # @::takeOverModel.doc = 
   #   params: [
   #     ["id", String, true, tag: "The id of the model to take over"]
   #     ["_model", AS.Model, true, tag: "The corresponding model to take over."]

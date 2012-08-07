@@ -1,7 +1,7 @@
 AS.Binding.Select = AS.Binding.Input.extend ({def}) ->
   def initialize: ->
     @_super.apply(this, arguments)
-    @require_option "options"
+    @requireOption "options"
   # @::initialize.doc =
   #   params: [
   #     []
@@ -32,7 +32,7 @@ AS.Binding.Select = AS.Binding.Input.extend ({def}) ->
     fieldValue = @fieldValue()
     fieldValue = fieldValue.id if fieldValue?.id
     @content.val fieldValue
-  # @::setCantent.doc =
+  # @::setContent.doc =
   #   params: [
   #     []
   #   ]

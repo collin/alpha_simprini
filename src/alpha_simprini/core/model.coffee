@@ -47,7 +47,7 @@ AS.Model = AS.Object.extend ({delegate, include, def, defs}) ->
   
   defs prepare: (attributes) ->
     @new(attributes, {skipCallbacks: true})
-  # @::prepare.doc = 
+  # @prepare.doc = 
   #   params: [
   #     ["id", String, true, tag:"id for a new model"]
   #   ]

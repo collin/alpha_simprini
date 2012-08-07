@@ -22,7 +22,7 @@ AS.Binding.CheckBox = AS.Binding.Input.extend ({def}) ->
 
   def bindContent: ->
     @context.binds @content, "change", _.bind(@setField, this)
-  # @::bindContext.doc =
+  # @::bindContent.doc =
   #   params: [
   #     []
   #   ]

@@ -47,7 +47,7 @@ AS.Binding.Input = AS.Binding.Field.extend ({def}) ->
 
   def readField: ->
     @content.val()
-  # @::readFile.doc =
+  # @::readField.doc =
   #   params: [
   #     []
   #   ]

@@ -18,6 +18,7 @@ class PathologyDocumentFilter < Rake::Pipeline::Filter
   end
 end
 
+
 output "docs"
 input "./src" do
   match "**/*.coffee" do
@@ -34,4 +35,9 @@ input "./src" do
 
     concat "AlphaSimprini-docs.js"
   end
+end
+
+input "./src", "doc.coffee" do
+  coffee_script
+  concat "doc.js"
 end

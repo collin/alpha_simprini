@@ -71,22 +71,10 @@ task :upload => :test do
 end
 
 desc "Create json document object"
-task :jsondoc => [:phantomjs, :dist] do
-  cmd = %|phantomjs src/gather-docs.coffee "file://localhost#{File.dirname(__FILE__)}/src/gather-docs.html"|
-
-  err "Running tests"
-  err cmd
-  success = `#{cmd}`
-
-  if success
-    err "Built JSON".green
-    FileUtils.safe_unlink "dist/docs.json"
-    File.open("dist/docs.json", "w") {|f| f.write success }
-  else
-    err "Failed".red
-    exit(1)
-  end
-
+task :doc do
+  puts "Building Alpha Simprini Docs"
+  doc_build.invoke
+  done
 end
 
 task :phantomjs do

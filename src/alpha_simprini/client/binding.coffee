@@ -57,7 +57,7 @@ AS.Binding = AS.Object.extend ({def}) ->
   #
   #   """
 
-  def require_option: (name) ->
+  def requireOption: (name) ->
     return unless @options[name] is undefined
     throw new AS.Binding.MissingOption("You must specify the #{name} option for #{@constructor.name} bindings.")
   # @::requireOption.doc =
