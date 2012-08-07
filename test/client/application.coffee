@@ -24,6 +24,7 @@ test "attaches global key handlers w/jwerty", ->
 
   for trigger in triggers
     jwerty.fire trigger, @el
+    Taxi.Governer.exit()
 
 test "initializes views into the application context", ->
   app_panel = @app.view AS.Views.Panel, key: "value"

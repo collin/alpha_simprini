@@ -2,6 +2,9 @@ NS.Parent = AS.Model.extend()
 NS.Parent.belongsTo "owner", model: -> NS.Owner
 NS.Parent.field "name"
 
+NS.Dependant = AS.Model.extend ({delegate, include, def, defs}) ->
+  @belongsTo "owner", dependant: "destroy"
+
 NS.Owner = NS.Parent.extend()
 
 makeDoc = NS.makeDoc
@@ -14,6 +17,23 @@ test "property is a Field", ->
 test "property is an BelongsTo", ->
   o = NS.Parent.new()
   ok o.owner instanceof AS.Model.BelongsTo.Instance
+
+test "nullifies association when other model destroyed", ->
+  o = NS.Parent.new()
+  owner = NS.Owner.new()
+  o.owner.set(owner)
+  owner.destroy()
+  Taxi.Governer.exit()
+  equal o.owner.get(), null
+
+test "destroys model if dependant", ->
+  expect 1
+  o = NS.Dependant.new()
+  o.bind "destroy", -> ok true
+  owner = NS.Owner.new()
+  o.owner.set(owner)
+  owner.destroy()
+  Taxi.Governer.exit()
 
 test "fetches model from AS.All if set by id", ->
   o = NS.Parent.new()
@@ -50,6 +70,8 @@ test "may bind through belongsTo by name", ->
 
   otherother.name.set "simpler name"
   newother.name.set "new name"
+  Taxi.Governer.exit()
+
 
 test "may bind through belongsTo by constructor", ->
   expect 2
@@ -65,14 +87,24 @@ test "may bind through belongsTo by constructor", ->
 
   otherother.name.set "simpler name"
   newother.name.set "new name"
-
+  Taxi.Governer.exit()
 
 module "BelongsTo Sharing",
   setup: ->
     @o = NS.Parent.new()
-    @share = makeDoc()
-    @share.at().set {}
-    @o.owner.syncWith(@share)
+
+    snap = "NS.Parent": {}
+    snap["NS.Parent"][@o.id] = {}
+
+    @doc = makeDoc(null, snap)
+    @doc.open = -> # Avoid talking to ShareJS over the wire
+    adapter = AS.Model.ShareJSAdapter.new("url", "documentName")
+    adapter.share = @doc
+    adapter.bindRemoteOperationHandler()
+
+    @subDoc = @doc.at(["NS.Parent", @o.id])
+    @o.owner.syncWith(@subDoc)
+
 
 test "propagates field value to share on sync", ->
   o = NS.Parent.new()
@@ -94,15 +126,16 @@ test "propagates share value to field on sync", ->
   equal owner.id, o.owner.get().id
 
 test "default share value is null", ->
-  equal "", @share.at('owner').get()
+  equal @subDoc.at('owner').get(), undefined
 
 test "value propagates from model to share", ->
   owner = NS.Owner.new()
   @o.owner.set(owner)
-  equal owner.id, @share.at("owner").get()
+  Taxi.Governer.exit()
+  equal owner.id, @subDoc.at("owner").get()
 
 test "value propagates from share to model", ->
   owner = NS.Owner.new()
-  @share.emit 'remoteop', @share.at('owner').set(owner.id)
+  @doc.emit 'remoteop', @subDoc.at('owner').set(owner.id)
   equal owner.id, @o.owner.get().id
   

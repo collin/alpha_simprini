@@ -3,7 +3,8 @@ AS.Models.RadioSelectionModel = AS.Model.extend ({def}) ->
 
   def initialize: (options={}) ->
     @property = options.property
-    @_super()
+    delete options.property
+    @_super.apply(this, arguments)
     @select undefined
   # @::initialize.doc =
   #   params: [
@@ -15,8 +16,8 @@ AS.Models.RadioSelectionModel = AS.Model.extend ({def}) ->
 
   def select: (item) ->
     if @property
-      @selected.get()?[@property].set(null)
-      item?[@property].set(true)
+      @selected.get()?.model[@property]?.set(null)
+      item?.model[@property]?.set(true)
 
     @selected.set(item)
   # @::select.doc =

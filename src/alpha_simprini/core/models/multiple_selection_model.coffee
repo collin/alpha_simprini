@@ -1,7 +1,9 @@
 AS.Models.MultipleSelectionModel = AS.Model.extend ({def}) ->
   @hasMany "items"
 
-  def initialize: ->
+  def initialize: (options={}) ->
+    @property = options.property
+
     @_super()
 
     @items.bind "add", (item) => @trigger("add", item)
@@ -12,6 +14,8 @@ AS.Models.MultipleSelectionModel = AS.Model.extend ({def}) ->
   #   """
 
   def select: (item) ->
+    item[@property]?.set(true) if @property
+
     @items.add(item)
   # @::select.doc =
   #   params: [
@@ -22,6 +26,8 @@ AS.Models.MultipleSelectionModel = AS.Model.extend ({def}) ->
   #   """
 
   def deselect: (item) ->
+    item[@property]?.set(null) if @property
+
     @items.remove(item)
   # @::deselect.doc =
   #   params: [
@@ -32,7 +38,10 @@ AS.Models.MultipleSelectionModel = AS.Model.extend ({def}) ->
   #   """
 
   def clear: ->
-    @items.each @items.remove, @items
+    @items.each (item) =>
+      @items.remove(item)
+      item[@property]?.set(null) if @property
+
   # @::clear.doc =
   #   desc: """
   #

@@ -35,7 +35,6 @@ AS.Collection = AS.Object.extend ({def, include, delegate}) ->
 
     model[@inverse].set(@source) if @inverse and @source
 
-    throw new Error("Cannot add model to collection twice.") if @models.include(model).value()
     @_add(model, options)
 
     model
@@ -71,18 +70,23 @@ AS.Collection = AS.Object.extend ({def, include, delegate}) ->
   #   """
 
   def _add: (model, options={}) ->
-    options.at ?= this.length
+    options.at ?= @length
+
     index = options.at
     @byCid[model.cid] = @byId[model.id] = model
-    @models._wrapped.splice index, 0, model
-    @length++
-    model.bind
-      event: "all"
-      namespace: @objectId()
-      handler: @_onModelEvent
-      context: this
 
-    model.trigger "add", this, options
+    if @models.include(model).value()
+      console.warn "Cannot add model to collection twice.", model.toString() 
+    else
+      @models._wrapped.splice index, 0, model
+      @length++
+      model.bind
+        event: "all"
+        namespace: @objectId()
+        handler: @_onModelEvent
+        context: this
+
+      model.trigger "add", this, options
   # @::_add.doc =
   #   private: true
   #   params: [
@@ -122,14 +126,18 @@ AS.Collection = AS.Object.extend ({def, include, delegate}) ->
 
   def _remove: (model, options={}) ->
     options.at = @models.indexOf(model).value()
-    @length--
-    delete @byId[model.id]
-    delete @byCid[model.cid]
-    @models = @models.without(model)
-    model.trigger("remove", this, options)
-    model.unbind
-      event: "all"
-      namespace: @objectId()
+    if @models.include(model).value()
+      @length--
+      delete @byId[model.id]
+      delete @byCid[model.cid]
+      @models = @models.without(model)
+      model.trigger("remove", this, options)
+      model.unbind
+        event: "all"
+        namespace: @objectId()
+    else
+      console.warn "Cannot remove model from collection twice.", model?.toString() 
+
   # @::_remove.doc =
   #   private: true
   #   params: [

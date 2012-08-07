@@ -15,6 +15,7 @@ test "creates initial dom", ->
 
 test "clears dom when field is null", ->
   @binding.model.owner.set(null)
+  Taxi.Governer.exit()
   equal undefined, @model.owner.get()
   equal "", @binding.content.html()
 

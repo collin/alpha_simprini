@@ -52,6 +52,7 @@ test "dropend triggers dropend event", ->
     expect 1
     targets.bind "dropend", -> ok true
     targets.dropend()
+    Taxi.Governer.exit()
 
 test "dropstart triggers dropstart event if current hit has a rect", ->
     targets = NS.SomeTargets.new()
@@ -60,6 +61,7 @@ test "dropstart triggers dropstart event if current hit has a rect", ->
     expect 1
     targets.bind "dropstart", (thehit) -> equal hit, thehit
     targets.dropstart()
+    Taxi.Governer.exit()
 
 test "dropstart is a noop if current hit lacks a rect", ->
     targets = NS.SomeTargets.new()
@@ -76,6 +78,7 @@ test "dragend calls drop and triggers drop if current hit has a rect", ->
     targets.bind "drop", (thehit) -> equal hit, thehit
     targets.drop = (thedata) -> equal thedata, data
     targets.dragend(data)
+    Taxi.Governer.exit()
 
 test "dragend is a noop if current hit lacks a rect", ->
     targets = NS.SomeTargets.new()

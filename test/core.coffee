@@ -23,7 +23,7 @@ test "deepClone", ->
   notDeepEqual it, not_it
 
 test "uniq", ->
-  ok AS.uniq().match /^.*-.*-.*$/
+  ok AS.uniq().match /^\w+$/
   notEqual AS.uniq(), AS.uniq()
 
 test "humanSize", ->

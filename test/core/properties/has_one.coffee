@@ -2,6 +2,9 @@ HO = Pathology.Namespace.new("Hasone")
 HO.Parent = AS.Model.extend()
 HO.Parent.hasOne "other", model: -> HO.Other
 
+HO.Dependant = AS.Model.extend ({delegate, include, def, defs}) ->
+  @hasOne "other", dependant: "destroy"
+
 HO.Other = HO.Parent.extend()
 HO.Other.field "name"
 
@@ -15,6 +18,7 @@ test "collection events trigger on property", ->
   o = HO.Parent.new other: name: "Juliet"
   o.other.get().name.bind "change", -> ok true
   o.other.get().name.set "Julio"
+  Taxi.Governer.exit()
 
 test "change event triggers when model is set", ->
   expect 3, "fix field pass-through binding"
@@ -23,6 +27,7 @@ test "change event triggers when model is set", ->
   o.bind "change:other", -> ok true
   o.other.bind "change", -> ok true
   o.other.set {}
+  Taxi.Governer.exit()
 
 test "clears object when set to null", ->
   expect 4, "fix field pass-through binding"
@@ -31,7 +36,24 @@ test "clears object when set to null", ->
   o.bind "change:other", -> ok true
   o.other.bind "change", -> ok true
   o.other.set null
+  Taxi.Governer.exit()
   equal undefined, o.other.get()
+
+test "destroys value if dependant is destroy", ->
+  expect 1
+  o = HO.Dependant.new()
+  o.other.set other = HO.Other.new()
+  other.bind "destroy", -> ok true
+  o.destroy()
+  Taxi.Governer.exit()
+
+test "nullifies value if other is destroyed", ->
+  expect 1
+  o = HO.Parent.new()
+  o.other.set other = HO.Other.new()
+  other.destroy()
+  Taxi.Governer.exit()
+  equal o.other.get(), null
 
 module "HasOne is set when constructing the model"
 test "with a model", ->
@@ -57,6 +79,8 @@ test "may bind through hasOne by name", ->
 
   otherother.name.set "simpler name"
   newother.name.set "new name"
+  Taxi.Governer.exit()
+
 
 test "may bind through ancestral hierarchy", ->
   expect 2
@@ -64,6 +88,8 @@ test "may bind through ancestral hierarchy", ->
   other = HO.Other.new(other:otherother)
   o = HO.Parent.new other: other
 
+
+  Taxi.Governer.exit()
   o.bindPath ['other', HO.Parent, 'name'], -> ok(true)
 
   otherother.name.set("other from another other's mother")
@@ -72,3 +98,5 @@ test "may bind through ancestral hierarchy", ->
 
   otherother.name.set "simpler name"
   newother.name.set "new name"
+  Taxi.Governer.exit()
+

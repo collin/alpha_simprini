@@ -15,6 +15,7 @@ AS.BindingGroup = AS.Object.extend ({def}) ->
   # Unbind all bindings, and then unbind all children binding groups
   def unbind: ->
     object.unbind("."+@namespace) for object in @boundObjects
+    @boundObjects = []
     @unbindChildren()
   # @::unbind.doc =
   #   params: [
@@ -42,16 +43,17 @@ AS.BindingGroup = AS.Object.extend ({def}) ->
 
   def binds: (object, event, handler, context) ->
     @boundObjects.push object
+    reactor = _.bind(handler, context)
 
     if object.jquery
-      object.bind "#{event}.#{@namespace}", _.bind(handler, context)
+      object.bind "#{event}.#{@namespace}", reactor
     else if _.isArray(event)
-      object.bindPath(event, _.bind(handler, context))
+      @boundObjects.push object.bindPath(event, reactor)
     else
       object.bind
         event: event
         namespace: @namespace
-        handler: handler
+        handler: reactor
         context: context
   # @::binds.doc =
   #   params: [

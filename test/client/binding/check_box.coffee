@@ -33,6 +33,8 @@ test "setting the model value checks/unchecks the box", ->
   [mocks, binding] = mockBinding(AS.Binding.CheckBox, model: model, field: model.maybe)
   equal binding.content.parent().find(":checked").length, 1, 'starts out checked'
   model.maybe.set false
+  Taxi.Governer.exit()
   equal binding.content.parent().find(":checked").length, 0, 'unchecks properly'
   model.maybe.set true
+  Taxi.Governer.exit()
   equal binding.content.parent().find(":checked").length, 1, 'rechecks properly'

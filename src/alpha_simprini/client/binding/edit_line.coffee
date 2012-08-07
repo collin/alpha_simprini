@@ -2,8 +2,10 @@ require "rangy-core"
 AS.Binding.EditLine = AS.Binding.extend ({def}) ->
   def rangy: rangy
 
-  def applyChange:  (doc, oldval, newval) ->
-    return if oldval == newval
+  def applyChange:  (doc, oldval="", newval="") ->
+    return if oldval is newval
+    return if newval is ""
+    doc.set "" unless doc.get()
     commonStart = 0
     commonStart++ while oldval.charAt(commonStart) == newval.charAt(commonStart)
 
@@ -53,13 +55,13 @@ AS.Binding.EditLine = AS.Binding.extend ({def}) ->
     @content = @makeContent()
     @elem = @content[0]
     @elem.innerHTML = @fieldValue()
-    @previous_value = @fieldValue()
+    @previousValue = @fieldValue()
     @selection = start: 0, end: 0
 
-    @context.binds @model, "share:insert:#{_(@field).last()}", @insert, this
-    @context.binds @model, "share:delete:#{_(@field).last()}", @delete, this
+    @context.binds @model, "share:insert:#{@field.options.name}", @insert, this
+    @context.binds @model, "share:delete:#{@field.options.name}", @delete, this
 
-    @context.binds @model, "change:#{_(@field).last()}", @updateUnlessFocused, this
+    @context.binds @model, "change:#{@field.options.name}", @updateUnlessFocused, this
 
     for event in ['textInput', 'keydown', 'keyup', 'select', 'cut', 'paste', 'click', 'focus']
       @context.binds @content, event, @generateOperation, this
@@ -73,8 +75,8 @@ AS.Binding.EditLine = AS.Binding.extend ({def}) ->
 
   def updateUnlessFocused: (event) ->
     # Defer this because we want text input to feel fluid!
-    _.defer ->
-      return if @context.$(this.elem).closest(":focus")[0]
+    _.defer =>
+      return if $(@elem).closest(":focus")[0]
       @elem.innerHTML = @fieldValue()
   # @::updateUnlessFocused.doc =
   #   params: [
@@ -94,12 +96,12 @@ AS.Binding.EditLine = AS.Binding.extend ({def}) ->
   #
   #   """
 
-  def replaceText: (new_text="") ->
+  def replaceText: (newText="") ->
     range = @rangy.createRange()
     selection = @rangy.getSelection()
 
     scrollTop = @elem.scrollTop
-    @elem.innerHTML = new_text
+    @elem.innerHTML = newText
     @elem.scrollTop = scrollTop unless @elem.scrollTop is scrollTop
 
     return unless selection.anchorNode?.parentNode is @elem
@@ -141,19 +143,25 @@ AS.Binding.EditLine = AS.Binding.extend ({def}) ->
   #   """
 
   def generateOperation: ->
-    selection = @rangy.getSelection()
-    if selection.rangeCount
-      range = @rangy.getSelection().getRangeAt(0)
+    if @model.share
+      selection = @rangy.getSelection()
+      if selection.rangeCount
+        range = @rangy.getSelection().getRangeAt(0)
+      else
+        range = @rangy.createRange()
+      @selection.start = range.startOffset
+      @selection.end = range.endOffset
+      if @elem.innerHTML isnt @previousValue
+        @previousValue = @elem.innerHTML
+        # IE constantly replaces unix newlines with \r\n. ShareJS docs
+        # should only have unix newlines.
+        @applyChange @model.share.at(@field.options.name), @model.share.at(@field.options.name).getText(), @elem.innerHTML.replace(/\r\n/g, '\n')
+        @model[@field.options.name].set @model.share.at(@field.options.name).getText()
     else
-      range = @rangy.createRange()
-    @selection.start = range.startOffset
-    @selection.end = range.endOffset
-    if @elem.innerHTML isnt @previous_value
-      @previous_value = @elem.innerHTML
-      # IE constantly replaces unix newlines with \r\n. ShareJS docs
-      # should only have unix newlines.
-      @applyChange @model.share.at(@field), @model.share.at(@field).getText(), @elem.innerHTML.replace(/\r\n/g, '\n')
-      @model[@field] @model.share.at(@field).getText(), remote: true
+      if @elem.innerHTML isnt @previousValue
+        @previousValue = @elem.innerHTML
+        @field.set @elem.innerHTML
+    return
   # @::generateOperation.doc =
   #   params: [
   #     []

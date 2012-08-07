@@ -1,8 +1,11 @@
+{bind} = _
 AS.Binding.Many = AS.Binding.extend ({def}) ->
   @willGroupBindings = true
 
   def initialize: ->
     @_super.apply(this, arguments)
+
+    @options.indexOffset ?= 0
     @collection = @field
 
     @contents = {}
@@ -22,7 +25,7 @@ AS.Binding.Many = AS.Binding.extend ({def}) ->
   #   """
 
   def makeAll: ->
-    @sortedModels().each _.bind @makeItemContent, this
+    @sortedModels().each _.bind @insertItem, this
   # @::makeAll.doc =
   #   params: [
   #     []
@@ -62,12 +65,13 @@ AS.Binding.Many = AS.Binding.extend ({def}) ->
   #   """
 
   def insertItem: (item) ->
+    return if @contents[item.cid]
     return if @skipItem(item)
 
     content = @context.danglingContent => @makeItemContent(item)
-    index = @sortedModels().indexOf(item).value?()
+    index = @sortedModels().indexOf(item).value?() + @options.indexOffset
     index ?= 0
-    siblings = @container.children()
+    siblings = @container.contents()
 
     unless siblings.get(0)
       @container.append(content)
@@ -76,7 +80,7 @@ AS.Binding.Many = AS.Binding.extend ({def}) ->
       @container.append(content)
 
     else
-      @context.$(siblings.get(index)).before(content)
+      $(siblings.get(index)).before(content)
 
     @sorting = @sortedModels()
   # @::insertItem.doc =
@@ -107,8 +111,8 @@ AS.Binding.Many = AS.Binding.extend ({def}) ->
   def moveItem: (item) ->
     content = @contents[item.cid]
     currentIndex = content.index()
-    newIndex = @sortedModels().indexOf(item).value()
-    siblings = content.parent().children()
+    newIndex = @sortedModels().indexOf(item).value() + @options.indexOffset
+    siblings = content.parent().contents()
 
     if currentIndex < newIndex
       @context.$(siblings[newIndex]).after(content)

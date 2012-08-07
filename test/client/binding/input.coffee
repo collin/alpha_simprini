@@ -7,6 +7,7 @@ test "sets input value on initialization", ->
 test "updates input value when model changes", ->
   [mocks, binding] = mockBinding(AS.Binding.Input)
   binding.model.field.set("changed value")
+  Taxi.Governer.exit()
   equal "changed value", binding.content.val()
 
 test "updates model value when input changes", ->

@@ -47,8 +47,9 @@ AS.Model.VirtualProperty.Instance = AS.Property.Instance.extend ({def}) ->
   def set: (value) ->
     if set = @options.getSet.set
       set.call(@object, value)
+      @triggerDependants()
     else
-      throw "Can't set a VirtualProperty name: #{@options.name}, dependencies: #{@options.dependencies.join(',')}"
+      AS.warn "Can't set a VirtualProperty name: #{@options.name}, dependencies: #{@options.dependencies.join(',')}"
   # @::set.doc =
   #   params: [
   #     [value, "*", true]
@@ -74,6 +75,13 @@ AS.Model.VirtualProperty.Instance = AS.Property.Instance.extend ({def}) ->
   #
   #   """
 
+  def objects: ->
+    [@get()]
+  # @::objects.doc =
+  #   desc: """
+  #     For virtual properties, 'objects' is an Array containing the computed value.
+  #   """
+
   def triggerFor: () ->
     # JUST LET THINGS GO TO HELL. WE NEED A RUNLOOP AND DIRTY TRACKING I GUESS ):(
     # computed = @compute()
@@ -88,6 +96,7 @@ AS.Model.VirtualProperty.Instance = AS.Property.Instance.extend ({def}) ->
   #
   #   """
 
+  def rawValue: null
 
 AS.Model.defs virtualProperties: (dependencies..., properties) ->
   for name, fn of properties

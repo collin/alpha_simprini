@@ -36,10 +36,10 @@ test "sets select value on initialization", ->
 test "sets value of dom when model value changes", ->
   model = BoundModel.new field: "value"
   options = ["notvalue", "value"]
-  [mocks, binding] = mockBinding(AS.Binding.Select, options: (options: options), model: model)
+  [mocks, binding] = mockBinding(AS.Binding.Select, options: (options: options), model: model, field: "field")
 
   model.field.set("notvalue")
-
+  Taxi.Governer.exit()
   equal binding.container.find("select").val(), "notvalue"
 
 

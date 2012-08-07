@@ -64,7 +64,7 @@ class Todo.Models.Item extends AS.Model
   @field "task", default: "Something to do..."
   # #### Field types.
   # A field may have a type. This field is a boolean field.
-  @field "done", type: Boolean, default: false
+  @field "done", type: AS.Model.Boolean, default: false
 
 # ### Todo.Views.List
 class Todo.Views.List extends AS.View

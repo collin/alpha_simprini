@@ -25,6 +25,7 @@ test "when dependency and virtual changes, change triggers on virtual", ->
   o = NS.Virtualized.new()
   o.bind "change:virtualA", -> ok true
   o.name.set "New Name"
+  Taxi.Governer.exit()
 
 # FIXME: this is HIGHLY desireable behavior, but it isn't strictly neccessary
 # test "when dependency changes but virtual doesn't change, virtual doesn't trigger", ->
@@ -46,13 +47,16 @@ test "may depend on collection properties", ->
   o.bind "change:virtualB", -> ok true
   o.bind "change:virtualC", -> ok true
   o.others.add {}
+  Taxi.Governer.exit()
 
 test "may depend on changing collection properties", ->
   expect 1
   o = NS.Virtualized.new()
   other = o.others.add NS.Basic.new()
+  Taxi.Governer.exit()
   o.bind "change:virtualA", -> ok true
   o.others.at(0).name.set("NEW NAME")
+  Taxi.Governer.exit()
 
 module "Virtualized bindPath"
 test "may be used in path bindings", ->
@@ -60,6 +64,7 @@ test "may be used in path bindings", ->
   o = NS.Virtualized.new()
   o.bindPath ['virtualA'], -> ok(true)
   o.name.set("my name")
+  Taxi.Governer.exit()
 
 test "may be nested in path bindings", ->
   expect 1
@@ -67,14 +72,19 @@ test "may be nested in path bindings", ->
   o = NS.Virtualized.new(other:other)
   o.bindPath ['other', 'virtualA'], -> ok(true)
   other.name.set("my name")
+  Taxi.Governer.exit()
 
 test "path may change", ->
-  expect 2
+  expect 3
   other = NS.Virtualized.new()
   o = NS.Virtualized.new(other:other)
   o.bindPath ['other', 'virtualA'], -> ok(true)
   other.name.set("my name")
+  Taxi.Governer.exit()
 
   otherother = NS.Virtualized.new()
   o.other.set(otherother)
+  Taxi.Governer.exit()
+
   otherother.name.set("MY name")
+  Taxi.Governer.exit()

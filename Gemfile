@@ -9,3 +9,5 @@ gem "coffee-script"
 gem "github_uploader", "~> 0.1.0", require: false
 gem "html_package", "~> 0.0.3"
 gem "tilt"
+gem "rake"
+gem "watchr"

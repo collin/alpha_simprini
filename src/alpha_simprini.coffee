@@ -25,6 +25,8 @@ AS.Map = Pathology.Map
 AS.Module = Pathology.Module
 AS.Namespace = Pathology.Namespace
 AS.Property = Taxi.Property
+AS.Property.Instance.def rawValue: -> @value
+
 
 AS.COLLECTION_DELEGATES = ["first", "rest", "last", "compact", "flatten", "without", "union", "filter", "reverse",
           "intersection", "difference", "uniq", "zip", "indexOf", "find", "detect", "sortBy",
@@ -35,7 +37,7 @@ AS.require = (framework="alpha_simprini", libraries) ->
     require "alpha_simprini/#{framework}"
   else
     for library in libraries.split(/\s+/)
-      continue if library.blank()
+      continue if library.match(/^\s+$/)
       require "alpha_simprini/#{framework}/#{library}"
   return
 

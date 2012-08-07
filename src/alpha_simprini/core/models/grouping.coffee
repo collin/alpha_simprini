@@ -35,7 +35,7 @@ AS.Models.Grouping = AS.Model.extend ({delegate, include, def, defs}) ->
   #   """
 
   def addToGroup: (item) ->
-    name = item[@groupByProperty].get()
+    name = item[@groupByProperty].get() ? "default"
     unless group = @groupMap.get(name)
       group = AS.Models.Group.new(name: name, metaData: @metaData)
       @groups.add(group)

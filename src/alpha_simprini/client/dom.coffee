@@ -27,11 +27,17 @@ SVG_ELEMENTS = _('
 AS.DOM = AS.Object.extend ({delegate, include, def, defs}) ->
   def $: $
 
+  def _document: document
+
   def text: (textContent) ->
     # createTextNode creates a text node, no DOM injection here
     # TODO: DOUBLE EXPRESS VERIFY THIS ASSUMPTION AND PASTE
     #   LINKS TO SUPPORTING EVIDENCE IN THE CODE.
-    @currentNode.appendChild document.createTextNode(textContent)
+    textNode = @_document.createTextNode(textContent)
+    if @currentNode
+      @currentNode.appendChild textNode
+    else
+      textNode
   # @::text.doc =
   #   params: [
   #     []
@@ -51,7 +57,7 @@ AS.DOM = AS.Object.extend ({delegate, include, def, defs}) ->
   #   """
 
   def tag: (name, attrs, content) ->
-    node = document.createElement(name)
+    node = @_document.createElement(name)
     return @_tag node, attrs, content
   # @::tag.doc =
   #   params: [
@@ -62,7 +68,7 @@ AS.DOM = AS.Object.extend ({delegate, include, def, defs}) ->
   #   """
 
   def svgTag: (name, attrs, content) ->
-    node = document.createElementNS(SVG.ns, name)
+    node = @_document.createElementNS(SVG.ns, name)
     return @_tag node, attrs, content
   # @::svgTag.doc =
   #   params: [
@@ -73,7 +79,7 @@ AS.DOM = AS.Object.extend ({delegate, include, def, defs}) ->
   #   """
 
   def _tag: (node, attrs, content) ->
-    @currentNode ?= document.createDocumentFragment()
+    @currentNode ?= @_document.createDocumentFragment()
     if _.isFunction(attrs)
       content = attrs
       attrs = undefined

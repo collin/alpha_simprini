@@ -22,8 +22,8 @@ test "delegates events", ->
   view = BoundView.new()
 
   view.member.trigger("event")
+  Taxi.Governer.exit()
   view._button.trigger("click")
-
 
   # rethinkign stately and other types of event guarding
   # "registers state event", ->

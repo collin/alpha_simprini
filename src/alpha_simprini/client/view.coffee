@@ -168,7 +168,7 @@ AS.View = AS.DOM.extend ({delegate, include, def, defs}) ->
     view = constructor.new(options)
     @childViews.push(view)
     @bindingGroup.addChild(view)
-    @currentNode?.appendChild view.el[0]
+    @currentNode?.appendChild view.el[0] unless view.el.parent().is("*")
     view.el[0]
   # @::view.doc =
   #   params: [
@@ -245,6 +245,7 @@ AS.View = AS.DOM.extend ({delegate, include, def, defs}) ->
   def bindAttrs: ->
     return unless @attrBindings
     @modelBinding().attr @attrBindings
+    @modelBinding().paint()
   # @::bindAttrs.doc =
   #   params: [
   #     []
@@ -318,6 +319,17 @@ AS.View = AS.DOM.extend ({delegate, include, def, defs}) ->
   #
   #   """
 
+  mergeViewOptions = (left, right) ->
+    for key, value of right
+      if left[key]
+        switch key
+          when 'class'
+            left[key] += " " + value
+          else
+            left[key] = value
+      else
+        left[key] = value
+
   def toggle: ->
     @button class:"toggle expand"
     @button class:"toggle collapse"
@@ -328,4 +340,10 @@ AS.View = AS.DOM.extend ({delegate, include, def, defs}) ->
   #   desc: """
   #
   #   """
-
+  def icon: (name, options={}) ->
+    if options.class
+      options.class = "#{options.class} icon-#{name}"
+    else
+      options.class = "icon-#{name}"  
+    @i options
+    

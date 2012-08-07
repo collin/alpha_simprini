@@ -1,6 +1,9 @@
 require "knead"
 
+AS.Views.Dialogs = Pathology.Namespace.new()
 AS.Views.Dialog = AS.Views.Panel.extend ({delegate, include, def, defs}) ->
+  @afterContent (view) -> knead.monitor view.head
+
   def initialize: ->
     @constructor::events ?= {}
     _.extend @constructor::events,
@@ -26,7 +29,6 @@ AS.Views.Dialog = AS.Views.Panel.extend ({delegate, include, def, defs}) ->
     @head = @$ @header @headerContent
     @content = @$ @section @mainContent
     @foot = @$ @footer @footerContent
-    knead.monitor @head
   # @::content.doc =
   #   params: [
   #     []

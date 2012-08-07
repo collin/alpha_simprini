@@ -17,6 +17,9 @@ AS.Model.HasOne.Instance = AS.Model.Field.Instance.extend ({def}) ->
     @namespace = ".#{_.uniqueId()}"
     @_super.apply(this, arguments)
     @bind "destroy", => @set(null)
+
+    if @options.dependant is "destroy"
+      @object.bind "destroy#{@namespace}", => @value?.destroy()
   # @::initialize.doc =
   #   params: [
   #     ["@object", AS.Model, true]
@@ -59,8 +62,7 @@ AS.Model.HasOne.Instance = AS.Model.Field.Instance.extend ({def}) ->
     if @value and @options.inverse and @value[@options.inverse]
       @value[@options.inverse].add(@object) unless @value[@options.inverse].include(@object).value()
 
-    # this looks neccessory for path bindings, but not so good for view bindings yeesh
-    # @value?.bind "all#{@namespace}", _.bind(@trigger, this)
+    @bindToValue(@value) if @value
 
     @object.trigger("change")
     @object.trigger("change:#{@options.name}")
@@ -75,6 +77,12 @@ AS.Model.HasOne.Instance = AS.Model.Field.Instance.extend ({def}) ->
   #
   #   """
 
+  def rawValue: -> @value?.id
+
+  def bindToValue: (value) ->
+    value.bind "change#{@namespace}", => @triggerDependants()
+    value.bind "destroy#{@namespace}", => @set(null)
+  
   @Synapse = AS.Model.Field.Instance.Synapse.extend ({delegate, include, def, defs}) ->
     def get: ->
       @raw.get()

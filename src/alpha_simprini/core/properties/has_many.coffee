@@ -1,3 +1,4 @@
+{include, any, each, clone} = _
 AS.Model.HasMany = AS.Model.Field.extend ({delegate, include, def, defs}) ->
   def couldBe: (test) ->
     return true if @options.model?() in (test.ancestors or [])
@@ -21,6 +22,8 @@ AS.Model.HasMany.Instance = AS.Model.Field.Instance.extend ({def, delegate}) ->
     @backingCollection = AS.Collection.new(undefined, @options)
 
     @bind('change', (=> @triggerDependants()), this)
+    if @options.dependant is "destroy"
+      @object.bind "destroy", => @backingCollection.invoke("destroy")
   # @::initialize.doc =
   #   params: [
   #     ["@object", AS.Model, true]
@@ -31,18 +34,28 @@ AS.Model.HasMany.Instance = AS.Model.Field.Instance.extend ({def, delegate}) ->
   #   """
 
   def syncWith: (share) ->
-    console.log "syncWith", @toString()
     @share = share.at(@options.name)
     @stopSync()
 
     @synapse = @constructor.Synapse.new(this)
     @shareSynapse = @constructor.ShareSynapse.new(share, @options.name)
 
-    alreadyThere = _.clone @backingCollection.models.value()
+    alreadyThere = clone @backingCollection.models.value()
 
-    @synapse.observe(@shareSynapse)
-    _.each alreadyThere, (item) => @shareSynapse.insert(item, {})
-    @synapse.notify(@shareSynapse)
+    if fromShare = @share.get()
+      for item in fromShare 
+        # continue if added from an inverse relationship
+        continue if @backingCollection.include(item).value()
+        @add(item)
+
+    if any(alreadyThere)
+      @synapse.block =>
+        each alreadyThere, (item) => 
+          @shareSynapse.insert(item, {})
+
+    # Stick this on the RunLoop so we don't get double insertion errors
+    Taxi.Governer.react this, =>
+      @synapse.notify(@shareSynapse)
   # @::syncWith.doc =
   #   params: [
   #     ["share", "ShareJS.Doc", true]
@@ -51,8 +64,11 @@ AS.Model.HasMany.Instance = AS.Model.Field.Instance.extend ({def, delegate}) ->
   #
   #   """
 
-  def objects: ->
-    @backingCollection.models.value()
+  def objects: (test) ->
+    if include test?.ancestors, AS.Model
+      model for model in @backingCollection.models.value() when model instanceof test
+    else
+      @backingCollection.models.value()
   # @::objects.doc =
   #   return: [AS.Model]
   #   desc: """
@@ -62,6 +78,7 @@ AS.Model.HasMany.Instance = AS.Model.Field.Instance.extend ({def, delegate}) ->
   def bindToPathSegment: (segment) ->
     segment.binds this, "add", segment.insertCallback
     segment.binds this, "remove", segment.removeCallback
+    segment.binds this, "change", segment.changeCallback
   # @::bindToPathSegment.doc =
   #   params: [
   #     ["segment", Taxi.Segment, true]
@@ -128,12 +145,23 @@ AS.Model.HasMany.Instance = AS.Model.Field.Instance.extend ({def, delegate}) ->
   #   """
 
   def any: ->
-    _.any @backingCollection
+    @count() > 0
   # @::any.doc =
-  #   return: Boolean
+  #   return: "Boolean"
   #   desc: """
-  #
+  #     Returns true if there are 1 or more items in the collection.
   #   """
+
+  def count: ->
+    @backingCollection.length
+  # @::count.doc = 
+  #   return: "Number"
+  #   desc: """
+  #     Returns the number of items in the collection.
+  #   """
+    
+
+  def rawValue: -> @backingCollection.pluck('id').value()
 
   @Synapse = AS.Model.CollectionSynapse.extend ({delegate, include, def, defs}) ->
     def insert: (item, options) ->
@@ -157,25 +185,29 @@ AS.Model.HasMany.Instance = AS.Model.Field.Instance.extend ({def, delegate}) ->
   @ShareSynapse = AS.Model.CollectionSynapse.extend ({delegate, include, def, defs}) ->
     def initialize: (@raw, @path...) ->
       @_super.apply(this, arguments)
-      @raw.at(@path).set([]) unless @raw.at(@path).get()
 
     def binds: (insertCallback, removeCallback) ->
       raw = @raw.at(@path)
       @listeners = [
-        raw.on "insert", (position, data) -> insertCallback(data, at: position)
-        raw.on "delete", (position, data) -> removeCallback(data, at: position)
+        # raw.on "insert", (position, data) -> insertCallback(data, at: position)
+        # raw.on "delete", (position, data) -> removeCallback(data, at: position)
       ]
 
     def unbinds: ->
       @raw.removeListener(listener) for listener in @listeners
 
     def insert: (model, options) ->
-      debugger if @path[0] is "compositions"
+      @raw.at(@path).set([]) if @raw.at(@path).get() in [null, undefined]
+
       options.at ?= @raw.at(@path).get().length
+      if model.id in @raw.at(@path).get()
+        AS.warn "Attempted to add", model, "(again) to share at path:", @path
+        return
       @raw.at(@path).insert(options.at, model.id)
 
     def remove: (model, options) ->
-      @raw.at(@path, options.at).remove()
+      @raw.at(@path.concat([options.at])).remove()
+      @raw.at(@path).remove() unless any @raw.at(@path).get()
 
     def each: (fn) ->
       _.each @raw.at(@path).get(), fn

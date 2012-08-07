@@ -2,7 +2,7 @@
 
 # TODO: Field is generic. reuse it.
 
-AS.Enum = AS.Object.extend ({delegate, include, def, defs}) ->
+AS.Model.Enum = AS.Object.extend ({delegate, include, def, defs}) ->
   defs read: (value, options) ->
     # AS.Assert options.values
     options.values[value]
@@ -11,49 +11,66 @@ AS.Enum = AS.Object.extend ({delegate, include, def, defs}) ->
     # AS.Assert options.values
     options.values.indexOf(value)
 
+AS.Model.String = AS.Object.extend ({delegate, include, def, defs}) ->
+  defs read: (value) ->
+    String(value) if value?
+
+  defs write: (value) ->
+    String(value) if value?
+
+AS.Model.Number = AS.Object.extend ({delegate, include, def, defs}) ->
+  defs read: (value) ->
+    Number(value) if value?
+
+  defs write: (value) ->
+    String(value) if value?
+
+AS.Model.Date = AS.Object.extend ({delegate, include, def, defs}) ->
+  defs read: (value) ->
+    if isString(value) then new Date(value) else value
+
+  defs write: (value) ->
+    if value instanceof Date then value.toJSON() else value
+
+AS.Model.Boolean = AS.Object.extend ({delegate, include, def, defs}) ->
+  defs read: (value) ->
+    return value if isBoolean(value)
+    return true if value is "true"
+    return false if value is "false"
+    return false
+
+  defs write: (value) ->
+    return "true" if value is "true" or value is true
+    return "false" if value is "false" or value is false
+    return "false"
+
+AS.Model.TokenList = AS.Object.extend ({delegate, include, def, defs}) ->
+  defs read: (value) ->
+    value.split(",")
+  
+  defs write: (value) ->
+    value.join(",")
+    
+
 AS.Model.Field = AS.Property.extend ({delegate, include, def, defs}) ->
   defs Casters: AS.Map.new()
 
   Casters = @Casters
 
-  Casters.set String,
-    read: (value) ->
-      String(value) if value?
+  Casters.set AS.Model.String, AS.Model.String
 
-    write: (value) ->
-      String(value) if value?
+  Casters.set AS.Model.Number, AS.Model.Number
 
-  Casters.set Number,
-    read: (value) ->
-      Number(value) if value?
+  Casters.set AS.Model.Date, AS.Model.Date
 
-    write: (value) ->
-      String(value) if value?
+  Casters.set AS.Model.Boolean, AS.Model.Boolean
 
-  Casters.set Date,
-    read: (value) ->
-      if isString(value) then new Date(value) else value
-
-    write: (value) ->
-      if value instanceof Date then value.toJSON() else value
-
-  Casters.set Boolean,
-    read: (value) ->
-      return value if isBoolean(value)
-      return true if value is "true"
-      return false if value is "false"
-      return false
-
-    write: (value) ->
-      return "true" if value is "true" or value is true
-      return "false" if value is "false" or value is false
-      return "false"
-
-  Casters.set AS.Enum, AS.Enum
+  Casters.set AS.Model.Enum, AS.Model.Enum
 
 
   def initialize: (@name, @_constructor, @options={}) ->
     @options.name = @name
+    @options.type ?= AS.Model.String
     @_constructor.writeInheritableValue 'properties', @name, this
   # @::initialize.doc =
   #   params: [
@@ -76,7 +93,7 @@ AS.Model.Field = AS.Property.extend ({delegate, include, def, defs}) ->
 
   @Instance = AS.Property.Instance.extend ({def}) ->
     def initialize: (@object, @options={}) ->
-      @options.type ?= String
+      @options.type ?= AS.Model.String
     # @::initialize.doc =
     #   params: [
     #     ["@object", AS.Model, true]
@@ -88,13 +105,15 @@ AS.Model.Field = AS.Property.extend ({delegate, include, def, defs}) ->
 
     def syncWith: (share) ->
       @share = share.at(@options.name)
-      @share.set("") unless @share.get()?
+      @set shareValue if shareValue = @share.get()
+      # #PERF console.time("set")
+      # @share.set("") unless @share.get()?
+      # #PERF console.timeEnd("set")
       @stopSync()
 
       @synapse = @constructor.Synapse.new(this)
       @shareSynapse = @constructor.ShareSynapse.new(share, @options.name)
 
-      @synapse.observe(@shareSynapse)
       @synapse.notify(@shareSynapse)
     # @::syncWith.doc =
     #   params: [
@@ -105,7 +124,7 @@ AS.Model.Field = AS.Property.extend ({delegate, include, def, defs}) ->
     #   """
 
     def stopSync: ->
-      @synapse?.stopObserving()
+      # @synapse?.stopObserving()
       @synapse?.stopNotifying()
     # @::stopSync.doc =
     #   desc: """
@@ -159,7 +178,9 @@ AS.Model.Field = AS.Property.extend ({delegate, include, def, defs}) ->
 
       def set: (value) ->
         raw = @raw.at(@path)
-        current = raw.get()
+        raw.set("") if ( current = raw.get() ) is undefined
+
+        return if current is value
         if current
           length = current.length
           raw.del(0, length)
@@ -171,10 +192,10 @@ AS.Model.Field = AS.Property.extend ({delegate, include, def, defs}) ->
 
       def binds: (callback) ->
         @listeners = [
-          @raw.at().on("insert", callback)
-          @raw.at().on("replace", callback)
-          @raw.at(@path).on("insert", callback)
-          @raw.at(@path).on("delete", callback)
+          # @raw.at().on("insert", callback)
+          # @raw.at().on("replace", callback)
+          # @raw.at(@path).on("insert", callback)
+          # @raw.at(@path).on("delete", callback)
         ]
 
       def unbinds: (callback) ->

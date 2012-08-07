@@ -12,10 +12,12 @@ AS.Model.AbstractSynapse = AS.Object.extend ({delegate, include, def, defs}) ->
 
   def observe: (other, config={}) ->
     config.syncNow ?= true
+    config.bindEvents ?= false
     @observations.push @dendriteClass.new(this, other, config)
 
   def notify: (other, config={}) ->
     config.syncNow ?= false
+    # config.bindEvents ?= false
     @notifications.push @dendriteClass.new(other, this, config)
 
   def block: (fn) ->
@@ -51,6 +53,9 @@ AS.Model.CollectionSynapse = AS.Model.AbstractSynapse.extend ({delegate, include
 
   def insert: AS.unimplemented("insert: (item, options) ->")
   def remove: AS.unimplemented("remove: (item) ->")
+
+  def set: (list) ->
+    @insert(item) for item in list
 
   def each: AS.unimplemented("each: (fn) ->")
         

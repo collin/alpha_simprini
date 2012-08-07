@@ -133,11 +133,12 @@ test "property binding with two children cleans up all content when property cha
             @li -> child.binding 'name'
 
   @view = NS.View.new(parent: @parent)
-  equal 2, @view.el.find("ol li").length
-  equal 2, @view.el.find("ul li").length
+  equal 2, @view.el.find("ol li").length,  "ordered list items are inserted"
+  equal 2, @view.el.find("ul li").length,  "unordered list items are inserted"
   @parent.item.set(null)
-  equal 0, @view.el.find("ol li").length
-  equal 0, @view.el.find("ul li").length
+  Taxi.Governer.exit()
+  equal 0, @view.el.find("ol li").length, "ordered list items are removed"
+  equal 0, @view.el.find("ul li").length, "unordered list items are removed"
 
 test "property binding nested ina property binding test cleans up bindings", ->
   NS.Model = AS.Model.extend ({delegate, include, def, defs}) ->
@@ -168,15 +169,18 @@ test "property binding nested ina property binding test cleans up bindings", ->
   otherBinding = NS.OtherBinding
 
   @root.other.set(@thing1)
+  Taxi.Governer.exit()
   ok @view.el.find("##{@thing1.objectId()}").is("*"), "renders first thing"
   ok @view.el.find("##{@thing1.children.at(0).objectId()}").is("*"), "renders first thing child"
 
   @root.other.set(@thing2)
+  Taxi.Governer.exit()
   ok @view.el.find("##{@thing2.objectId()}").is("*"), "renders second thing"
   ok @view.el.find("##{@thing2.children.at(0).objectId()}").is("*"), "renders second thing first child"
   ok @view.el.find("##{@thing2.children.at(1).objectId()}").is("*"), "renders second thing second child"
 
   @model.other.set(@other2)
+  Taxi.Governer.exit()
 
   equal 1, @view.el.find(".model-other").length, "renders only one other"
   ok @view.el.find("##{@thing2.objectId()}").is("*"), "second thing still visiible"

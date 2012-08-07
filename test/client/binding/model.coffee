@@ -21,6 +21,7 @@ test "paints styles", ->
   equal content.css("background-color"), "rgb(34, 34, 34)"
 
   model.field1.set("rgb(0, 0, 0)")
+  Taxi.Governer.exit()
   equal content.css("background-color"), "rgb(0, 0, 0)"
 
 
@@ -42,6 +43,7 @@ test "paints attributes", ->
     "data-property2": ["field2"]
 
   model.field2.set("value2")
+  Taxi.Governer.exit()
 
   equal content.attr('data-property2'), "value2"
 

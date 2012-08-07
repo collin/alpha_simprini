@@ -1,18 +1,7 @@
-# How would you implement this such that the @parent/@filter property could be changed?
-#
-# perhaps.. something like this?
-#
-# @property "parent"
-# @property "filter"
-
-# @virtualProperty "parent", "filter",
-#   models:
-#     get: ->
-#     set: ->
-#     add: ->
-#     remove: ->
 {extend, isString, isFunction, isArray} = _
 
+# Order in a FilteredCollection is not guaranteed to match the order
+# af the Collection being filtered.
 AS.FilteredCollection = AS.Collection.extend ({delegate, include, def, defs}) ->
   delegate 'add', 'remove', to: 'parent'
 

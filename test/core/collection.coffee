@@ -61,6 +61,7 @@ test "add event", ->
   collection = AS.Collection.new()
   collection.bind "add", -> ok true
   collection.add()
+  Taxi.Governer.exit()
 
 test "remove event", ->
   expect 1
@@ -68,28 +69,39 @@ test "remove event", ->
   thing = collection.add()
   collection.bind "remove", -> ok true
   collection.remove(thing)
+  Taxi.Governer.exit()
 
 test "model change events bubble through collection", ->
-  expect 5
+  expect 1
   C.Thing = AS.Model.extend()
   C.Thing.property("name")
   collection = AS.Collection.new()
   thing = collection.add C.Thing.new()
-  collection.bind "all", -> ok true
-  collection.bind "modelevent", -> ok true
+  # collection.bind "all", -> ok true
+  # collection.bind "modelevent", -> ok true
   collection.bind "change", -> ok true
-  thing.trigger "modelevent"
+  # thing.trigger "modelevent"
   thing.name.set("changed")
+  Taxi.Governer.exit()
 
 
-test "add/remove events capture on collection", ->
-  expect 2
+
+test "add events capture on collection", ->
+  expect 1
   thing = AS.Model.new()
   collection = AS.Collection.new()
   thing.bind "add", -> ok true
+
+  collection.add(thing)
+  Taxi.Governer.exit()
+  
+test "remove events capture on collection", ->
+  expect 1
+  thing = AS.Model.new()
+  collection = AS.Collection.new()
   thing.bind "remove", -> ok true
 
   collection.add(thing)
   collection.remove(thing)
-
+  Taxi.Governer.exit()
   

@@ -48,6 +48,12 @@ AS.ViewModel = AS.Object.extend ({delegate, include, def, defs}) ->
   #
   #   """
 
+  def if: (field, branches) ->
+    unless branches.then
+      throw new Error("#{@toString()} 'if' binding must be given at least a 'then' function") 
+
+    AS.Binding.If.new(@view, @model, @model[field], branches)
+
   def binding: (field, options, fn) ->
     if _.isFunction(options)
       [fn, options] = [options, {}]

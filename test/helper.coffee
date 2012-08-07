@@ -13,18 +13,18 @@ AS.require("client")
 # AS.suppress_logging()
 
 window.QUnit.testStart = ({module, name}) ->
-  console.info("testStart: #{module} - #{name}") if QUnit.urlParams.debug
+  console.info("testSteart: #{module} - #{name}") if QUnit.urlParams.debug
+  Taxi.Governer.exit() if Taxi.Governer.currentLoop
   AS.All =
     byCid: {}
     byId: {}
     byIdRef: {}
 
-BoundModel = NS.BoundModel = NS.BoundModel = AS.Model.extend()
-
-BoundModel.field "field"
-BoundModel.field "maybe", type: Boolean
-BoundModel.hasMany "items", model: -> SimpleModel
-BoundModel.hasOne "owner"
+BoundModel = NS.BoundModel = AS.Model.extend ({delegate, include, def, defs}) ->
+  @field "field"
+  @field "maybe", type: AS.Model.Boolean
+  @hasMany "items", model: -> SimpleModel
+  @hasOne "owner"
 
 # class SharedBoundModel extends BoundModel
 #   AS.Model.Share.extends this, "ShareBoundModel"

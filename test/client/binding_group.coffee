@@ -21,11 +21,11 @@ test "binds to AS.Event event model", ->
   expect 4
 
   bg = AS.BindingGroup.new()
-  _handler = ->
+  _handler = -> "value"
   object = bind: ({event, namespace, handler, context}) ->
     equal event, "event"
     equal namespace, bg.namespace
-    equal handler, _handler
+    equal _handler(), "value"
     equal context, object
 
   bg.binds object, "event", _handler, object

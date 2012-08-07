@@ -1,7 +1,9 @@
 AS.Binding.Input = AS.Binding.Field.extend ({def}) ->
   def initialize: ->
     @_super.apply(this, arguments)
-    if _.isArray @field
+    if @options.bindingPath
+      @context.binds @model, @options.bindingPath, @setContent, this
+    else if _.isArray(@field)
       @context.binds @model, @field, @setContent, this
     else
       @context.binds @field, "change", @setContent, this

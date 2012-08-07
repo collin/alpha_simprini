@@ -7,12 +7,14 @@ Client.require """
   binding
   binding/container
 
-    binding/model binding/field binding/input binding/select binding/file
-    binding/check_box binding/edit_line binding/one binding/many
+    binding/model binding/field binding/if binding/input binding/select 
+    binding/file binding/check_box binding/edit_line binding/one binding/many
 
   views/panel views/region views/dialog
 
   models/targets
 
-  application
+  application key_router
 """
+
+AS.require("keyboard")
