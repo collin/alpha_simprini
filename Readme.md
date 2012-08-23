@@ -1,3 +1,4 @@
+[![build status](https://secure.travis-ci.org/collin/alpha_simprini.png)](http://travis-ci.org/collin/alpha_simprini)
 ###### Alpha Simprini incorporates [Pathology](https://github.com/collin/pathology) and [Taxi](https://github.com/collin/taxi).
 ![Alpha Simprini](http://alphasimprini.com/images/logo.png "Alpha Simprini")
 ##### PUBLIC DOMAIN LICENSE ( IT'S IN THE PUBLIC DOMAIN )
