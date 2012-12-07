@@ -1,4 +1,4 @@
-AS.Model.VirtualProperty = AS.Model.Field.extend ({def}) ->
+class AS.Model.VirtualProperty < AS.Model.Field
   def initialize: (@name, @_constructor, @options={}) ->
     @options.name = @name
     @dependencies = @options.dependencies
@@ -23,7 +23,8 @@ AS.Model.VirtualProperty = AS.Model.Field.extend ({def}) ->
   #   """
 
 NULL_CACHE = new Object
-AS.Model.VirtualProperty.Instance = AS.Property.Instance.extend ({def}) ->
+
+class AS.Model.VirtualProperty.Instance < AS.Model.Field.Instance
   def initialize: (@object, @options) ->
     @cached = NULL_CACHE
     @bindDependencies()

@@ -1,5 +1,4 @@
-AS.BindingGroup = AS.Object.extend ({def}) ->
-
+class AS.BindingGroup
   def initialize: (@parentGroup) ->
     @namespace = _.uniqueId("bg")
     @children = []

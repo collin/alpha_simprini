@@ -1,11 +1,64 @@
 {bind, flatten, each} = _
 {upperCamelize} = fleck
 
-AS.PostMessageController = Pathology.Object.extend ({delegate, include, def, defs}) ->
+
+class AS.LocalStorageController
+  def initialize: (@target) ->
+    @target.addEventListener "message", bind(@receiveMessage, this), false
+
+  def receiveMessage: (message) ->
+    return unless method = message.data.event?.match(/localStorage.(\w+)/)?[1]
+    @[method].apply(@, message.data.args)
+
+  def setItem: (key, value) ->
+    console.log "[localStorage] setItem #{key} #{value}"
+    localStorage.setItem key, value
+
+  def getItem: (id, key) ->
+    value = localStorage.getItem(key)
+    console.log "[localStorage] getItem #{id} #{key} #{value}"
+    @target.postMessage event: "localStorage.getItem.#{id}", value: value
+
+
+class AS.PostMessageLocalStorage
+  def initialize: (@source, @target) ->
+    @receivers = {}
+    @source.addEventListener "message", bind(@receiveMessage, this), false
+
+  def setItem: (key, value) ->
+    console.info "[localStorage] setItem #{key}, #{value}"
+    id =  AS.uniq()
+    @target.postMessage event:"localStorage.setItem", args: [key, value]
+
+  def getItem: (key, callback) ->
+    id =  AS.uniq()
+    @receivers[id] = callback
+    @target.postMessage event:"localStorage.getItem", args: [id, key]
+    
+  def receiveMessage: (message) ->
+    return unless id = message.data.event?.match(/localStorage.getItem.(\w+)/)?[1]
+    console.info "[localStorage] getItem #{message.data.value}"
+    @receivers[id](message.data.value)
+    @receivers[id] = undefined
+
+class AS.PostMEssageLogger
+  def initialize: (@source, @name="postMessage") ->
+    @source.addEventListener "message", bind(@receiveMessage, this)
+
+  def receiveMessage: (message) ->
+    data = message.data
+    if method = data.event?.match(/console.(\w+)/)?[1]
+      console[method].apply(console, ["[#{@name}]", data.args...])
+    else
+      console.debug "message", data
+
+class AS.PostMessageController
   include Taxi.Mixin
 
-  def initialize: (@accept, @commands={}) ->
-    window.addEventListener "message", bind(@receiveMessage, this), false
+  def initialize: (@accept, @source={}, @commands={}) ->
+    unless @source instanceof window.Worker
+      [@commands, @source] = [@source, undefined]
+    (@source || window).addEventListener "message", bind(@receiveMessage, this), false
 
   def receiveMessage: (event) ->
     return unless @accept in ["*", event.source, event.origin]
@@ -15,7 +68,8 @@ AS.PostMessageController = Pathology.Object.extend ({delegate, include, def, def
       command.apply(null, [event].concat(args))
     else
       return if @commands.write is false
-      @["receiveMessage#{upperCamelize identifier}"].apply(this, [event].concat(args))    
+      console.log "receiveMessage#{upperCamelize identifier}"
+      @["receiveMessage#{upperCamelize identifier}"]?.apply(this, [event].concat(args))    
 
     @trigger "message"
     Taxi.Governer.exit() if Taxi.Governer.currentLoop
@@ -35,13 +89,19 @@ AS.PostMessageController = Pathology.Object.extend ({delegate, include, def, def
   def receiveMessageChange: (event, id, field, value) ->
     AS.All.byId[id][field].set(value)
 
-AS.PostMessageSource = Pathology.Object.extend ({delegate, include, def, defs}) ->
-  def initialize: (@_window, @origin) ->
 
-  def post: (_arguments) ->
-    @_window?.postMessage _arguments, @origin
+class AS.PostMessageSource
+  def initialize: (@target, @origin) ->
+    @post = @["postTo#{@target.constructor.name}"]
 
-AS.Model.PostMessageAdapter = Pathology.Object.extend ({delegate, include, def, defs}) ->
+  def postToWindow: (args) ->
+    @target.postMessage args, @origin
+  
+  def postToWorker: (args) ->
+    @target.postMessage args
+
+
+class AS.Model.PostMessageAdapter
   include Taxi.Mixin
 
   delegate 'post', to: 'source'
@@ -77,16 +137,16 @@ AS.Model.PostMessageAdapter = Pathology.Object.extend ({delegate, include, def, 
       else
         if current = property.get()
           console.log "currentValue", current.toString()
-          @register(current) if current instanceof AS.Model
+          @register(current) if current?.model instanceof AS.Model
 
         @binds property, "change", -> 
           value = property.get()
-          if value instanceof AS.Model
+          if value?.model instanceof AS.Model
             @register(value)
             value = value.id 
           @post ["change", model.id, property.options.name, value]
 
-    @post ["create", model.constructor.path(), model.id, model.payload()]
+    @post ["create", model.model.constructor.path(), model.id, model.payload()]
 
     return model
 

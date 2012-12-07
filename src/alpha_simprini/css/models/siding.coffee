@@ -1,4 +1,4 @@
-AS.Models.Siding = AS.Model.extend ({delegate, include, def, defs}) ->
+class AS.Models.Siding < AS.Model
   @hasOne "top", dependant: 'destroy'
   @hasOne "right", dependant: 'destroy'
   @hasOne "bottom", dependant: 'destroy'

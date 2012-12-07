@@ -1,4 +1,4 @@
-AS.Models.ZoneGroup = AS.Model.extend ({delegate, include, def, defs}) ->
+class AS.Models.ZoneGroup < AS.Model
   @hasMany "zones", model: -> AS.Models.Zone
   @hasOne "activeZone"
 

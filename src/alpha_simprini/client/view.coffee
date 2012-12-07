@@ -1,4 +1,4 @@
-AS.View = AS.DOM.extend ({delegate, include, def, defs}) ->
+class AS.View
   include Taxi.Mixin
   include AS.Callbacks
 

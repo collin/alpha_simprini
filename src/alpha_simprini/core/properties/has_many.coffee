@@ -1,10 +1,10 @@
 {include, any, each, clone} = _
-AS.Model.HasMany = AS.Model.Field.extend ({delegate, include, def, defs}) ->
+
+class AS.Model.HasMany < AS.Model.Field
   def couldBe: (test) ->
     return true if @options.model?() in (test.ancestors or [])
     @_super.apply(this, arguments)
 
-AS.Model.HasMany.Instance = AS.Model.Field.Instance.extend ({def, delegate}) ->
   delegate AS.COLLECTION_DELEGATES, to: "backingCollection"
   delegate 'groupBy', 'bind', 'trigger', 'unbind', to: "backingCollection"
 
@@ -34,6 +34,7 @@ AS.Model.HasMany.Instance = AS.Model.Field.Instance.extend ({def, delegate}) ->
   #   """
 
   def syncWith: (share) ->
+    return if @options.remote is false
     @share = share.at(@options.name)
     @stopSync()
 
@@ -161,56 +162,56 @@ AS.Model.HasMany.Instance = AS.Model.Field.Instance.extend ({def, delegate}) ->
   #   """
     
 
+class AS.Model.HasMany.Instance.Synapse < AS.Model.Field.Instance.Synapse
   def rawValue: -> @backingCollection.pluck('id').value()
 
-  @Synapse = AS.Model.CollectionSynapse.extend ({delegate, include, def, defs}) ->
-    def insert: (item, options) ->
-      @raw.add(item, options)
+  def insert: (item, options) ->
+    @raw.add(item, options)
 
-    def remove: (item, options) ->
-      @raw.remove @raw.at(options.at)
+  def remove: (item, options) ->
+    @raw.remove @raw.at(options.at)
 
-    def binds: (insertCallback, removeCallback) ->
-      @raw.bind "add#{@namespace}", (model, collection, options) ->
-        insertCallback(model, options)
+  def binds: (insertCallback, removeCallback) ->
+    @raw.bind "add#{@namespace}", (model, collection, options) ->
+      insertCallback(model, options)
 
-      @raw.bind "remove#{@namespace}", (model, collection, options) ->
-        removeCallback(model, options)
+    @raw.bind "remove#{@namespace}", (model, collection, options) ->
+      removeCallback(model, options)
 
-    def each: (fn) -> @raw.each(fn)
+  def each: (fn) -> @raw.each(fn)
 
-    def unbinds: ->
-      @raw.unbind(@namespace)
+  def unbinds: ->
+    @raw.unbind(@namespace)
 
-  @ShareSynapse = AS.Model.CollectionSynapse.extend ({delegate, include, def, defs}) ->
-    def initialize: (@raw, @path...) ->
-      @_super.apply(this, arguments)
+class AS.Model.Field.Instance.ShareSynapse < AS.Model.Field.Instance.ShareSynapse
+  def initialize: (@raw, @path...) ->
+    @_super.apply(this, arguments)
 
-    def binds: (insertCallback, removeCallback) ->
-      raw = @raw.at(@path)
-      @listeners = [
-        # raw.on "insert", (position, data) -> insertCallback(data, at: position)
-        # raw.on "delete", (position, data) -> removeCallback(data, at: position)
-      ]
+  def binds: (insertCallback, removeCallback) ->
+    raw = @raw.at(@path)
+    @listeners = [
+      # raw.on "insert", (position, data) -> insertCallback(data, at: position)
+      # raw.on "delete", (position, data) -> removeCallback(data, at: position)
+    ]
 
-    def unbinds: ->
-      @raw.removeListener(listener) for listener in @listeners
+  def unbinds: ->
+    @raw.removeListener(listener) for listener in @listeners
 
-    def insert: (model, options) ->
-      @raw.at(@path).set([]) if @raw.at(@path).get() in [null, undefined]
+  def insert: (model, options) ->
+    @raw.at(@path).set([]) if @raw.at(@path).get() in [null, undefined]
 
-      options.at ?= @raw.at(@path).get().length
-      if model.id in @raw.at(@path).get()
-        AS.warn "Attempted to add", model, "(again) to share at path:", @path
-        return
-      @raw.at(@path).insert(options.at, model.id)
+    options.at ?= @raw.at(@path).get().length
+    if model.id in @raw.at(@path).get()
+      AS.warn "Attempted to add", model, "(again) to share at path:", @path
+      return
+    @raw.at(@path).insert(options.at, model.id)
 
-    def remove: (model, options) ->
-      @raw.at(@path.concat([options.at])).remove()
-      @raw.at(@path).remove() unless any @raw.at(@path).get()
+  def remove: (model, options) ->
+    @raw.at(@path.concat([options.at])).remove()
+    @raw.at(@path).remove() unless any @raw.at(@path).get()
 
-    def each: (fn) ->
-      _.each @raw.at(@path).get(), fn
+  def each: (fn) ->
+    _.each @raw.at(@path).get(), fn
 
 #FIXME: this should have worked
 # AS.Model.HasMany.Instance.delegate "add", "remove", "bind", "unbind", "trigger", to: "backingCollection"

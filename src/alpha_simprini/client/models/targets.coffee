@@ -4,7 +4,7 @@ BOTTOM = name:"BOTTOM", toString: -> @name
 LEFT = name: "LEFT", toString: -> @name
 RIGHT = name: "RIGHT", toString: -> @name
 
-AS.Models.Targets = AS.Object.extend ({def, defs, include}) ->
+class AS.Models.Targets
   include Taxi.Mixin
   def TOP: TOP
   def MIDDLE: MIDDLE
@@ -116,7 +116,9 @@ AS.Models.Targets.BOTTOM = BOTTOM
 AS.Models.Targets.LEFT = LEFT
 AS.Models.Targets.RIGHT = RIGHT
 
-AS.Models.Targets.Edge = AS.Models.Targets.extend ({def}) ->
+
+class AS.Models.Targets.Edge < AS.Models.Targets
+  
   def initialize: (options={}) ->
     @_super()
     @edge = options.edge or 30
@@ -177,7 +179,8 @@ AS.Models.Targets.Edge = AS.Models.Targets.extend ({def}) ->
   #
   #   """
 
-AS.Models.Targets.Thirds = AS.Models.Targets.extend ({def}) ->
+
+
 
   def withinVertically: (y, rect) ->
     rect.top <= y <= rect.bottom
@@ -233,7 +236,8 @@ AS.Models.Targets.Thirds = AS.Models.Targets.extend ({def}) ->
   #
   #   """
 
-AS.Models.Targets.Hit = AS.Object.extend ({def}) ->
+
+class AS.Models.Targets.Hit
   def TOP: TOP
   def MIDDLE: MIDDLE
   def BOTTOM: BOTTOM

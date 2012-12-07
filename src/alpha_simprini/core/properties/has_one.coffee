@@ -1,4 +1,4 @@
-AS.Model.HasOne = AS.Model.Field.extend ({delegate, include, def, defs}) ->
+AS.Model.HasOne < As.Model.Field
   def couldBe: (test) ->
     return true if test in @options.model?().ancestors
     @_super.apply(this, arguments)
@@ -10,7 +10,6 @@ AS.Model.HasOne = AS.Model.Field.extend ({delegate, include, def, defs}) ->
   #
   #   """
 
-AS.Model.HasOne.Instance = AS.Model.Field.Instance.extend ({def}) ->
   def initialize: (@object, @options) ->
     @options.model ?= -> AS.Model
     @model = @options.model

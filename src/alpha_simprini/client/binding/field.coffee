@@ -1,4 +1,4 @@
-AS.Binding.Field = AS.Binding.extend ({def}) ->
+class AS.Binding.Field < AS.Binding
   def initialize: ->
     @_super.apply this, arguments
     @setContent()

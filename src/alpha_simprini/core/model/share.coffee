@@ -1,4 +1,4 @@
-{keys,bind,defer,each,flatten,compact} = _
+{keys,bind,defer,each,flatten,compact,after} = _
 require("bcsocket")
 require("sharejs")
 require("sharejs.json")
@@ -18,49 +18,56 @@ getConnection = (origin) ->
     connections[origin] = c
   
   connections[origin]
-AS.Model.ShareJSAdapter = AS.Object.extend ({delegate, include, def, defs}) ->
+
+
+class AS.Model.ShareJSAdapter
   include Taxi.Mixin
   # delegate 'open', to: 'store'
 
-  def initialize: (@url, @documentName) ->
+  def initialize: (@url, documentName, @localStorage=window.localStorage) ->
+    @documentName = documentName.toString()
     @registrations = Pathology.Set.new()
     @url ?= AS.ShareJSURL
 
     # Create the ShareJS document/connection
     @connection = getConnection(@url)
-    @document = new ShareJS.Doc(@connection, @documentName, type: 'json')
+    @document = new ShareJS.Doc(@connection, @documentName, type: 'json', create: true)
     @connection.docs[@documentName] = @document
 
     # fetch the doc from localStorage if it's there.
-    @fetchDoc()
+    @fetchDoc =>
+      # And whenever the document changes stash it in localStorage
+      @document.on "change", bind(@stashDoc, this)
+      # And whenever an op as acknowledged, update the stash
+      @document.on "acknowledge", bind(@stashDoc, this)
 
-    # And whenever the document changes stash it in localStorage
-    @document.on "change", bind(@stashDoc, this)
-    # And whenever an op as acknowledged, update the stash
-    @document.on "acknowledge", bind(@stashDoc, this)
-
-    # Finally, open the document
-    @open()
+      # Finally, open the document
+      @open()
 
 
-  def fetchDoc: ->
-    version = localStorage.getItem "#{@documentName}:share:version"
-    pendingOp = localStorage.getItem "#{@documentName}:share:pendingOp"
-    snapshot = localStorage.getItem "#{@documentName}:share:snapshot"
+  def fetchDoc: (callback) ->
+    didFetch = after 3, =>
+      console.log "didFetch!"
+      @loadEmbeddedData()
+      callback()
 
-    return unless version? and pendingOp? and Snapshot?
-
-    @document.pendingOp = JSON.parse pendingOp
-    @document.snapshot = JSON.parse snapshot
-    @document.version = parseInt(version, 10)
-
-    @loadEmbeddedData()
-
+    @localStorage.getItem "#{@documentName}:share:pendingOp", (value) =>
+      @document.pendingOp = JSON.parse value
+      didFetch()
+      
+    @localStorage.getItem "#{@documentName}:share:snapshot", (value) =>
+      @document.snapshot = JSON.parse value
+      didFetch()
+      
+    @localStorage.getItem "#{@documentName}:share:version", (value) =>
+      @document.version = parseInt(value, 10)
+      didFetch()
+        
   def stashDoc: (op, snapshot) ->
     pendingOp = flatten compact [@document.inflightOp, @document.pendingOp]
-    localStorage.setItem "#{@documentName}:share:version", @document.version
-    localStorage.setItem "#{@documentName}:share:pendingOp", JSON.stringify(pendingOp)
-    localStorage.setItem "#{@documentName}:share:snapshot", JSON.stringify(@document.snapshot)
+    @localStorage.setItem "#{@documentName}:share:version", @document.version
+    @localStorage.setItem "#{@documentName}:share:pendingOp", JSON.stringify(pendingOp)
+    @localStorage.setItem "#{@documentName}:share:snapshot", JSON.stringify(@document.snapshot)
 
   def maybeClose: ->
     numDocs = 0
@@ -132,6 +139,11 @@ AS.Model.ShareJSAdapter = AS.Object.extend ({delegate, include, def, defs}) ->
 
   def register: (model, data={}) ->
     return if @registrations.include(model)
+    if @connection.state isnt "ok"
+      console.log "will register model when connection 'ok'"
+      @connection.on "ok", => @register(model, data)
+      return model
+
     @registrations.add(model)
     console.log "[share] register", model.toString(), model.id
 

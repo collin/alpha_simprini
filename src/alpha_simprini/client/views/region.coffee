@@ -1,6 +1,6 @@
 sum = (array) -> _.reduce(array, ((memo, num) -> memo + num), 0)
 
-AS.Views.Region = AS.View.extend ({def}) ->
+class AS.Views.Region < AS.View
   def initialize: ->
     @_super.apply this, arguments
     @application?.bind "resize", => @layout()
@@ -20,8 +20,10 @@ AS.Views.Region = AS.View.extend ({def}) ->
   #
   #   """
 
-AS.Views.North = AS.Views.Region.extend ({def}) ->
-AS.Views.East = AS.Views.Region.extend ({def}) ->
+
+class AS.Views.North < AS.Views.Region
+
+class AS.Views.East < AS.Views.Region  
   def layout: ->
     @el.css
       top: @el.siblings(".North").outerHeight() or 0
@@ -34,8 +36,9 @@ AS.Views.East = AS.Views.Region.extend ({def}) ->
   #
   #   """
 
-AS.Views.South = AS.Views.Region.extend ({def}) ->
-AS.Views.West = AS.Views.Region.extend ({def}) ->
+class AS.Views.South < AS.Views.Region
+
+class AS.Views.West < AS.Views.Region
   def layout: ->
     @el.css
       top: @el.siblings(".North").outerHeight() or 0
@@ -48,7 +51,7 @@ AS.Views.West = AS.Views.Region.extend ({def}) ->
   #
   #   """
 
-AS.Views.Center = AS.Views.Region.extend ({def}) ->
+class AS.Views.Center < AS.Views.Region
   def layout: ->
     @el.css
       top: @el.siblings(".North").outerHeight() or 0

@@ -1,4 +1,4 @@
-AS.Models.FontSize = AS.Model.extend ({delegate, include, def, defs}) ->
+class AS.Models.FontSize < AS.Model
   @field "value"
   @field "unit"
 

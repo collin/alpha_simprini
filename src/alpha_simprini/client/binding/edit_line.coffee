@@ -1,5 +1,5 @@
 require "rangy-core"
-AS.Binding.EditLine = AS.Binding.extend ({def}) ->
+class AS.Binding.EditLine < AS.Binding
   def rangy: rangy
 
   def applyChange:  (doc, oldval="", newval="") ->

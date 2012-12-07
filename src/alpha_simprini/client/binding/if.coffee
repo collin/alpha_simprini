@@ -1,4 +1,6 @@
-AS.Binding.If = AS.Binding.Field.extend ({delegate, include, def, defs}) ->
+class AS.Binding.If < AS.Binding.Field
+  
+
   def setContent: ->
     @content.empty()
     @bindingGroup.unbind()

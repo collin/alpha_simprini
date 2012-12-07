@@ -10,6 +10,9 @@ AS.CSS.require """
   models/color models/color_stop models/color_stops models/percent
   models/length models/angle models/font_size models/font_family
   models/siding models/margin models/padding
-
-  views/color_stop_picker views/dialogs/color views/angle_picker views/color_picker
 """
+
+if AS.View
+  AS.CSS.require """
+    views/color_stop_picker views/dialogs/color views/angle_picker views/color_picker
+  """

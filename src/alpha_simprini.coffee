@@ -3,7 +3,8 @@ require "pathology"
 require "taxi"
 require "fleck"
 
-window.AS = Pathology.Namespace.new("AlphaSimprini")
+module AlphaSimprini
+window.AS = AlphaSimprini
 
 require "alpha_simprini/core/string"
 require "alpha_simprini/core/logging"
@@ -17,13 +18,13 @@ AS.part = (name) ->
   AS[name] = require: (libraries) -> AS.require name.toLowerCase(), libraries
 
 # Namespaces
-AS.Models = Pathology.Namespace.new()
-AS.Views = Pathology.Namespace.new()
+module AS.Models
+module AS.Views
+
 
 AS.Object = Pathology.Object
 AS.Map = Pathology.Map
 AS.Module = Pathology.Module
-AS.Namespace = Pathology.Namespace
 AS.Property = Taxi.Property
 AS.Property.Instance.def rawValue: -> @value
 

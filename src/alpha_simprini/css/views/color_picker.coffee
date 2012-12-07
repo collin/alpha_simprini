@@ -1,4 +1,4 @@
-AS.Views.ColorPicker = AS.View.extend ({delegate, include, def, defs}) ->
+class colorPicker
   def tagName: 'img'
 
   def events:

@@ -1,4 +1,4 @@
-AS.Binding.Select = AS.Binding.Input.extend ({def}) ->
+class AS.Binding.Select < AS.Binding.Input
   def initialize: ->
     @_super.apply(this, arguments)
     @requireOption "options"

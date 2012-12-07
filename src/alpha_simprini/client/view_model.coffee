@@ -1,4 +1,4 @@
-AS.ViewModel = AS.Object.extend ({delegate, include, def, defs}) ->
+class AS.ViewModel
   delegate 'readPath', 'writePath', to: 'model'
 
   defs build: (view, model) ->

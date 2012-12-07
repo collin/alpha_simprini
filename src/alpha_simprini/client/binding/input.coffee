@@ -1,4 +1,4 @@
-AS.Binding.Input = AS.Binding.Field.extend ({def}) ->
+class AS.Binding.Input < AS.Binding.Field
   def initialize: ->
     @_super.apply(this, arguments)
     if @options.bindingPath

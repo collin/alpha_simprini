@@ -1,6 +1,7 @@
 {each} = _
 
-AS.KeyRouter = AS.Object.extend ({delegate, include, def, defs}) ->
+
+class AS.KeyRouter
   def initialize: (@target, source) ->
     @reroute(source)
   # @::initialize.doc = 
@@ -41,9 +42,9 @@ AS.KeyRouter = AS.Object.extend ({delegate, include, def, defs}) ->
       "[a-z]/[0-9]/shift+[a-z]": "alphanum"
 
     each handlers, (trigger, key) =>
-      console.log trigger, key
+      # console.log trigger, key
       @source.on "keydown.#{@objectId()}", jwerty.event(key, (event) =>
-        console.log "KEY", trigger, @target.toString()
+        # console.log "KEY", trigger, @target.toString()
         @target.trigger(trigger, event)
       )
 

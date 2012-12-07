@@ -1,5 +1,6 @@
 {rpad} = AS.util
-AS.Models.Color = AS.Model.extend ({delegate, include, def, defs}) ->
+
+class AS.Models.Color < AS.Model
   @field 'red', type: AS.Model.Number
   @field 'green', type: AS.Model.Number
   @field 'blue', type: AS.Model.Number

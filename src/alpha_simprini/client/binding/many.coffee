@@ -1,5 +1,5 @@
 {bind} = _
-AS.Binding.Many = AS.Binding.extend ({def}) ->
+class AS.Binding.Many < AS.Binding
   @willGroupBindings = true
 
   def initialize: ->

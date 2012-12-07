@@ -2,7 +2,7 @@ domready = jQuery
 {defer} = _
 require("jwerty")
 
-AS.Application =  AS.Object.extend ({def, include}) ->
+class AS.Application
   include Taxi.Mixin
 
   def initialize: (config={}) ->

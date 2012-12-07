@@ -1,4 +1,4 @@
-AS.Binding.One = AS.Binding.Field.extend ({delegate, include, def, defs}) ->
+class AS.Binding.One < AS.Binding.Field
   def makeContent: ->
     AS.Binding.Container.new(@container[0])
   # @::makeContent.doc =

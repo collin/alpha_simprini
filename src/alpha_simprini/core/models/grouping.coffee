@@ -1,4 +1,4 @@
-AS.Models.Grouping = AS.Model.extend ({delegate, include, def, defs}) ->
+class AS.Models.Grouping < AS.Model
   @hasMany 'groups'
 
   def initialize: (@backingCollection, @groupByProperty, @metaData={}) ->

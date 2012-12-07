@@ -6,8 +6,8 @@ JPICKER_SETTINGS =
     alphaSupport:true
     alphaPrecision:2
 
+class AS.Views.Dialogs.Color
 
-AS.Views.Dialogs.Color = AS.Views.Dialog.extend ({delegate, include, def, defs}) ->
   def events:
     "dblclick .Map": "triggerCommit"
     "dblclick .Bar": "triggerCommit"

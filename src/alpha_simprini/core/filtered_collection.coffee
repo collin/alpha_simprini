@@ -2,7 +2,8 @@
 
 # Order in a FilteredCollection is not guaranteed to match the order
 # af the Collection being filtered.
-AS.FilteredCollection = AS.Collection.extend ({delegate, include, def, defs}) ->
+
+class AS.FilteredCollection < AS.Collection
   delegate 'add', 'remove', to: 'parent'
 
   def initialize: (@parent, conditions={}) ->

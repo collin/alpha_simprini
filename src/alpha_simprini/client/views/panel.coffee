@@ -1,1 +1,3 @@
-AS.Views.Panel = AS.View.extend()
+class AS.Views.Panel < AS.View
+  
+

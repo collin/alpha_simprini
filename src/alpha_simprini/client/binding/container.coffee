@@ -1,4 +1,4 @@
-AS.Binding.Container = AS.Object.extend ({delegate, include, def, defs}) ->
+class AS.Binding.Container
   delegate 'find', 'html', to: 'el'
 
   def initialize: (@domElement) ->

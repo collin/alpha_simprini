@@ -1,5 +1,6 @@
 {sortBy, map} = _
-AS.Models.ColorStops = AS.Model.extend ({delegate, include, def, defs}) ->
+
+class AS.Models.ColorStops < AS.Model
   @afterInitialize (model) => 
     model.angle.set @properties.angle.options.model().new()
   @belongsTo 'angle'

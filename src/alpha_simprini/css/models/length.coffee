@@ -1,4 +1,4 @@
-AS.Models.Length = AS.Model.extend ({delegate, include, def, defs}) ->
+class AS.Models.Length < AS.Model
   @field 'value', type: AS.Model.Number
   @field 'unit'
 

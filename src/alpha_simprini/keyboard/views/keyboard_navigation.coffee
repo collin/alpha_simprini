@@ -1,4 +1,4 @@
-AS.Views.KeyboardNavigation = AS.Module.extend ({delegate, include, def, defs}) ->
+module AS.Views.KeyboardNavigation
   def initialize: ->
     @events ?= {}
     @events["open @"] = "openCurrent"

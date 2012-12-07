@@ -1,2 +1,2 @@
-AS.Models.ColorStop = AS.Models.Color.extend ({delegate, include, def, defs}) ->
+class AS.Models.ColorStop < AS.Model
   @field 'stop', type: AS.Model.Number

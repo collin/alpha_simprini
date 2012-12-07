@@ -1,7 +1,8 @@
 require "knead"
 
-AS.Views.Dialogs = Pathology.Namespace.new()
-AS.Views.Dialog = AS.Views.Panel.extend ({delegate, include, def, defs}) ->
+module AS.Views.Dialogs
+
+class As.Views.Dialog < As.Views.Panel
   @afterContent (view) -> knead.monitor view.head
 
   def initialize: ->

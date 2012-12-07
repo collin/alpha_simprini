@@ -1,4 +1,4 @@
-AS.Models.FontFamily = AS.Model.extend ({delegate, include, def, defs}) ->
+class AS.Models.FontFamily < AS.Model
   @field "name"
   @field "fallback"
 
@@ -30,10 +30,6 @@ AS.CSS.FontFamilies = [
   sans   7, "Trebuchet MS"
   sans   8, "Verdana"
   mono   9, "Courier New"
-  # THESE ARE MOST LIKELY NOT GOING TO BE CORE FONTS IN PRODUCTION!
-  mono  10, "monofur"
-  sans  11, "Palatino"
-  sans  12, "Optima"
 ]
 
 options = AS.CSS.FontFamilies.options = {}

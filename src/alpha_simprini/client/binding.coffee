@@ -1,4 +1,4 @@
-AS.Binding = AS.Object.extend ({def}) ->
+class AS.Binding  
   def initialize: (@context, @model, @field, @options={}, @fn=undefined) ->
     if _.isString(@field)
       @field = @model[@field]

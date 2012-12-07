@@ -1,4 +1,4 @@
-AS.ViewEvents = AS.Object.extend ({def}) ->
+class AS.ViewEvents
   EVENT_SPLITTER = /^(@?[\w:]+)\s*(.*)$/
 
   def initialize: (@view, events) ->

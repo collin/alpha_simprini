@@ -19,7 +19,8 @@ extractIds = (object) ->
 
   [data, ids]
 
-AS.Model.REST = AS.Module.extend ({delegate, include, def, defs}) ->
+
+module AS.Model.REST
   defs mappings: AS.Map.new()
 
   defs rootKey: ->

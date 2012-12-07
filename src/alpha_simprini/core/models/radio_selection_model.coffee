@@ -1,4 +1,4 @@
-AS.Models.RadioSelectionModel = AS.Model.extend ({def}) ->
+class AS.Models.RadioSelectionModel < AS.Model
   @property 'selected'
 
   def initialize: (options={}) ->

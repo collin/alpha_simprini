@@ -1,6 +1,7 @@
 abort "Use Ruby 1.9 to build Alpha Simprini" unless RUBY_VERSION["1.9"]
 
 require 'rake-pipeline'
+require 'pathology-rake'
 require 'colored'
 require 'github_uploader'
 
@@ -150,4 +151,56 @@ task :release, [:version] => [:clean, :test] do |t, args|
   system "git push origin master"
   system "git push origin #{args[:version]}"
   Rake::Task[:upload].invoke
+end
+
+SourceFiles = FileList[File.expand_path("src/**/*.coffee")]
+
+CLASS_FILTER = /^([\w+\.?]+) = ([\w+\.?]+).extend.+$/
+X_CLASS_FILTER = /^([\w+\.?]+)\._class "([\w]+)", ([\w+\.?]+), .+$/
+MODULE_FILTER = /^([ ]*?)module ([\w+\.?]+)[ ]*?$/
+
+desc "upgrade syntax to newer ruby like syntax"
+file :rewrite_alpha_simprini_ruby_modules, SourceFiles do |t|
+  SourceFiles.each do |file|
+    content = File.open(file).read
+    content.gsub!(CLASS_FILTER) do |match|
+      print "."
+      name = $2.split(".")
+      unless name.length > 1
+        STDERR.puts "Cannot define class outside a namespace #{$2} \n  @ #{input.fullpath}"
+      end
+      extender = if $2 && $2 != "Pathology.Object"
+        " < #{$2}"
+      else
+        ""
+      end
+
+      puts %|class #{$1}#{extender}\n|
+    end
+
+    content.gsub!(X_CLASS_FILTER) do |match|
+      print "."
+      extender = if $3 && $3 != "Pathology.Object"
+        " < #{$3}"
+      else
+        ""
+      end
+      puts %|class #{$1}.#{$2}#{extender}\n|
+    end
+
+    # content.gsub!(MODULE_FILTER) do
+    #   print "."
+    #   name = $2.split(".")
+    #   if name.length == 1
+    #     puts %|#{$1}this.#{$2} = Pathology.Namespace.new "#{$2}"\n|
+    #   else
+    #     key = name.pop
+    #     puts %|#{$1}#{name * '.'}._module "#{key}", ({delegate, include, def, defs}) ->\n|
+    #   end
+    # end
+
+    File.open(file, "w+") do |handle|
+      handle.write content
+    end
+  end
 end

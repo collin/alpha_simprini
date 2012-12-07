@@ -24,7 +24,8 @@ SVG_ELEMENTS = _('
   font-face-name definition-src foreignObject
 '.split(" ")).chain().compact()
 
-AS.DOM = AS.Object.extend ({delegate, include, def, defs}) ->
+
+class AS.DOM
   def $: $
 
   def _document: document

@@ -1,4 +1,4 @@
-AS.Models.MultipleSelectionModel = AS.Model.extend ({def}) ->
+class AS.Models.MultipleSelectionModel < AS.Model
   @hasMany "items"
 
   def initialize: (options={}) ->

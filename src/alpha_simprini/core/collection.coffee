@@ -1,6 +1,6 @@
 {extend, isString} = _
 
-AS.Collection = AS.Object.extend ({def, include, delegate}) ->
+class AS.Collection
   include Taxi.Mixin
   delegate AS.COLLECTION_DELEGATES, to: "models"
 

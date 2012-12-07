@@ -1,4 +1,20 @@
 GIT
+  remote: git://gist.github.com/4194390.git
+  revision: 58b17c2276b7b4df6e6743f408df651d5db49184
+  specs:
+    pathology-rake (0.2.0)
+
+GIT
+  remote: git://github.com/collin/html_package.git
+  revision: 2d94d506a91a9f2b0dbe461882288796c28599c7
+  branch: master
+  specs:
+    html_package (0.0.7)
+      colored (>= 1.2)
+      nokogiri (~> 1.5.2)
+      thor (>= 0.14)
+
+GIT
   remote: https://github.com/livingsocial/rake-pipeline.git
   revision: 543f4322fe70facee9572d29ddabf7f090dad68a
   specs:
@@ -39,11 +55,10 @@ GEM
       github_api (= 0.4.11)
       rest-client
     hashie (1.2.0)
-    html_package (0.0.3)
     mime-types (1.18)
     multi_json (1.3.2)
     multipart-post (1.1.5)
-    nokogiri (1.5.2)
+    nokogiri (1.5.5)
     oauth2 (0.5.2)
       faraday (~> 0.7)
       multi_json (~> 1.0)
@@ -51,7 +66,7 @@ GEM
     rake (0.9.2.2)
     rest-client (1.6.7)
       mime-types (>= 1.16)
-    thor (0.14.6)
+    thor (0.16.0)
     tilt (1.3.3)
     uglifier (1.0.4)
       execjs (>= 0.3.0)
@@ -65,7 +80,8 @@ DEPENDENCIES
   coffee-script
   colored
   github_uploader (~> 0.1.0)
-  html_package (~> 0.0.3)
+  html_package!
+  pathology-rake!
   rake
   rake-pipeline!
   rake-pipeline-web-filters!

@@ -24,7 +24,14 @@ jQuery ->
     for name in klass.instanceMethods or []
       continue unless klass.instanceMethod(name).definedOn is klass.path()
       classes.append """
-        <a href="##{klass.path()}.instanceMethod.#{name}">##{name}</a>
+        <a class="method" href="##{klass.path()}.instanceMethod.#{name}">##{name}</a>
+      """
+
+    for name in klass.classMethods or []
+      continue if klass is Pathology.Object
+      continue unless klass.classMethod(name)?.definedOn is klass.path()
+      classes.append """
+        <a class="method" href="##{klass.path()}.classMethod.#{name}">#{name}</a>
       """
 
     classArticle = -> article id: @klass.path(), ->

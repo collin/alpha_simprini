@@ -1,4 +1,4 @@
-AS.Binding.File = AS.Binding.Input.extend ({delegate, include, def, defs}) ->
+class As.Binding.File < AS.Binding.Input
   def makeContent: ->
     options = _.clone(@options)
     options.type = "file"

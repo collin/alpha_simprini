@@ -1,4 +1,4 @@
-AS.Binding.Model = AS.Object.extend ({def}) ->
+class AS.Binding.Model < AS.Binding
   def initialize: (@context, @model, @content=$([])) ->
     @styles = {}
     @attrs = {}

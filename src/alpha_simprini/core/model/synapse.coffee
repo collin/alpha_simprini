@@ -1,4 +1,4 @@
-AS.Model.AbstractSynapse = AS.Object.extend ({delegate, include, def, defs}) ->
+class AS.Model.AbstractSynapse  
   defs create: (raw) ->
     if raw.constructor.Synapse
       raw.constructor.Synapse.new(raw)
@@ -33,7 +33,8 @@ AS.Model.AbstractSynapse = AS.Object.extend ({delegate, include, def, defs}) ->
     _(@notifications).invoke('off')
     @notifications = []
 
-AS.Model.Synapse = AS.Model.AbstractSynapse.extend ({delegate, include, def, defs}) ->
+
+class AS.Model.Synapse < AS.Model.AbstractSynapse
   # def dendriteClass: AS.Model.Dendrite
   @::dendriteClass = AS.Model.Dendrite
 
@@ -43,7 +44,8 @@ AS.Model.Synapse = AS.Model.AbstractSynapse.extend ({delegate, include, def, def
   def get: AS.unimplemented("get: ->")
   def set: AS.unimplemented("set: (value) ->")
 
-AS.Model.CollectionSynapse = AS.Model.AbstractSynapse.extend ({delegate, include, def, defs}) ->
+
+class AS.Model.CollectionSynapse < AS.Model.AbstractSynapse
   # def dendriteClass: AS.Model.CollectionDendrite
   # FIXME: don't super chain constructors!
   @::dendriteClass = AS.Model.CollectionDendrite

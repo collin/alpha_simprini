@@ -1,4 +1,4 @@
-AS.Model.Dendrite = AS.Object.extend ({delegate, include, def, defs}) ->
+class AS.Model.Dendrite
   def initialize: (@observer, @notifier, @config={}) ->
     @callback = _.bind(@callback, this)
     @on()
@@ -17,7 +17,7 @@ AS.Model.Dendrite = AS.Object.extend ({delegate, include, def, defs}) ->
   def off: ->
     @notifier.unbinds @callback unless @config.bindEvents is false
 
-AS.Model.CollectionDendrite = AS.Model.Dendrite.extend ({delegate, include, def, defs}) ->
+class AS.Model.CollectionDendrite < AS.Model.Dendrite
   def initialize: (@observer, @notifier, @config={}) ->
     @insertCallback = _.bind(@insertCallback, this)
     @removeCallback = _.bind(@removeCallback, this)

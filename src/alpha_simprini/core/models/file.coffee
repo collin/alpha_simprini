@@ -1,6 +1,6 @@
 camelize = fleck.upperCamelize
 
-AS.Models.File = AS.Model.extend ({delegate, include, def, defs}) ->
+class AS.Models.File < AS.Model
   defs familyClasses: AS.Map.new(-> this)
 
   defs registerFamilyClass: (mimeFamily, klass) ->

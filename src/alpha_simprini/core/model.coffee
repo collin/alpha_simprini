@@ -4,7 +4,7 @@ AS.All = byCid: {}, byId: {}, byIdRef: {}
 
 makeIdRef = (id, constructor) -> "#{id}-#{constructor.path()}"
 
-AS.Model = AS.Object.extend ({delegate, include, def, defs}) ->
+class AS.Model
   include Taxi.Mixin
   include AS.Callbacks
 
@@ -184,6 +184,7 @@ AS.Model = AS.Object.extend ({delegate, include, def, defs}) ->
   #     
   #   """
 
-AS.Model.UniqueId = AS.Module.extend ({delegate, include, def, defs}) ->
+
+
   defs find: (id) ->
     AS.All.byId[id] or @new(id:id)

@@ -1,6 +1,6 @@
 {upperCamelize} = fleck
 
-AS.Callbacks = AS.Module.extend ({def, defs}) ->
+module AS.Callbacks
   defs defineCallbacks: (all) ->
     for key, callbacks of all
       do (key, callbacks) =>

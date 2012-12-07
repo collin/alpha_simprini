@@ -1,6 +1,7 @@
 {extend, clone} = _
 
-AS.Model.Store = AS.Object.extend ({delegate, include, def, defs}) ->
+
+class AS.Model.Store  
   include Taxi.Mixin
 
   def initialize: ({@adapterClass, @adapterConfig}) ->

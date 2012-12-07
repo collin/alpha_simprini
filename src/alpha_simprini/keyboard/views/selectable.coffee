@@ -1,4 +1,4 @@
-AS.Views.Selectable = AS.Module.extend ({delegate, include, def, defs}) ->
+module AS.Views.Selectable
   def initialize: ->
     @events ?= {}
     @events["click"] = "activateSelf"

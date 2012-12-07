@@ -1,4 +1,4 @@
-AS.Views.Destructable = AS.Module.extend ({delegate, include, def, defs}) ->
+module AS.Views.Destructable
   def initialize: ->
     @events ?= {}
     @events["click .delete"] = "destroyModel"

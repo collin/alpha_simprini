@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html class>
 <head>
   <title>Pathology Documentation</title>
   <script type="text/javascript" src="../vendor/minispade.js"></script>
@@ -36,6 +36,18 @@
       display: block;
     }
 
+    #classes a:hover {
+      background-color: yellow;
+    }
+
+    #classes [href*=instanceMethod] {
+      display: none;
+    }
+
+    #classes.show-methods [href*=instanceMethod] {
+      display: block;
+    }
+
     #classdocs {
       position: absolute;
       top: 0;
@@ -50,15 +62,42 @@
       padding: 10px;
     }
   
-    #search input {
+    #search [type=search] {
       width: 100%;
     }
   </style>
+
+  <script>
+    jQuery(function() {
+      var classes = $("#classes")
+        , classLinks = classes.find("a");
+
+      $("#show-methods").click(function() {
+        classes.toggleClass("show-methods");
+      });
+
+
+
+      $("[type=search]").on('keypress keyup', _.throttle(function() {
+        var hidden, query = $(this).val().toLowerCase();
+        hidden = classLinks.filter(function() {
+          return !$(this).text().toLowerCase().match(query);
+        });
+
+        classLinks.show();
+        hidden.hide();
+      }));
+    });
+  </script>
 </head>
 <body>
-  <nav id="classes">
+  <nav id="classes" class="show-methods">
     <section id="search">
       <input type="search" placeholder="Filter">
+      <label>
+        <input type="checkbox" id="show-methods" checked>
+        Show Methods
+      </label>
     </section>
   </nav>
 

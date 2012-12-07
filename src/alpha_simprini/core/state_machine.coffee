@@ -5,7 +5,7 @@
 #   @event "stop_soon"
 #   @event "stop_now"
 #   @event ""
-AS.StateMachine = AS.Module.extend ({def}) ->
+module AS.StateMachine
   def transitionState: (options) ->
     if @state is options.from
       @["exit_#{@state}"]?(options) if @state # default state comes from nowhere

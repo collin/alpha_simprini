@@ -1,4 +1,4 @@
-AS.Models.Zone = AS.Model.extend ({delegate, include, def, defs}) ->
+class AS.Models.Zone < AS.Model
   @property "item", 
     get: ->
       return unless @value
