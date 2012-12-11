@@ -1,4 +1,4 @@
-class AnglePicker < AS.View
+class AS.Views.AnglePicker < AS.View
   @afterContent (view) ->
     knead.monitor view.el
 

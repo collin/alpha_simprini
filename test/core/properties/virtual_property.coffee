@@ -1,4 +1,4 @@
-NS.Virtualized = AS.Model.extend ->
+class NS.Virtualized < AS.Model
   @field "name"
   @property "other"
   @hasMany "others"
@@ -9,7 +9,7 @@ NS.Virtualized = AS.Model.extend ->
       get: -> @name.get()
       set: (value) -> @name.set(value)
 
-NS.Basic = AS.Model.extend ({delegate, include, def, defs}) ->
+class NS.Basic < AS.Model
   @field "name"
 
 module "VirtualProperty"

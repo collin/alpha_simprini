@@ -1,5 +1,5 @@
 class AS.Model.BelongsTo < AS.Model.HasOne
-class AS.Model.HasOne.Instance < As.Model.HasOne.Instance
+class AS.Model.BelongsTo.Instance < AS.Model.HasOne.Instance
   def bindToValue: (value) ->
     @_super.apply(this, arguments)
     value.bind "destroy#{@namespace}", =>
@@ -8,15 +8,14 @@ class AS.Model.HasOne.Instance < As.Model.HasOne.Instance
       else
         @set(null)
 
-class AS.Model.HasOne.Instance.Synapse < AS.Model.Field.Instance.Synapse
+class AS.Model.BelongsTo.Instance.Synapse < AS.Model.Field.Instance.Synapse
   def get: ->
     @raw.get()
 
   def set: (value) ->
     @raw.set(value)
 
-
-class class AS.Model.HasOne.Instance.ShareSynapse < AS.Model.Field.Instance.ShareSynapse
+class AS.Model.BelongsTo.Instance.ShareSynapse < AS.Model.Field.Instance.ShareSynapse
   def get: ->
     @raw.at(@path).get()
 

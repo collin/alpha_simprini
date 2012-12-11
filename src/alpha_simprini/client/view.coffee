@@ -1,4 +1,7 @@
-class AS.View
+AS.part("Core")
+AS.Core.require("callbacks")
+
+class AS.View < AS.DOM
   include Taxi.Mixin
   include AS.Callbacks
 

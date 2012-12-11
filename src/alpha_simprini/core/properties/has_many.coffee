@@ -5,6 +5,7 @@ class AS.Model.HasMany < AS.Model.Field
     return true if @options.model?() in (test.ancestors or [])
     @_super.apply(this, arguments)
 
+class AS.Model.HasMany.Instance < AS.Model.Field.Instance
   delegate AS.COLLECTION_DELEGATES, to: "backingCollection"
   delegate 'groupBy', 'bind', 'trigger', 'unbind', to: "backingCollection"
 
@@ -66,7 +67,7 @@ class AS.Model.HasMany < AS.Model.Field
   #   """
 
   def objects: (test) ->
-    if include test?.ancestors, AS.Model
+    if _.include test?.ancestors, AS.Model
       model for model in @backingCollection.models.value() when model instanceof test
     else
       @backingCollection.models.value()

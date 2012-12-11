@@ -1,11 +1,20 @@
 require "rake-pipeline-web-filters"
+require "pathology-rakep"
 require "json"
 # require "uglifier"
+
+output "lib"
+input "src" do
+  match "**/*.coffee" do |input|
+    filter PathologyConstantFilter
+    coffee_script
+  end
+end
 
 output "dist"
 input "lib" do
   match "**/*.js" do
-    minispade rewrite_requires: true, module_id_generator: proc { |input|
+    minispade rewrite_requires: true, string:true, module_id_generator: proc { |input|
      id = input.path.dup
       id.sub!('/lib/', '/')
       id.sub!(/\.js$/, '')
@@ -17,9 +26,17 @@ input "lib" do
   end
 end
 
-input "./", "alpha_simprini.erb" do
-  require "./version"
-  filter(Rake::Pipeline::Web::Filters::TiltFilter, {}, Object) do |input|
-    "alpha_simprini.html"
+output "tmp/test"
+input "test" do
+  match "**/*.coffee" do
+    filter PathologyConstantFilter
+    coffee_script
   end
 end
+# input "./", "alpha_simprini.erb" do
+#   require "./version"
+
+#   filter(Rake::Pipeline::Web::Filters::TiltFilter, {}, Object) do |input|
+#     "alpha_simprini.html"
+#   end
+# end

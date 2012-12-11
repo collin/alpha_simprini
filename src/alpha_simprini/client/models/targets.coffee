@@ -180,7 +180,7 @@ class AS.Models.Targets.Edge < AS.Models.Targets
   #   """
 
 
-
+class AS.Models.Targets.Thirds < AS.Models.Targets
 
   def withinVertically: (y, rect) ->
     rect.top <= y <= rect.bottom

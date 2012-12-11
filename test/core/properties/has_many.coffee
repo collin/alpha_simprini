@@ -95,22 +95,22 @@ test "triggers handler when hasMany segment changes", ->
   child.power.set("12")
   Taxi.Governer.exit()
 
-module "Sharing on load",
-  setup: ->
-    @o = HM.Child.new()
+# module "Sharing on load",
+#   setup: ->
+#     @o = HM.Child.new()
 
-    snap = "HasMany.Child": {}
-    snap["HasMany.Child"][@o.id] = {}
+#     snap = "HasMany.Child": {}
+#     snap["HasMany.Child"][@o.id] = {}
 
-    @doc = makeDoc(null, snap)
-    @doc.open = -> # Avoid talking to ShareJS over the wire
-    adapter = AS.Model.ShareJSAdapter.new("url", "documentName")
-    adapter.document = @doc
-    adapter.bindRemoteOperationHandler()
+#     @doc = makeDoc(null, snap)
+#     @doc.open = -> # Avoid talking to ShareJS over the wire
+#     adapter = AS.Model.ShareJSAdapter.new("url", "documentName")
+#     adapter.document = @doc
+#     adapter.bindRemoteOperationHandler()
 
-    @subDoc = @doc.at(["HasMany.Child", @o.id])
-    adapter.register(@o)
-    @o.children.syncWith(@subDoc)
+#     @subDoc = @doc.at(["HasMany.Child", @o.id])
+#     adapter.register(@o)
+#     @o.children.syncWith(@subDoc)
 
 
 # FIXME: sharedata is now ID only
@@ -127,71 +127,71 @@ module "Sharing on load",
 #   equal 2, o.children.backingCollection.length
 
 
-test "doesn't re-add data to share", ->
-    shareData =
-      children: [
-        _.uniqueId()
-        _.uniqueId()
-      ]
+# test "doesn't re-add data to share", ->
+#     shareData =
+#       children: [
+#         _.uniqueId()
+#         _.uniqueId()
+#       ]
 
-    share = makeDoc(null, shareData)
-    o = HM.Parent.new()
-    o.children.syncWith(share)
-    equal 2, share.at('children').get().length
+#     share = makeDoc(null, shareData)
+#     o = HM.Parent.new()
+#     o.children.syncWith(share)
+#     equal 2, share.at('children').get().length
 
-test "propagate values from share to model on sync", ->
-  o = HM.Parent.new()
-  child = HM.Child.new()
-  share = makeDoc()
-  share.at().set children: [child.id]
-  o.children.syncWith(share)
-  equal child.id, o.children.at(0).id
+# test "propagate values from share to model on sync", ->
+#   o = HM.Parent.new()
+#   child = HM.Child.new()
+#   share = makeDoc()
+#   share.at().set children: [child.id]
+#   o.children.syncWith(share)
+#   equal child.id, o.children.at(0).id
 
-test "default share value is undefined", ->
-  deepEqual undefined, @subDoc.at('children').get()
+# test "default share value is undefined", ->
+#   deepEqual undefined, @subDoc.at('children').get()
 
-test "when an item is added to the field it is added to the share", ->
-  child = @o.children.add HM.Child.new()
-  Taxi.Governer.exit()
-  deepEqual child.id, @subDoc.at('children', 0).get()
+# test "when an item is added to the field it is added to the share", ->
+#   child = @o.children.add HM.Child.new()
+#   Taxi.Governer.exit()
+#   deepEqual child.id, @subDoc.at('children', 0).get()
 
-test "adds item to the share at the specified index", ->
-  child = @o.children.add HM.Child.new()
-  child2 = @o.children.add HM.Child.new(), at: 0
-  Taxi.Governer.exit()
-  deepEqual child2.id, @subDoc.at('children', 0).get()
+# test "adds item to the share at the specified index", ->
+#   child = @o.children.add HM.Child.new()
+#   child2 = @o.children.add HM.Child.new(), at: 0
+#   Taxi.Governer.exit()
+#   deepEqual child2.id, @subDoc.at('children', 0).get()
 
-test "when an item is removed from the field it is removed from the share", ->
-  child = @o.children.add HM.Child.new()
-  @o.children.remove(child)
-  Taxi.Governer.exit()
-  deepEqual @subDoc.at('children').get(), undefined
+# test "when an item is removed from the field it is removed from the share", ->
+#   child = @o.children.add HM.Child.new()
+#   @o.children.remove(child)
+#   Taxi.Governer.exit()
+#   deepEqual @subDoc.at('children').get(), undefined
 
-test "when an item is added to the share it is added to the field", ->
-  child = HM.Child.new()
-  @subDoc.at('children').set([])
-  @doc.emit 'remoteop', @subDoc.at('children').insert(0, child.id)
-  equal child.id, @o.children.first().value().id
-  equal HM.Child, @o.children.first().value().constructor
+# test "when an item is added to the share it is added to the field", ->
+#   child = HM.Child.new()
+#   @subDoc.at('children').set([])
+#   @doc.emit 'remoteop', @subDoc.at('children').insert(0, child.id)
+#   equal child.id, @o.children.first().value().id
+#   equal HM.Child, @o.children.first().value().constructor
 
-test "when an item is removed from the share it is removed from the field", ->
-  child = @o.children.add HM.Child.new()
-  Taxi.Governer.exit()
-  @doc.emit 'remoteop', @subDoc.at('children', 0).remove()
-  equal @o.children.at(0), undefined
+# test "when an item is removed from the share it is removed from the field", ->
+#   child = @o.children.add HM.Child.new()
+#   Taxi.Governer.exit()
+#   @doc.emit 'remoteop', @subDoc.at('children', 0).remove()
+#   equal @o.children.at(0), undefined
 
-test "when data is already in the model", ->
-    @o = HM.Child.new()
-    @o.children.add()
+# test "when data is already in the model", ->
+#     @o = HM.Child.new()
+#     @o.children.add()
 
-    @doc = makeDoc(null, {})
-    @doc.open = -> # Avoid talking to ShareJS over the wire
-    adapter = AS.Model.ShareJSAdapter.new("url", "documentName")
-    adapter.document = @doc
-    adapter.bindRemoteOperationHandler()
+#     @doc = makeDoc(null, {})
+#     @doc.open = -> # Avoid talking to ShareJS over the wire
+#     adapter = AS.Model.ShareJSAdapter.new("url", "documentName")
+#     adapter.document = @doc
+#     adapter.bindRemoteOperationHandler()
 
-    adapter.register(@o)
+#     adapter.register(@o)
 
-    console.log @o.children
-    equal @o.children.share.get().length, 1
-    equal @o.children.count(), 1
+#     console.log @o.children
+#     equal @o.children.share.get().length, 1
+#     equal @o.children.count(), 1

@@ -1,6 +1,5 @@
 {extend, clone} = _
 
-
 class AS.Model.Store  
   include Taxi.Mixin
 

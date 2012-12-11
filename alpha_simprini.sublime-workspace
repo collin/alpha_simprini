@@ -519,46 +519,6 @@
 	},
 	"buffers":
 	[
-		{
-			"file": "src/doc.coffee",
-			"settings":
-			{
-				"buffer_size": 2630,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "docs/index.html",
-			"settings":
-			{
-				"buffer_size": 2587,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "test/core/callbacks.coffee",
-			"settings":
-			{
-				"buffer_size": 452,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "src/alpha_simprini/core/callbacks.coffee",
-			"settings":
-			{
-				"buffer_size": 706,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "Rakefile",
-			"settings":
-			{
-				"buffer_size": 3970,
-				"line_ending": "Unix"
-			}
-		}
 	],
 	"build_system": "",
 	"command_palette":
@@ -600,6 +560,11 @@
 	},
 	"file_history":
 	[
+		"/Users/collin/Code/alpha_simprini/Rakefile",
+		"/Users/collin/Code/alpha_simprini/src/alpha_simprini/core/callbacks.coffee",
+		"/Users/collin/Code/alpha_simprini/test/core/callbacks.coffee",
+		"/Users/collin/Code/alpha_simprini/docs/index.html",
+		"/Users/collin/Code/alpha_simprini/src/doc.coffee",
 		"/Users/collin/Code/cms/public/javascripts/application.js",
 		"/Users/collin/Code/alpha_simprini/test/core/properties/has_many.coffee",
 		"/Users/collin/Code/alpha_simprini/src/alpha_simprini/core/model/share.coffee",
@@ -609,7 +574,6 @@
 		"/Users/collin/Code/alpha_simprini/src/alpha_simprini/client/binding/if.coffee",
 		"/Users/collin/Code/alpha_simprini/src/alpha_simprini/core/properties/field.coffee",
 		"/Users/collin/Code/alpha_simprini/Assetfile",
-		"/Users/collin/Code/alpha_simprini/Rakefile",
 		"/Users/collin/Code/alpha_simprini/src/alpha_simprini/core/filtered_collection.coffee",
 		"/Users/collin/Code/alpha_simprini/src/alpha_simprini.coffee",
 		"/Users/collin/Code/alpha_simprini/src/alpha_simprini/core/model.coffee",
@@ -624,12 +588,10 @@
 		"/Users/collin/Code/alpha_simprini/src/alpha_simprini/client/application.coffee",
 		"/Users/collin/Code/alpha_simprini/src/alpha_simprini/client.coffee",
 		"/Users/collin/Code/alpha_simprini/test/index.html",
-		"/Users/collin/Code/alpha_simprini/docs/index.html",
 		"/Users/collin/Code/alpha_simprini/Assetfile-docs",
 		"/Users/collin/Code/alpha_simprini/test/client/dom.coffee",
 		"/Users/collin/Code/alpha_simprini/src/alpha_simprini/client/dom.coffee",
 		"/Users/collin/Code/alpha_simprini/autobuild.watchr",
-		"/Users/collin/Code/alpha_simprini/src/doc.coffee",
 		"/Users/collin/Code/alpha_simprini/test/client.coffee",
 		"/Users/collin/Code/alpha_simprini/docs/doc.js",
 		"/Users/collin/Code/alpha_simprini/src/alpha_simprini/core/properties/has_many.coffee",
@@ -725,9 +687,7 @@
 		"/Users/collin/Code/alpha_simprini/src/alpha_simprini/color.coffee",
 		"/Users/collin/Code/alpha_simprini/src/alpha_simprini/color/models/color_stops.coffee",
 		"/Users/collin/Code/alpha_simprini/src/alpha_simprini/color/views/color_stop_picker.coffee",
-		"/Users/collin/Code/alpha_simprini/src/alpha_simprini/color/models/color_stop.coffee",
-		"/Users/collin/Code/alpha_simprini/lib/alpha_simprini/client/binding/edit_line.js",
-		"/Users/collin/Code/alpha_simprini/src/alpha_simprini/core/logging.coffee"
+		"/Users/collin/Code/alpha_simprini/src/alpha_simprini/color/models/color_stop.coffee"
 	],
 	"find":
 	{
@@ -735,7 +695,7 @@
 	},
 	"find_in_files":
 	{
-		"height": 93.0,
+		"height": 0.0,
 		"where_history":
 		[
 			"*.coffee,/Users/collin/Code/alpha_simprini/src",
@@ -1007,149 +967,8 @@
 	"groups":
 	[
 		{
-			"selected": 0,
 			"sheets":
 			[
-				{
-					"buffer": 0,
-					"file": "src/doc.coffee",
-					"settings":
-					{
-						"buffer_size": 2630,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								767,
-								767
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/CofeeScript/CoffeeScript.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "docs/index.html",
-					"settings":
-					{
-						"buffer_size": 2587,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								2245,
-								2245
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/HTML/HTML.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 1031.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 2,
-					"file": "test/core/callbacks.coffee",
-					"settings":
-					{
-						"buffer_size": 452,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/CofeeScript/CoffeeScript.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 3,
-					"file": "src/alpha_simprini/core/callbacks.coffee",
-					"settings":
-					{
-						"buffer_size": 706,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								232,
-								232
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/CofeeScript/CoffeeScript.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 4,
-					"file": "Rakefile",
-					"settings":
-					{
-						"buffer_size": 3970,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								2033,
-								2033
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Ruby/Ruby.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 843.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				}
 			]
 		}
 	],

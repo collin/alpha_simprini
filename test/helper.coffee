@@ -8,8 +8,10 @@ NS = window.NS = AS.Namespace.new("NS")
 # _ = NS._ = require "underscore"
 # $ = NS.$ = require "jquery"
 # NS.jwerty = require("jwerty").jwerty
-AS.part("Core").require("model/share")
+AS.require("core")
 AS.require("client")
+
+AS.part("Core").require("model/share")
 # AS.suppress_logging()
 
 window.QUnit.testStart = ({module, name}) ->

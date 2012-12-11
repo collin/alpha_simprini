@@ -16,7 +16,6 @@ test "paints styles", ->
   binding.css
     "background-color": ["field1"]
 
-
   binding.paint()
   equal content.css("background-color"), "rgb(34, 34, 34)"
 
@@ -24,16 +23,14 @@ test "paints styles", ->
   Taxi.Governer.exit()
   equal content.css("background-color"), "rgb(0, 0, 0)"
 
-
 test "paints attributes", ->
   context = AS.View.new()
   content = $("<div>")
   model = BM.Model.new()
+  model.field1.set("mock-value")
   binding = AS.Binding.Model.new context, model, content
   binding.attr
-    "data-property":
-      fn: (model) -> model.property or "mock-value"
-      field: ["field1"]
+    "data-property": ["field1"]
 
 
   binding.paint()

@@ -1,7 +1,7 @@
 require "knead"
 {defer} = _
 
-class ColorStopHandle < AS.View
+class AS.Views.ColorStopHandle < AS.View
   def events:    
     "knead:dragstart": "dragstartStop"
     "knead:drag": "dragStop"
@@ -34,7 +34,7 @@ class ColorStopHandle < AS.View
     @colorPicker.pick @model
 
 
-class ColorStopPicker < AS.View
+class AS.Views.ColorStopPicker < AS.View
   @afterContent (view) ->
     knead.monitor view.el
 

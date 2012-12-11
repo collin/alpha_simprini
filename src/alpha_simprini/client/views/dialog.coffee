@@ -2,7 +2,7 @@ require "knead"
 
 module AS.Views.Dialogs
 
-class As.Views.Dialog < As.Views.Panel
+class AS.Views.Dialog < AS.Views.Panel
   @afterContent (view) -> knead.monitor view.head
 
   def initialize: ->

@@ -89,53 +89,53 @@ test "may bind through belongsTo by constructor", ->
   newother.name.set "new name"
   Taxi.Governer.exit()
 
-module "BelongsTo Sharing",
-  setup: ->
-    @o = NS.Parent.new()
+# module "BelongsTo Sharing",
+#   setup: ->
+#     @o = NS.Parent.new()
 
-    snap = "NS.Parent": {}
-    snap["NS.Parent"][@o.id] = {}
+#     snap = "NS.Parent": {}
+#     snap["NS.Parent"][@o.id] = {}
 
-    @doc = makeDoc(null, snap)
-    @doc.open = -> # Avoid talking to ShareJS over the wire
-    adapter = AS.Model.ShareJSAdapter.new("url", "documentName")
-    adapter.share = @doc
-    adapter.bindRemoteOperationHandler()
+#     @doc = makeDoc(null, snap)
+#     @doc.open = -> # Avoid talking to ShareJS over the wire
+#     adapter = AS.Model.ShareJSAdapter.new("url", "documentName")
+#     adapter.share = @doc
+#     adapter.bindRemoteOperationHandler()
 
-    @subDoc = @doc.at(["NS.Parent", @o.id])
-    @o.owner.syncWith(@subDoc)
+#     @subDoc = @doc.at(["NS.Parent", @o.id])
+#     @o.owner.syncWith(@subDoc)
 
 
-test "propagates field value to share on sync", ->
-  o = NS.Parent.new()
-  owner = NS.Owner.new()
-  share = makeDoc()
-  share.at().set({})
-  o.owner.set(owner)
-  o.owner.syncWith(share)
+# test "propagates field value to share on sync", ->
+#   o = NS.Parent.new()
+#   owner = NS.Owner.new()
+#   share = makeDoc()
+#   share.at().set({})
+#   o.owner.set(owner)
+#   o.owner.syncWith(share)
 
-  deepEqual owner.id, share.at('owner').get()
+#   deepEqual owner.id, share.at('owner').get()
 
-test "propagates share value to field on sync", ->
-  o = NS.Parent.new()
-  owner = NS.Owner.new()
-  share = makeDoc()
-  share.at().set({})
-  share.at('owner').set(owner.id)
-  o.owner.syncWith(share)
-  equal owner.id, o.owner.get().id
+# test "propagates share value to field on sync", ->
+#   o = NS.Parent.new()
+#   owner = NS.Owner.new()
+#   share = makeDoc()
+#   share.at().set({})
+#   share.at('owner').set(owner.id)
+#   o.owner.syncWith(share)
+#   equal owner.id, o.owner.get().id
 
-test "default share value is null", ->
-  equal @subDoc.at('owner').get(), undefined
+# test "default share value is null", ->
+#   equal @subDoc.at('owner').get(), undefined
 
-test "value propagates from model to share", ->
-  owner = NS.Owner.new()
-  @o.owner.set(owner)
-  Taxi.Governer.exit()
-  equal owner.id, @subDoc.at("owner").get()
+# test "value propagates from model to share", ->
+#   owner = NS.Owner.new()
+#   @o.owner.set(owner)
+#   Taxi.Governer.exit()
+#   equal owner.id, @subDoc.at("owner").get()
 
-test "value propagates from share to model", ->
-  owner = NS.Owner.new()
-  @doc.emit 'remoteop', @subDoc.at('owner').set(owner.id)
-  equal owner.id, @o.owner.get().id
-  
+# test "value propagates from share to model", ->
+#   owner = NS.Owner.new()
+#   @doc.emit 'remoteop', @subDoc.at('owner').set(owner.id)
+#   equal owner.id, @o.owner.get().id
+#   

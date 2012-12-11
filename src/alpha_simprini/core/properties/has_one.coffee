@@ -1,4 +1,4 @@
-AS.Model.HasOne < As.Model.Field
+class AS.Model.HasOne < AS.Model.Field
   def couldBe: (test) ->
     return true if test in @options.model?().ancestors
     @_super.apply(this, arguments)
@@ -10,6 +10,7 @@ AS.Model.HasOne < As.Model.Field
   #
   #   """
 
+class AS.Model.HasOne.Instance < AS.Model.Field.Instance
   def initialize: (@object, @options) ->
     @options.model ?= -> AS.Model
     @model = @options.model
@@ -82,19 +83,19 @@ AS.Model.HasOne < As.Model.Field
     value.bind "change#{@namespace}", => @triggerDependants()
     value.bind "destroy#{@namespace}", => @set(null)
   
-  @Synapse = AS.Model.Field.Instance.Synapse.extend ({delegate, include, def, defs}) ->
-    def get: ->
-      @raw.get()
+class AS.Model.HasOne.Instance.Synapse < AS.Model.Synapse
+  def get: ->
+    @raw.get()
 
-    def set: (value) ->
-      @raw.set(value)
+  def set: (value) ->
+    @raw.set(value)
 
-  @ShareSynapse = AS.Model.Field.Instance.ShareSynapse.extend ({delegate, include, def, defs}) ->
-    def get: ->
-      @raw.at(@path).get()
+class AS.Model.HasOne.Instance.Synapse < AS.Model.Field.Instance.ShareSynapse
+  def get: ->
+    @raw.at(@path).get()
 
-    def set: (value) ->
-      @_super(value?.id) if value?.id
+  def set: (value) ->
+    @_super(value?.id) if value?.id
 
 AS.Model.defs hasOne: (name, options) ->
   AS.Model.HasOne.new(name, this, options)

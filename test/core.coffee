@@ -3,8 +3,8 @@ test "testIdentity", ->
   ok AS.Identity(10)(10)
 
 test "constructorIdentity", ->
-  class Fake
-  ok AS.ConstructorIdentity(Fake)(new Fake)
+  class NS.Fake
+  ok AS.ConstructorIdentity(NS.Fake)(NS.Fake.new())
 
 test "deepClone", ->
   notEqual AS.deepClone(it = []), it

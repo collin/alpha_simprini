@@ -1,16 +1,20 @@
-NS.SomeTargets = AS.Models.Targets.extend ({def}) ->
+class NS.SomeTargets < AS.Models.Targets
   def selector: "target"
 
-class ClientRect
-  top: 0
-  left: 0
-  width: 0
-  height: 0
+class NS.ClientRect
+  def initialize: (properties) ->
+    @top = 0
+    @left = 0
+    @width = 0
+    @height = 0
 
-  constructor: (properties) ->
-    _.extend(this, properties)
+    _.extend this, properties
+    console.log "NS.ClientRect", properties, this
+
     @right = @left + @width
     @bottom = @top + @height
+
+ClientRect = NS.ClientRect
 
 module "Targets",
   setup: ->
@@ -25,13 +29,13 @@ module "Targets",
     @t3 = targets[2]
 
     @t1.getBoundingClientRect = ->
-      new ClientRect width: 100, height: 50
+      ClientRect.new width: 100, height: 50
 
     @t2.getBoundingClientRect = ->
-      new ClientRect top: 50, width: 100, height: 50
+      ClientRect.new top: 50, width: 100, height: 50
 
     @t3.getBoundingClientRect = ->
-      new ClientRect top: 100, width: 100, height: 50
+      ClientRect.new top: 100, width: 100, height: 50
 
   teardown: ->
     $("target").remove()
@@ -124,7 +128,7 @@ targetEvent = (x, y) ->
 setupEdgeTargets = ->
   @targets = AS.Models.Targets.Edge.new()
   @el = {}
-  @rect = new ClientRect width: 100, height: 50
+  @rect = ClientRect.new width: 100, height: 50
   @targets.targets = [
     el: @el
     rect: @rect
@@ -181,7 +185,7 @@ module "Targets.Thirds",
   setup: ->
     @targets = AS.Models.Targets.Thirds.new()
     @el = {}
-    @rect = new ClientRect width: 100, height: 50
+    @rect = ClientRect.new width: 100, height: 50
     @targets.targets = [
       el: @el
       rect: @rect

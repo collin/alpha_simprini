@@ -1,7 +1,8 @@
-Car = NS.Car = AS.Object.extend ({include, def}) ->
+class NS.Car < AS.Object
   include AS.StateMachine
 
   def initialize: -> @defaultState "off"
+Car = NS.Car
 
 module "StateMachine"
 test "hasDefaultState",  ->

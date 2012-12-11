@@ -2,7 +2,6 @@
 
 # TODO: Field is generic. reuse it.
 
-
 class AS.Model.Enum
   defs read: (value, options) ->
     # AS.Assert options.values
@@ -11,7 +10,6 @@ class AS.Model.Enum
   defs write: (value, options) ->
     # AS.Assert options.values
     options.values.indexOf(value)
-
 
 class AS.Model.String
   defs read: (value) ->
@@ -53,9 +51,7 @@ class AS.Model.TokenList
   defs write: (value) ->
     value.join(",")
     
-
-
-class AS.Model.Field
+class AS.Model.Field < AS.Property
   defs Casters: AS.Map.new()
 
   Casters = @Casters
@@ -106,38 +102,38 @@ class AS.Model.Field.Instance < AS.Property.Instance
   #
   #   """
 
-  def syncWith: (share) ->
-    return if @options.remote is false
-    @share = share.at(@options.name)
-    @set shareValue if shareValue = @share.get()
-    # #PERF console.time("set")
-    # @share.set("") unless @share.get()?
-    # #PERF console.timeEnd("set")
-    @stopSync()
+  # def syncWith: (share) ->
+  #   return if @options.remote is false
+  #   @share = share.at(@options.name)
+  #   @set shareValue if shareValue = @share.get()
+  #   # #PERF console.time("set")
+  #   # @share.set("") unless @share.get()?
+  #   # #PERF console.timeEnd("set")
+  #   @stopSync()
 
-    @synapse = @constructor.Synapse.new(this)
-    @shareSynapse = @constructor.ShareSynapse.new(share, @options.name)
+  #   @synapse = @constructor.Synapse.new(this)
+  #   @shareSynapse = @constructor.ShareSynapse.new(share, @options.name)
 
-    @synapse.notify(@shareSynapse)
-  # @::syncWith.doc =
-  #   params: [
-  #     ["share", "ShareJS.Doc", true]
-  #   ]
-  #   desc: """
-  #
-  #   """
+  #   @synapse.notify(@shareSynapse)
+  # # @::syncWith.doc =
+  # #   params: [
+  # #     ["share", "ShareJS.Doc", true]
+  # #   ]
+  # #   desc: """
+  # #
+  # #   """
 
-  def stopSync: ->
-    # @synapse?.stopObserving()
-    @synapse?.stopNotifying()
-  # @::stopSync.doc =
-  #   desc: """
-  #
-  #   """
+  # def stopSync: ->
+  #   # @synapse?.stopObserving()
+  #   @synapse?.stopNotifying()
+  # # @::stopSync.doc =
+  # #   desc: """
+  # #
+  # #   """
 
   def get: ->
     if @value isnt undefined
-      value = Casters.get(@options.type).read(@value, @options)
+      value = AS.Model.Field.Casters.get(@options.type).read(@value, @options)
     else
       @options.default
   # @::get.doc =
@@ -147,7 +143,7 @@ class AS.Model.Field.Instance < AS.Property.Instance
   #   """
 
   def set: (value) ->
-    writeValue = Casters.get(@options.type).write(value, @options)
+    writeValue = AS.Model.Field.Casters.get(@options.type).write(value, @options)
     return @value if writeValue is @value
     @value = writeValue
     @object.trigger("change")

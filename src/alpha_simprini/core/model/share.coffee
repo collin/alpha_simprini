@@ -20,7 +20,7 @@ getConnection = (origin) ->
   connections[origin]
 
 
-class AS.Model.ShareJSAdapter
+class AS.Models.ShareJSAdapter
   include Taxi.Mixin
   # delegate 'open', to: 'store'
 

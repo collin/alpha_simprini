@@ -1,5 +1,5 @@
-NS.AView = AS.View.extend()
-NS.Viewed = AS.Model.extend ({def}) ->
+class NS.AView < AS.View
+class NS.Viewed < AS.Model
   @field "field"
   @hasMany "many"
   @hasOne "one"

@@ -1,4 +1,4 @@
-class AS.Binding.CheckBok < AS.Binding.Input
+class AS.Binding.CheckBox < AS.Binding.Input
   def initialize: (context, model, field, options={}, fn=undefined) ->
     options.type = "checkbox"
     @_super.apply(this, arguments)

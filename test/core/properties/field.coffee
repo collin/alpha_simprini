@@ -76,53 +76,53 @@ test "may be nested in path bindings", ->
   other.boolean.set(true)
   Taxi.Governer.exit()
 
-module "Field.Sharing"
-  setup: ->
-    @o = Model.new()
+# module "Field.Sharing"
+#   setup: ->
+#     @o = Model.new()
 
-    snap = "Field.Model": {}
-    snap["Field.Model"][@o.id] = {}
+#     snap = "Field.Model": {}
+#     snap["Field.Model"][@o.id] = {}
 
-    @doc = makeDoc(null, snap)
-    @doc.open = -> # Avoid talking to ShareJS over the wire
-    adapter = AS.Model.ShareJSAdapter.new("url", "documentName")
-    adapter.share = @doc
-    adapter.bindRemoteOperationHandler()
+#     @doc = makeDoc(null, snap)
+#     @doc.open = -> # Avoid talking to ShareJS over the wire
+#     adapter = AS.Model.ShareJSAdapter.new("url", "documentName")
+#     adapter.share = @doc
+#     adapter.bindRemoteOperationHandler()
 
-    @subDoc = @doc.at(["Field.Model", @o.id])
-    @o.name.syncWith(@subDoc)
+#     @subDoc = @doc.at(["Field.Model", @o.id])
+#     @o.name.syncWith(@subDoc)
 
-test "propagate share value to model on sync", ->
-  o = Model.new()
-  share = makeDoc()
-  share.at().set name: "from share"
-  o.name.syncWith(share)
-  equal o.name.get(), "from share"
+# test "propagate share value to model on sync", ->
+#   o = Model.new()
+#   share = makeDoc()
+#   share.at().set name: "from share"
+#   o.name.syncWith(share)
+#   equal o.name.get(), "from share"
 
-test "propagate field value to @share on sync", ->
-  o = Model.new(name: "from model")
-  share = makeDoc()
-  share.at().set {}
-  o.name.syncWith(share)
-  equal "from model", share.at('name').get()
+# test "propagate field value to @share on sync", ->
+#   o = Model.new(name: "from model")
+#   share = makeDoc()
+#   share.at().set {}
+#   o.name.syncWith(share)
+#   equal "from model", share.at('name').get()
 
-test "field updates when share is set", ->
-  @doc.emit "remoteop", @subDoc.at('name').set("SET VALUE")
-  equal @o.name.get(), "SET VALUE"
+# test "field updates when share is set", ->
+#   @doc.emit "remoteop", @subDoc.at('name').set("SET VALUE")
+#   equal @o.name.get(), "SET VALUE"
 
-test "share updates when field is set", ->
-  @o.name.set("NOTIFIED")
-  Taxi.Governer.exit()
-  equal @subDoc.at('name').get(), "NOTIFIED"
+# test "share updates when field is set", ->
+#   @o.name.set("NOTIFIED")
+#   Taxi.Governer.exit()
+#   equal @subDoc.at('name').get(), "NOTIFIED"
 
-test "field updates on share insert", ->
-  @o.name.set("abc")
-  Taxi.Governer.exit()
-  @doc.emit "remoteop", @subDoc.at('name').insert(0, "123")
-  equal @o.name.get(), "123abc"
+# test "field updates on share insert", ->
+#   @o.name.set("abc")
+#   Taxi.Governer.exit()
+#   @doc.emit "remoteop", @subDoc.at('name').insert(0, "123")
+#   equal @o.name.get(), "123abc"
 
-test "field updates on share delete", ->
-  @o.name.set("Co123llin")
-  Taxi.Governer.exit()
-  @doc.emit "remoteop", @subDoc.at('name').del(2, 3)
-  equal @o.name.get(), "Collin"
+# test "field updates on share delete", ->
+#   @o.name.set("Co123llin")
+#   Taxi.Governer.exit()
+#   @doc.emit "remoteop", @subDoc.at('name').del(2, 3)
+#   equal @o.name.get(), "Collin"

@@ -1,5 +1,6 @@
-# {bind, flatten, each} = _
-# {upperCamelize} = fleck
+{bind, flatten, each} = _
+{upperCamelize} = fleck
+  
 
 # AS.Model.LocalStorageAdapter = AS.Object.extend ({delegate, include, def, defs}) ->
 #   def localStorage: window.localStorage

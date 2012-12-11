@@ -1,4 +1,4 @@
-class colorPicker
+class AS.Views.ColorPicker < AS.View
   def tagName: 'img'
 
   def events:
