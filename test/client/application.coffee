@@ -1,6 +1,6 @@
 module "Application",
   setup: ->
-    @app = AS.Application.new(el: @el = $("<div>"))
+    window.app = @app = AS.Application.new(el: @el = $("<div>"))
 
 test "attaches global key handlers w/jwerty", ->
   events = [
@@ -22,9 +22,12 @@ test "attaches global key handlers w/jwerty", ->
   expect triggers.length
 
 
+  # route application keyrouter to our element
+  @app.keyRouter.reroute(@el)
+
   for trigger in triggers
     jwerty.fire trigger, @el
-    Taxi.Governer.exit()
+    Taxi.Governer.exit()  
 
 test "initializes views into the application context", ->
   app_panel = @app.view AS.Views.Panel, key: "value"
