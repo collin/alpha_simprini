@@ -1,6 +1,4 @@
 class AS.Binding.If < AS.Binding.Field
-  
-
   def setContent: ->
     @content.empty()
     @bindingGroup.unbind()

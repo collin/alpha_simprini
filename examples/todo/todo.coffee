@@ -2,36 +2,31 @@
 # The first step is to load Alpha Simprini and the AS `client` module.
 # The client module includes the AS.View class and is used to generate
 # guis.
-AS = require("alpha_simprini")
+require("alpha_simprini")
+# Alpha Simprini provides it's own mechanism to require
+# it's modules.
 AS.require("client")
+AS.require("keyboard")
 
 
 # This module contains Modules and Views.
-# More complicated modules might include a Collections object.
-Todo = module.exports =
-  Models: new Object
-  Views: new Object
-
+# More complicated apps might include 
+# Collections or other modules
+module Todo
+module Todo.Models
+module Todo.Views
 
 # ### Todo.Models.List
-class Todo.Models.List extends AS.Model
-  # The AS.Model.Share mixin adds features from the ShareJS library.
-  # The ShareJS integration neccessitates a string path which is used
-  # to inflate objects passed in through the ShareJS transport.
-  AS.Model.Share.extends(this, "Todo.Models.List")
-
+class Todo.Models.List < AS.Model
   # #### Fields
   # The name field is a simple string property with a default value.
   # It's a suitable default name for a list of things to do.
   @field "name", default: "A list of things to do..."
 
   # #### Relationships
-  # When we embed\_many items, we're creating a 1-n relationship between
-  # Lists and Items. In coordination with AS.Model.Share, @embeds\_many
-  # stores all the embedded models within the same ShareJS document as
-  # the list object. If we had used @has\_many, they would be stored in
-  # seperate documents with something like a foreign key relation.
-  @embeds_many "items", model: -> Todo.Models.Item
+  # When we `hasMany items`, we're creating a 1-n relationship between
+  # Lists and Items. 
+  @hasMany "items", model: -> Todo.Models.Item
 
 
   # #### Virtual Properties
@@ -44,30 +39,28 @@ class Todo.Models.List extends AS.Model
   # are compared to previous values. If the value is different a change event is
   # triggered.
   @virtualProperties "items",
-    items_length: ->
-      @items().length
+    itemsLength: ->
+      @items.count()
 
-    remaining_items_length: ->
-      @items().filter((item) -> !item.done()).value().length
+    remainingItemsLength: ->
+      @items.filter((item) -> !item.done()).value().length
 
-    all_done: ->
-      @remaining_items_length() is 0
+    allDone: ->
+      @remainingItemsLength() is 0
 
-    done_items_length: ->
-      @items().filter((item) -> item.done()).value().length
+    doneItemsLength: ->
+      @items.filter((item) -> item.done()).value().length
 
 # ### Todo.Models.Item
 # These items are embedded within a Todo.Views.List
-class Todo.Models.Item extends AS.Model
-  AS.Model.Share.extends(this, "Todo.Models.Item")
-
+class Todo.Models.Item < AS.Model
   @field "task", default: "Something to do..."
   # #### Field types.
   # A field may have a type. This field is a boolean field.
   @field "done", type: AS.Model.Boolean, default: false
 
 # ### Todo.Views.List
-class Todo.Views.List extends AS.View
+class Todo.Views.List < AS.View
   # #### View Events
   # Similar to Backbone.js View events these events are 'live' bound
   # to the container element for this view.
@@ -85,24 +78,25 @@ class Todo.Views.List extends AS.View
   # #### DOM Generation
   # AlphaSimprini uses pure script to generate DOM.
   # All DOM is appended to a top-level @el. Which defaults to a <div>
-  # The tagname may be spetified as:
+  # The tagname may be specified as:
   #
   #     tag_name: "ul"
   #
   initialize: ->
-    # #### editline
-    # A special content binding for use in conjuction with
-    # AS.Model.Share. It provides a [contenteditable] <span> which is linked
-    # "as-you-type" to other active sessions via ShareJS.
-    #
-    # (We will see later, in the Application initializer, that this view has been
-    #  constructed with a Todo.Models.List object. )
-    #
-    @h1 -> @list.editline "name"
+    # # #### editline
+    # # A special content binding for use in conjuction with
+    # # AS.Model.Share. It provides a [contenteditable] <span> which is linked
+    # # "as-you-type" to other active sessions via ShareJS.
+    # #
+    # # (We will see later, in the Application initializer, that this view has been
+    # #  constructed with a Todo.Models.List object. )
+    # #
+    # @h1 -> @list.editline "name"
+    @h1 -> @list.input("name")
 
     # This button is bound to the add\_item method through the
     # events: specified at the top of the class.
-    @button class: "add_item", -> "Add Item"
+    @button class: "add-item", -> "Add Item"
 
     @label ->
       # #### Field/Property/Relation Binding
@@ -110,16 +104,17 @@ class Todo.Views.List extends AS.View
       # the appropriate databinding in the DOM. Here a function is used to specify
       # the content in the binding. As 'all\_done' is a virtual property the contents
       # of this binding will be redrawn whenever the value of the property changes.
-      @list.binding "all_done", ->
-        # #### Checkbox Binding
-        # Binds the value of 'all\_done' to a checkbox. This binding is two-way. Changing
-        # the value of the checkbox changes the value on the model.
-        # (TODO: At this moment the implementation of setting virtual properties is non-existent.
-        # clicking this checkbox will not effect the underlying data.)
-        @list.checkbox("all_done")
-        if @list.all_done()
+
+      # #### Checkbox Binding
+      # Binds the value of 'allDone' to a checkbox. This binding is two-way. Changing
+      # the value of the checkbox changes the value on the model.
+      # (TODO: At this moment the implementation of setting virtual properties is non-existent.
+      # clicking this checkbox will not effect the underlying data.)
+      @list.checkbox("allDone")
+      @list.if "allDone", 
+        then: ->
           @text  "Mark all as incomplete"
-        else
+        else: ->
           @text "Mark all as complete"
 
     # The listing method encapsulates and makes reusable the code to display a list
@@ -129,8 +124,7 @@ class Todo.Views.List extends AS.View
 
     @footer ->
       @span ->
-        @list.binding "remaining_items_length", =>
-          count = @list.remaining_items_length()
+        @list.binding "remainingItemsLength", (count) =>
           @span "#{count} more #{@pluralize("thing", count)} to do!"
 
       @span ->
@@ -170,7 +164,7 @@ class Todo.Views.List extends AS.View
     items.each (item) => items.remove(item) if item.done()
 
 # ### Todo.Application
-class Todo.Application extends AS.Application
+class Todo.Application < AS.Application
   # Because we are using ShareJS, we must "open" our List object and bind to the "ready"
   # event. The @params are set on the Todo namespace and passed onto the @params field
   # at application initialization time.

@@ -1,5 +1,5 @@
 class AS.Models.MultipleSelectionModel < AS.Model
-  @hasMany "items"
+  @hasMany "items", remote:false
 
   def initialize: (options={}) ->
     @property = options.property

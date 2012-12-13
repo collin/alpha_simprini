@@ -71,9 +71,9 @@ class AS.Application
 
   def prepareModel: (id, _model) ->
     path = _model.constructor.path()
-    constructor = AS.loadPath(path)
-    model = constructor.prepare(id: id, application: this)
-    console.log "[preparedModel] #{model.toString()}, #{model.id}" 
+    _constructor = AS.loadPath(path)
+    model = _constructor.prepare(id: id, application: this)
+    # console.log "[preparedModel] #{model.toString()}, #{model.id}" 
   # @::prepareModel.doc = 
   #   params: [
   #     ["id", [String], true]
@@ -102,7 +102,7 @@ class AS.Application
 
   def takeOverState: (application) ->
     for key, value of application.stateObjects
-      console.log "[takeOverState] #{key} => #{value.toString()}", value.id
+      # console.log "[takeOverState] #{key} => #{value.toString()}", value.id
       @stateObjects[key] = @[key] = AS.Model.find(value.id)
   # @::takeOverState.doc = 
   #   params: [
@@ -112,13 +112,13 @@ class AS.Application
   #     Take aver the state objects of another application. Used when cutting over.
   #   """
 
-  def state: (name, constructor, options...) ->
+  def state: (name, _constructor, options...) ->
     return if @[name]?
 
-    stateObject = if constructor.new
-      constructor.new.apply(constructor, options)
+    stateObject = if _constructor.new
+      _constructor.new.apply(_constructor, options)
     else
-      constructor
+      _constructor
 
     @[name] = @stateObjects[name] = stateObject
   # @::state.doc = 
@@ -126,9 +126,9 @@ class AS.Application
   #     Creates a state object in the application.
   #   """
 
-  def view: (constructor, options={}) ->
+  def view: (_constructor, options={}) ->
     options.application = this
-    constructor.new options
+    _constructor.new options
   # @::view.doc =
   #   desc: """
   #     Creates a view in the application.

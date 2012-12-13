@@ -57,10 +57,10 @@ class AS.Model
 
   def takeOver: (model) ->
     for property in model.properties()
-      continue unless property.rawValue?
+      continue unless property.rawValue? and rawValue = property.rawValue()
       name = property.options.name
-      console.log "takeOver #{name} #{property.rawValue()}"
-      @[name].set property.rawValue()
+      # console.log "takeOver #{name} rawValue #{property.rawValue()}"
+      @[name].set property.rawValue() 
     @runCallbacks 'afterInitialize'
   # @::takeOver.doc = 
   #   params: [
@@ -120,8 +120,8 @@ class AS.Model
 
   def setId: (id) ->
     if @id
-      delete AS.All.byId[@id]
-      delete AS.All.byIdRef["#{@id}-#{@constructor.path()}"]
+      AS.All.byId[@id] = undefined
+      AS.All.byIdRef["#{@id}-#{@constructor.path()}"] = undefined
 
     @id = id
     @idRef = makeIdRef(@id, @constructor)

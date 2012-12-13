@@ -1,5 +1,5 @@
 class AS.Models.RadioSelectionModel < AS.Model
-  @property 'selected'
+  @belongsTo 'selected', remote:false
 
   def initialize: (options={}) ->
     @property = options.property
