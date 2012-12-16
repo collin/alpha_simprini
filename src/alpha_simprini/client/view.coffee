@@ -343,10 +343,35 @@ class AS.View < AS.DOM
   #   desc: """
   #
   #   """
+
   def icon: (name, options={}) ->
     if options.class
       options.class = "#{options.class} icon-#{name}"
     else
       options.class = "icon-#{name}"  
     @i options
+  # @::icon.doc = 
+  #   params: [
+  #     ["name", "String", true]
+  #     ["options", Object, false]
+  #   ]
+  #   desc: """
+  #     Creates an <i> element with a class "icon-#{name}", such as
+  #     <i class="icon-magnifier
+  #   """    
+
+  def preventDefault: (event) -> event.preventDefault()
+  # @::preventDefault.doc = 
+  #   params: [
+  #     [event, "DOMEvent", true]
+  #   ]
+  #   desc: """
+  #     A useful event handler that prevents the default behavior.
+  #     Use it in the events hash like so to prevent navigations on links
+  #     with a 'stopped' class.
+  #     ```coffee
+  #       events:
+  #          "click a.stopped": "preventDefault"
+  #     ```
+  #   """
     

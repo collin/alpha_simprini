@@ -8,6 +8,10 @@ class AS.Chassis.Block
     @appname = "app"
     # window.addEventListener "message", bind(@forwardMessage, this), false
     $ =>
+      $(window).on "keydown", (event) ->
+        return if $(event.target).is(":input, [contenteditable]")
+        event.preventDefault() if event.keyCode is 8
+
       @viewport = $(document.createElement("section"))
       @viewport.addClass("Viewport")
       @viewport.appendTo(document.body)

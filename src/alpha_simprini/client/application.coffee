@@ -24,6 +24,7 @@ class AS.Application
     bind blur change click dblclick focus focusin focusout 
     keydown keypress keyup load mousedown mousenter mouseleave mousemove 
     mouseout mouseover mouseup ready resize scroll select submit load unload
+    mousewheel
   """
   def applyTo: (element) ->
     @el = $(element)

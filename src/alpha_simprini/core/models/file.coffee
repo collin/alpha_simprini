@@ -32,7 +32,7 @@ class AS.Models.File < AS.Model
   defs build: (source) ->
     if _.isString(source)
       @build_from_url(source)
-    else if source instanceof @::File
+    else if source.lastModifiedDate?
       @build_from_filereader(source)
     # else if source instanceof Image
     #   @build_from_image(source)

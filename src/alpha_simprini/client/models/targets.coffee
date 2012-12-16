@@ -23,7 +23,7 @@ class AS.Models.Targets
   #   """
 
   def gather: ->
-    @targets = $(@selector).map (i, el) ->
+    @targets = $(@selector, @application?.el).map (i, el) ->
       return el: $(el), rect: el.getBoundingClientRect()
   # @::gather.doc =
   #   params: [
@@ -64,6 +64,7 @@ class AS.Models.Targets
   #   """
 
   def drop: (event) ->
+    @trigger("drop")
   # @::drop.doc =
   #   params: [
   #     []
@@ -85,7 +86,9 @@ class AS.Models.Targets
   #   """
 
   def transitionHit: (hit) ->
-    return @dropend() if hit is null
+    if hit is null
+      @currentHit = undefined
+      return @dropend() 
     @currentHit ?= AS.Models.Targets.Hit.new()
     # Nothin' changed, eh?
     return if @currentHit.equals(hit) or hit.rect is undefined
