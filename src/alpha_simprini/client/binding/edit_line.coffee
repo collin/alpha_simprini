@@ -49,10 +49,9 @@ class AS.Binding.EditLine < AS.Binding
   #
   #   """
 
-  def initialize: ->
+  def initialize: (context, model, field, options={}, fn=undefined) ->
+    options.contentEditable = true
     @_super.apply(this, arguments)
-    @options.contentEditable = true
-    @content = @makeContent()
     @elem = @content[0]
     @elem.innerHTML = @fieldValue()
     @previousValue = @fieldValue()

@@ -19,7 +19,6 @@ class AS.View < AS.DOM
     baseAttributes["class"] = undefined if @el.attr("class")
     baseAttributes["id"] = undefined if @el.attr("id")
     @el.attr(baseAttributes)
-    @el.data().view = this
   # @::_ensureElement.doc =
   #   params: [
   #     []
@@ -27,7 +26,6 @@ class AS.View < AS.DOM
   #   desc: """
   #
   #   """
-
 
   def initialize: (config={}) ->
     config.el = @$(config.el) if config.el and !(config.el.jquery)
@@ -51,6 +49,8 @@ class AS.View < AS.DOM
     @delegateEvents()
     @bindAttrs()
     @runCallbacks "afterContent"
+    @el.data().view = this
+
   # @::initialize.doc =
   #   params: [
   #     []
@@ -168,7 +168,8 @@ class AS.View < AS.DOM
   def view: (constructor, options={}) ->
     options.application = @application
     options.parentView = this
-    view = constructor.new(options)
+    view = constructor.new(options)  
+    @[options.name] = view if options.name
     @childViews.push(view)
     @bindingGroup.addChild(view)
     @currentNode?.appendChild view.el[0] unless view.el.parent().is("*")
@@ -178,7 +179,10 @@ class AS.View < AS.DOM
   #     []
   #   ]
   #   desc: """
-  #
+  #     <dl>
+  #       <dt> name
+  #       <dd> If name option is given the child view will be set as a property
+  #            on the parent view.
   #   """
 
   def descendantViews: (views=[], constructor) ->
@@ -223,10 +227,22 @@ class AS.View < AS.DOM
   #   """
 
   def binding: (bindable, options, fnOrElement) ->
-    if bindable instanceof AS.Collection or bindable instanceof AS.Model.HasMany.Instance
+    if fnOrElement is undefined and _.isFunction(options)
+      fnOrElement = options
+      options = {}
+
+    if _.include(fnOrElement?.ancestors, AS.View)
+      @binding bindable, options, (model) -> 
+        options.model = model
+        @view fnOrElement, options
+    else if bindable instanceof AS.Collection or bindable instanceof AS.Model.HasMany.Instance
       AS.Binding.Many.new(this, bindable, bindable, options, fnOrElement)
     else if bindable instanceof AS.Model
       AS.Binding.Model.new(this, bindable, options or fnOrElement)
+    else if _.isString(bindable) and @model?[bindable]
+      @model.binding(bindable, options, fnOrElement)
+    else if _.isString(bindable) and @[bindable]
+      @binding @[bindable], options, fnOrElement
   # @::binding.doc =
   #   params: [
   #     []
@@ -258,25 +274,53 @@ class AS.View < AS.DOM
   #   """
 
   def delegateEvents: () ->
+    @stateStates = AS.Map.new()
+
     if @events
       @standardEvents = AS.ViewEvents.new(this, @events)
       @standardEvents.applyBindings()
 
-    stateEvents = _(@constructor::).chain().keys().filter (key) -> key.match(/_events$/)?
+    stateEvents = _(@constructor::).chain().keys().filter( (key) -> key.match(/Events$/)? )
     @stateEvents = {}
     for key in stateEvents.value()
-      state = key.replace(/_events$/, '')
+      state = key.replace(/Events$/, '')
       do (key, state) =>
         @stateEvents[state] = AS.ViewEvents.new(this, @[key])
 
         @["exit_#{state}"] = ->
+          if @stateStates.get(state) is false
+            throw "Cannot exit a state before entering it: #{state}"
           @trigger("exitstate:#{state}")
           @stateEvents[state].revokeBindings()
+          @stateStates.set(state, false)
 
         @["enter_#{state}"] = ->
+          if @stateStates.get(state) is true
+            throw "Cannot re-enter a state: #{state}"
+          @stateStates.set(state, true)
           @trigger("enterstate:#{state}")
           @stateEvents[state].applyBindings()
   # @::delegateEvents.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
+
+  def enterState: (stateName) ->
+    @["enter_#{stateName}"]()
+  # @::enterState.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
+
+  def exitState: (stateName) ->
+    @["exit_#{stateName}"]()
+  # @::exitState.doc =
   #   params: [
   #     []
   #   ]
@@ -375,3 +419,95 @@ class AS.View < AS.DOM
   #     ```
   #   """
     
+  # DRAGGABLE
+  require("transform_hooks") 
+  jQuery.cssHooks.translateX || throw "Cannot be draggable without transform hooks"
+  defs draggable: (config={}) ->
+    @::dragWithProxy = config.dragWithProxy
+    @::dragHandle = config.dragHandle
+    @::dragX = config.dragX
+    @::dragY = config.dragY
+
+    @beforeContent (view) ->
+      if view.dragHandle
+        knead.monitor $ view.dragHandle, view.el
+      else
+        knead.monitor $ view.el
+
+    eventConfig = {}
+
+    if config.dragHandle
+      eventConfig["knead:dragstart #{config.dragHandle}"] = "dragstart"
+      eventConfig["knead:drag #{config.dragHandle}"] = "drag"
+      eventConfig["knead:dragend"] = "dragend"
+    else
+      eventConfig["knead:dragstart"] = "dragstart"
+      eventConfig["knead:drag"] = "drag"
+      eventConfig["knead:dragend"] = "dragend"
+
+    _.extend (@::events ||= {}), eventConfig
+
+  defs droppable: (classPath, config) ->
+    @::events ||= {}
+
+    if @dropConfig is undefined
+      @::events["drop @"] = "drop"
+      @dropConfig ||= {}
+  
+    @dropConfig[classPath] = config
+
+  def drop: (event, hit) ->
+    model = event["as/model"].model
+    for classPath, config of @constructor.dropConfig
+      if model.constructor.path() is classPath
+        config.drop?.call(this, model, hit)
+
+  def proxyContent: -> @text "Drag Proxy"
+
+  def dragstart: (event) ->
+    event.preventDefault()
+    event.stopImmediatePropagation()
+    @proxy = if @dragWithProxy
+      $ @withinNode @application.el, ->
+        @div class:"#{@constructor._name()} DragProxy", @proxyContent
+    else
+     @el
+
+    @halfProxy = 
+      width: @el.outerWidth() / 2
+      height: @el.outerHeight() / 2
+
+    @proxy.width @el.width()
+    @proxy.css position:"absolute", top:0, left:0
+
+    @targets and for target in @targets()
+      target.gather() 
+
+  def drag: (event) ->
+    event.preventDefault()
+    event.stopImmediatePropagation()
+    {startX, startY, deltaX, deltaY} = event
+    nowX = startX + deltaX - @halfProxy.width
+    nowY = startY + deltaY - @halfProxy.height
+    css = {}
+    css.translateX = nowX unless @dragX is false
+    css.translateY = nowY unless @dragY is false
+
+    @proxy.css css
+
+    @targets and for target in @targets()
+      target.drag("jquery/event":event)
+
+    return
+
+  def dragend: (event, hit) ->
+    event.preventDefault()
+    event.stopImmediatePropagation()
+    @proxy.remove() if @dragWithProxy
+    @targets and for target in @targets()
+      target.dragend(
+        "jquery/event": event
+        "as/model": @model
+      )
+
+    Taxi.Governer.exit()

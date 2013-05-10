@@ -1,4 +1,5 @@
 {include, any, each, clone} = _
+_include = include
 
 class AS.Model.HasMany < AS.Model.Field
   def couldBe: (test) ->
@@ -7,7 +8,8 @@ class AS.Model.HasMany < AS.Model.Field
 
 class AS.Model.HasMany.Instance < AS.Model.Field.Instance
   delegate AS.COLLECTION_DELEGATES, to: "backingCollection"
-  delegate 'groupBy', 'bind', 'trigger', 'unbind', to: "backingCollection"
+  delegate 'groupBy', 'bind', 'trigger', 'unbind',
+            'prev', 'next', 'before', 'after', to: "backingCollection"
 
   def inspect: ->
     "#{@options.name}: [#{@backingCollection.length}]}"
@@ -21,6 +23,9 @@ class AS.Model.HasMany.Instance < AS.Model.Field.Instance
     @model = @options.model
     @options.source = @object if @options.inverse
     @backingCollection = AS.Collection.new(undefined, @options)
+
+    @backingCollection.bind "remove", (model) =>
+      @triggerDependants()
 
     @bind('change', (=> @triggerDependants()), this)
     if @options.dependant is "destroy"
@@ -89,6 +94,49 @@ class AS.Model.HasMany.Instance < AS.Model.Field.Instance
   #
   #   """
 
+  def get: -> this
+  # @::get.doc = 
+  #   desc: """
+  #     Returns self.
+  #   """
+
+  def readPath: (path) ->
+    head = path[0]
+    tail = path[1..]
+    
+    target = if head instanceof Number
+      @at(head)
+    else if _include(head.ancestors, AS.Model)
+      @find( (item) -> _include(item.constructor.ancestors, head) ).value()
+    else
+      @find( (item) -> item is head ).value()
+
+    return unless target
+
+    if any tail
+      target.readPath(tail)
+    else
+      return target
+
+  def writePath: (path, value) ->
+    head = path[0]
+    tail = path[1..]
+
+    target = if head instanceof Number
+      @at(head)
+    else if _include(head.ancestors, AS.Model)
+      @find( (item) -> _include(item.constructor.ancestors, head)).value()
+    else
+      @find( (item) -> item is head ).value()
+
+    return unless target
+
+    if tail[1]
+      target.writePath(tail, value)
+    else
+      head[tail[0]].set(value)
+    
+
   def set: (models) ->
     @backingCollection.add(model) for model in models
   # @::set.doc =
@@ -123,8 +171,9 @@ class AS.Model.HasMany.Instance < AS.Model.Field.Instance
   #   """
 
   def remove: (model) ->
+    # triggerDependants is called when the backing collection fires the remove event.
+    # because object removal can be triggered by object destruction.
     removed = @backingCollection.remove.apply(@backingCollection, arguments)
-    @triggerDependants()
     return removed
   # @::remove.doc =
   #   params: [
@@ -219,3 +268,8 @@ class AS.Model.Field.Instance.ShareSynapse < AS.Model.Field.Instance.ShareSynaps
 
 AS.Model.defs hasMany: (name, options) ->
   AS.Model.HasMany.new(name, this, options)
+  definition = {}
+  definition["#{name}Count"] = -> @[name].count()
+  @virtualProperties name, definition
+    
+

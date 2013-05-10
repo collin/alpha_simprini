@@ -7,6 +7,7 @@ class AS.Binding.Input < AS.Binding.Field
       @context.binds @model, @field, @setContent, this
     else
       @context.binds @field, "change", @setContent, this
+
   # @::initialize.doc =
   #   params: [
   #     []

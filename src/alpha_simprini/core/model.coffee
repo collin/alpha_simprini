@@ -184,7 +184,8 @@ class AS.Model
   #     
   #   """
 
-
-
-  defs find: (id) ->
-    AS.All.byId[id] or @new(id:id)
+  defs find: (id, options, autoconstruct=true) ->
+    if autoconstruct
+      AS.All.byId[id] or @new(id:id, options)
+    else
+      AS.All.byId[id]

@@ -50,7 +50,7 @@ class AS.Model.VirtualProperty.Instance < AS.Model.Field.Instance
       set.call(@object, value)
       @triggerDependants()
     else
-      AS.warn "Can't set a VirtualProperty name: #{@options.name}, dependencies: #{@options.dependencies.join(',')}"
+      AS.warn "Can't set the VirtualProperty named: #{@options.name}, dependencies: #{@options.dependencies.join(',')}"
   # @::set.doc =
   #   params: [
   #     ["value", "*", true]

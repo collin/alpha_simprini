@@ -3,7 +3,7 @@
 class AS.Chassis.Frame
   include Taxi.Mixin
 
-  def initialize: (X, @loadCallback) ->
+  def initialize: (X, @preloadFile, @loadCallback) ->
     console.log "INITIALIZED"
     @frame = document.createElement('iframe')
     # @frame.src = "data:text/html;charset=utf-8," # BLANK DOCUMENT :D
@@ -16,6 +16,7 @@ class AS.Chassis.Frame
       $(@frame).css(width:0, height:0, border: 'none').appendTo(document.body)
 
   def boot: ->
+    console.log "BOOT"
     @dom.boot()
 
   def close: ->
@@ -36,7 +37,7 @@ class AS.Chassis.Frame
     minispade.global = @dom
     @dom.minispade = minispade
     minispade.loaded = {}
-    minispade.require("pasteup/pasteup")
+    minispade.require(@preloadFile) if @preloadFile
     @dom.AS.params = AS.params
     @trigger 'load'
     Taxi.Governer.exit()

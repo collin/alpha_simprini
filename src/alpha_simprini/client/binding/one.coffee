@@ -1,6 +1,6 @@
 class AS.Binding.One < AS.Binding.Field
   def makeContent: ->
-    AS.Binding.Container.new(@container[0])
+    AS.Binding.Container.new @container
   # @::makeContent.doc =
   #   params: [
   #     []

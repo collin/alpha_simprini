@@ -3,6 +3,7 @@ MIDDLE = name:"MIDDLE", toString: -> @name
 BOTTOM = name:"BOTTOM", toString: -> @name
 LEFT = name: "LEFT", toString: -> @name
 RIGHT = name: "RIGHT", toString: -> @name
+WITHIN = name: "WITHIN", toString: -> @name
 
 class AS.Models.Targets
   include Taxi.Mixin
@@ -11,8 +12,9 @@ class AS.Models.Targets
   def BOTTOM: BOTTOM
   def LEFT: LEFT
   def RIGHT: RIGHT
+  def WITHIN: WITHIN
 
-  def initialize: ->
+  def initialize: (@application) ->
     @gather()
   # @::initialize.doc =
   #   params: [
@@ -75,8 +77,9 @@ class AS.Models.Targets
 
   def dragend: (event) ->
     return unless @currentHit?.rect
-    @drop(event)
-    @trigger("drop", @currentHit)
+    # @drop(event) #trigger twice? :(
+    @currentHit.el.closest(".View").data('view').trigger("drop", event, @currentHit)
+    @trigger("drop", event, @currentHit)
   # @::dragend.doc =
   #   params: [
   #     []
@@ -103,8 +106,53 @@ class AS.Models.Targets
   #
   #   """
 
+  def withinVertically: (y, rect) ->
+    rect.top <= y <= rect.bottom
+  # @::withinVertically.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
+
+  def withinHorizontally: (x, rect) ->
+    rect.left <= x <= rect.right
+  # @::withinVertically.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #     Runs in two passes. First pass finds matches.
+  #     Second pass 
+  #   """
+
+  withinRect = (other) ->
+    @left > other.left &&
+    @right < other.right &&
+    @top > other.top &&
+    @bottom < other.bottom
+    
+  def target: (event) ->
+    {clientX, clientY} = event["jquery/event"].originalEvent
+    bestMatch = null
+    for target in @targets
+      continue unless @withinVertically(clientY, target.rect)
+      continue unless @withinHorizontally(clientX, target.rect)
+      unless bestMatch
+        bestMatch = target
+        continue
+
+      bestMatch = target if withinRect.call(target.rect, bestMatch.rect)
+
+    return null unless bestMatch
+    hit = AS.Models.Targets.Hit.new(bestMatch.rect, bestMatch.el, WITHIN, event)
+    return hit if @validate(hit)
+    return null
+
+
   def drag: (event) ->
-    throw "Drag unimplimented in base class!"
+    @transitionHit @target(event)
   # @::drag.doc =
   #   params: [
   #     []
@@ -118,7 +166,7 @@ AS.Models.Targets.MIDDLE = MIDDLE
 AS.Models.Targets.BOTTOM = BOTTOM
 AS.Models.Targets.LEFT = LEFT
 AS.Models.Targets.RIGHT = RIGHT
-
+AS.Models.Targets.WITHIN = WITHIN
 
 class AS.Models.Targets.Edge < AS.Models.Targets
   
@@ -185,16 +233,6 @@ class AS.Models.Targets.Edge < AS.Models.Targets
 
 class AS.Models.Targets.Thirds < AS.Models.Targets
 
-  def withinVertically: (y, rect) ->
-    rect.top <= y <= rect.bottom
-  # @::withinVertically.doc =
-  #   params: [
-  #     []
-  #   ]
-  #   desc: """
-  #
-  #   """
-
   def whichThird: (y, rect) ->
     # pre-supposes withinVertically is true
     oneThird = rect.height / 3
@@ -254,6 +292,7 @@ class AS.Models.Targets.Hit
   #   desc: """
   #
   #   """
+
   def equals: (other=AS.Models.Targets.Hit.new()) ->
     other.el is @el and other.section is @section
   # @::equals.doc =
@@ -263,4 +302,3 @@ class AS.Models.Targets.Hit
   #   desc: """
   #
   #   """
-

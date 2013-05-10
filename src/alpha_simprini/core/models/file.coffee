@@ -117,7 +117,9 @@ class AS.Models.File < AS.Model
       data: formdata
       processData: false
       contentType: false
-      error: => AS.error("POST /images failed", this)
+      error: (xhr, status, errorThrown) => 
+        AS.error("POST /images failed #{status} (#{errorThrown})", this)
+        @trigger("error", status, errorThrown)
       success: (data, status, xhr) =>
         @url.set xhr.getResponseHeader("Location")
         @trigger("uploaded")

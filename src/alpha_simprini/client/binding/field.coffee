@@ -12,7 +12,7 @@ class AS.Binding.Field < AS.Binding
   #   """
 
   def bindContent: ->
-    # don't go thinking ou want to @withingBindingGroup @bindingGroup this.
+    # don't go thinking you want to @withingBindingGroup @bindingGroup this.
     # you want this binding to take place in the context of the @context
     @context.binds @field, "change", @setContent, this
   # @::bindContent.doc =
@@ -58,7 +58,7 @@ class AS.Binding.Field < AS.Binding
 
   def makeContent: ->
     if @fn
-      AS.Binding.Container.new(@container[0])
+      AS.Binding.Container.new @container
     else
       @context.$ @context.span()
   # @::makeContent.doc =

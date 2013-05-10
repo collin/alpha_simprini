@@ -9,6 +9,8 @@ class AS.ViewModel
     return AS.ViewModel[model.path()] if AS.ViewModel[model.path()]
 
     klass = AS.ViewModel[model.path()] = AS.ViewModel.extend()
+    klass._meta0._name = model._name()
+    klass._meta0._container = AS.ViewModel
     klass.name = model.name
     klass::type = model._name()
 
@@ -48,6 +50,12 @@ class AS.ViewModel
   #
   #   """
 
+  def toString: ->
+    """<#{@constructor.path()}:#{@objectId()}
+      view: #{@view.toString()}
+      model: #{@model.toString()}
+    >
+    """
   def if: (field, branches) ->
     unless branches.then
       throw new Error("#{@toString()} 'if' binding must be given at least a 'then' function") 
@@ -66,6 +74,12 @@ class AS.ViewModel
   #   desc: """
   #
   #   """
+
+  def unless: (field, branches) ->
+    unless branches.then
+      throw new Error("#{@toString()} 'unless' binding must be given at least a 'then' function")
+
+    AS.Binding.Unless.new(@view, @model, @model[field], branches)
 
   def input: (field, options) ->
     AS.Binding.Input.new(@view, @model, field, options)
@@ -116,3 +130,14 @@ class AS.ViewModel
   #   desc: """
   #
   #   """
+
+  def textarea: (field, options) ->
+    AS.Binding.Textarea.new(@view, @model, field, options)
+  # @::textarea.doc =
+  #   params: [
+  #     []
+  #   ]
+  #   desc: """
+  #
+  #   """
+

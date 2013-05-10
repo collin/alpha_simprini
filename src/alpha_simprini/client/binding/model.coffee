@@ -36,10 +36,12 @@ class AS.Binding.Model < AS.Binding
   def attr: (attrs) ->
     for property, options of attrs
       do (property, options) =>
+         if property is "selected"
+            throw "Property #{property} given in attrBinding will not behave as expected. Use another property name."
          if _.isArray(options)
            @attrs[property] = =>
              value = @model.readPath(options)
-             if value
+             if value is true
                "yes"
              else if value in [false, null, undefined]
                "no"
@@ -55,7 +57,7 @@ class AS.Binding.Model < AS.Binding
                options.fn(@model)
              else
                value = @model[options.field].get()
-               if value
+               if value is true
                  "yes"
                else if value in [false, null, undefined]
                  "no"

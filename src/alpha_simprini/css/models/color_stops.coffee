@@ -3,8 +3,10 @@
 class AS.Models.ColorStops < AS.Model
   @afterInitialize (model) => 
     model.angle.set @properties.angle.options.model().new()
-  @belongsTo 'angle'
+
+  @belongsTo 'angle',
     model: -> AS.Models.Angle
+
   @hasMany 'stops', 
     model: -> AS.Models.ColorStop
 

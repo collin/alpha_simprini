@@ -43,7 +43,7 @@ test "removes dom elements when item removed from collection", ->
   console.log @binding
   equal @binding.container.find("##{item.cid.replace(".", "-")}")[0], undefined
 
-module "Binding.HasManyWithFilter"
+module "Binding.HasManyWithFilter",
   setup: ->
     model = BoundModel.new()
     items = model.items

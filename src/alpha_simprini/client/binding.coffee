@@ -6,9 +6,14 @@ class AS.Binding
     if _.isFunction(@options)
       [@fn, @options] = [@options, {}]
 
-    @container ?= $ @context.currentNode
+    @container ?= if @context.currentNode instanceof AS.Binding.Container
+      @context.currentNode
+    else
+      $ @context.currentNode
+
     @bindingGroup = @context.bindingGroup
 
+    @options.value = fieldValue if fieldValue = @fieldValue()?
     @content = @makeContent()
 
     if @willGroupBindings()
@@ -48,7 +53,7 @@ class AS.Binding
     if _.isArray(@field)
       @model.readPath(@field)
     else
-      @field.get()
+      @field.get?()
   # @::fieldValue.doc =
   #   params: [
   #     []

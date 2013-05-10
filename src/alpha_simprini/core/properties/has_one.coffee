@@ -43,7 +43,7 @@ class AS.Model.HasOne.Instance < AS.Model.Field.Instance
 
     if _.isString(value) and (konstructor = @model()) isnt AS.Model
       value = konstructor.find(value)
-    else if _.isString(value)
+    else if _.isString(value) or _.isNumber(value)
       value = AS.All.byId[value]
     else if value instanceof AS.Model
       value = value

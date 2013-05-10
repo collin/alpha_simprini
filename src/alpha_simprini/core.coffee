@@ -2,15 +2,19 @@ require "alpha_simprini"
 Core = AS.part("Core")
 require "underscore"
 
+
+# adapter MUST load after property classes
 Core.require """
   logging
 
   callbacks state_machine
   instance_methods
 
-  model model/dendrite model/synapse model/store
+  model model/dendrite model/synapse model/store 
   properties/field properties/has_many properties/has_one
   properties/belongs_to properties/virtual_property
+
+  model/adapter
 
   collection filtered_collection
 

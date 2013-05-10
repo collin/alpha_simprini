@@ -43,9 +43,6 @@ class AS.Binding.Many < AS.Binding
   #   params: [
   #     []
   #   ]
-  #   desc: """
-  #
-  #   """
 
   def skipItem: (item) ->
     return false unless @options.filter
@@ -171,7 +168,7 @@ class AS.Binding.Many < AS.Binding
   #   """
 
   def makeContent: ->
-    AS.Binding.Container.new(@container[0])
+    AS.Binding.Container.new @container
   # @::makeContent.doc =
   #   params: [
   #     []

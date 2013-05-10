@@ -20,13 +20,13 @@ getConnection = (origin) ->
   connections[origin]
 
 
-class AS.Models.ShareJSAdapter
-  include Taxi.Mixin
+class AS.Model.ShareJSAdapter < AS.Model.Adapter
   # delegate 'open', to: 'store'
 
   def initialize: (@url, documentName, @localStorage=window.localStorage) ->
+    @_super()
     @documentName = documentName.toString()
-    @registrations = Pathology.Set.new()
+    # @registrations = Pathology.Set.new()
     @url ?= AS.ShareJSURL
 
     # Create the ShareJS document/connection
@@ -43,6 +43,27 @@ class AS.Models.ShareJSAdapter
 
       # Finally, open the document
       @open()
+
+  def register: (model, data={}) ->
+    if @connection.state isnt "ok"
+      console.log "will register model when connection 'ok'"
+      @connection.on "ok", => @register(model, data)
+      return model
+
+    @_super(model, data)
+
+    # FIXME: ADD HOOKS!
+    # model.share = @modelDocument(model)
+    # model.share.set(new Object) unless model.share.get()
+
+    # FIXME: ADD HOOKS!
+    # each model.properties(), (property) =>
+    #   return unless property.syncWith
+      
+    #   property.syncWith(model.share, data[property.options.name])
+
+
+    
 
 
   def fetchDoc: (callback) ->
@@ -136,45 +157,6 @@ class AS.Models.ShareJSAdapter
     constructorGroup = @document.at(constructor.path())
     constructorGroup.set(new Object) unless constructorGroup.get()
     constructorGroup
-
-  def register: (model, data={}) ->
-    return if @registrations.include(model)
-    if @connection.state isnt "ok"
-      console.log "will register model when connection 'ok'"
-      @connection.on "ok", => @register(model, data)
-      return model
-
-    @registrations.add(model)
-    console.log "[share] register", model.toString(), model.id
-
-    model.share = @modelDocument(model)
-    model.share.set(new Object) unless model.share.get()
-
-    @binds model, "destroy", ->
-      @unbind(model)
-      @registrations.remove(model)
-
-    each model.properties(), (property) =>
-      return unless property.syncWith
-      
-      property.syncWith(model.share, data[property.options.name])
-
-      if property.constructor is AS.Model.HasMany.Instance
-        property.each (item) => @register(item)
-
-        @binds property, "add", (item) =>
-          @register(item, item.payload())
-
-      else
-        if current = property.get()
-          console.log "currentValue", current.toString()
-          @register(current, current.payload()) if current instanceof AS.Model
-
-        @binds property, "change", -> 
-          value = property.get()
-          @register(value, value.payload()) if value instanceof AS.Model
-
-    return
 
   def bindRemoteOperationHandler: ->
     @document.on "remoteop", bind(@remoteOperationHandler, this)

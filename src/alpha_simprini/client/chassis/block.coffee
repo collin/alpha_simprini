@@ -4,8 +4,7 @@
 # DevChannel: reload
 class AS.Chassis.Block
 
-  def initialize: (@application) ->
-    @appname = "app"
+  def initialize: (@application, @namespace, @preloadFile) ->
     # window.addEventListener "message", bind(@forwardMessage, this), false
     $ =>
       $(window).on "keydown", (event) ->
@@ -32,20 +31,24 @@ class AS.Chassis.Block
     
   def loadFrame: ->
     @lastFrame = @currentFrame
-    @currentFrame = AS.Chassis.Frame.new()
+    @currentFrame = AS.Chassis.Frame.new(null, @preloadFile)
     # @currentFrame.bind 'update', (=> @loadFrame())
     @currentFrame.bind 'load', (=> @cutOver())
+
+  def passInValues: ->
+    @currentFrame.dom.AS.DOM.def _document: document
 
   def cutOver: ->
     console.profile()
     @log "cutOver"
-    @currentFrame.dom.AS.DOM.def _document: document
+    @passInValues()
     @currentFrame.boot()
     
-    currentApp = @currentFrame.get("Pasteup."+@appname)
+    currentApp = @currentFrame.get(@namespace)
 
     if @lastFrame?
-      lastApp = @lastFrame.get("Pasteup."+@appname)
+      @lastFrame.get("Taxi.Governer").exit = -> # kill the run loop NOW
+      lastApp = @lastFrame.get(@namespace)
 
       # first pass instantiates
       for id, object of @lastFrame.get("AS.All.byId")
@@ -65,5 +68,6 @@ class AS.Chassis.Block
     @viewport.empty()
     currentApp.applyTo(@viewport)
     currentApp.keyRouter.reroute(document.body)
-    window.Pasteup = @currentFrame.dom.Pasteup
+    name = @namespace.split(".")[0]
+    window[name] = @currentFrame.dom[name]
     console.profileEnd()

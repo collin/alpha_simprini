@@ -3,6 +3,8 @@ require "knead"
 module AS.Views.Dialogs
 
 class AS.Views.Dialog < AS.Views.Panel
+  @draggable dragWithProxy:false, dragHandle:"header"
+
   @afterContent (view) -> knead.monitor view.head
 
   def initialize: ->
@@ -13,9 +15,9 @@ class AS.Views.Dialog < AS.Views.Panel
       "esc @application": "triggerCancel"
       "accept @application": "triggerCommit"
 
-      "knead:dragstart header": "dragstart"
-      "knead:drag header": "drag"
-      "knead:dragend header": "dragend"
+      # "knead:dragstart header": "dragstart"
+      # "knead:drag header": "drag"
+      # "knead:dragend header": "dragend"
 
     @_super.apply(this, arguments)
   # @::initialize.doc =
@@ -110,34 +112,34 @@ class AS.Views.Dialog < AS.Views.Panel
   #   """
 
 
-  def dragstart: (event) ->
-    @start = @el.position()
-  # @::dragstart.doc =
-  #   params: [
-  #     []
-  #   ]
-  #   desc: """
-  #
-  #   """
+  # def dragstart: (event) ->
+  #   @start = @el.position()
+  # # @::dragstart.doc =
+  # #   params: [
+  # #     []
+  # #   ]
+  # #   desc: """
+  # #
+  # #   """
 
-  def drag: (event) ->
-    @el.css
-      top: event.deltaY + @start.top
-      left: event.deltaX + @start.left
-  # @::drag.doc =
-  #   params: [
-  #     []
-  #   ]
-  #   desc: """
-  #
-  #   """
+  # def drag: (event) ->
+  #   @el.css
+  #     top: event.deltaY + @start.top
+  #     left: event.deltaX + @start.left
+  # # @::drag.doc =
+  # #   params: [
+  # #     []
+  # #   ]
+  # #   desc: """
+  # #
+  # #   """
 
-  def dragend: (event) ->
-    delete @start
-  # @::dragend.doc =
-  #   params: [
-  #     []
-  #   ]
-  #   desc: """
-  #
-  #   """
+  # def dragend: (event) ->
+  #   delete @start
+  # # @::dragend.doc =
+  # #   params: [
+  # #     []
+  # #   ]
+  # #   desc: """
+  # #
+  # #   """

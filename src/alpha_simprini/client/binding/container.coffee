@@ -1,7 +1,8 @@
 class AS.Binding.Container
-  delegate 'find', 'html', to: 'el'
+  delegate 'find', 'html', 'contents', 'append', to: 'el'
 
-  def initialize: (@domElement) ->
+  def initialize: (object) ->
+    @domElement = object.domElement || object[0]
     @el = jQuery(@domElement)
     @containerChildren = []
   # @::initialize.doc =
@@ -12,9 +13,11 @@ class AS.Binding.Container
   #
   #   """
 
+  def append: (child) -> @appendChild(child)
+
   def appendChild: (child) ->
     if child instanceof jQuery
-      @containerChildren = @containerChildren.concat child
+      child.each (index, node) => @containerChildren.push node
       child.appendTo(@domElement)
     else
       @containerChildren.push child

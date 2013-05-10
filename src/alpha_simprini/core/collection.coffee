@@ -97,6 +97,20 @@ class AS.Collection
   #
   #   """
 
+  def prev: (model) ->
+    @at @indexOf(model).value() - 1
+
+  def next: (model) ->
+    @at @indexOf(model).value() + 1
+
+  def after: (reference, model) ->
+    @remove model
+    @add model, at: @indexOf(reference).value() + 1
+
+  def before: (reference, model) ->
+    @remove model
+    @add model, at: @indexOf(reference).value()
+
   def at: (index) ->
     @models.value()[index]
   # @::at.doc =

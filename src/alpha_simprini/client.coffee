@@ -9,8 +9,9 @@ Client.require """
 
   binding/model binding/field binding/if binding/input binding/select 
   binding/file binding/check_box binding/edit_line binding/one binding/many
+  binding/textarea
 
-  views/panel views/region views/dialog
+  views/panel views/region views/dialog views/file_drop
 
   models/targets
 

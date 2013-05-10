@@ -127,7 +127,7 @@ class AS.ViewEvents
   def applyBinding: (options) ->
     [selector, eventName, handler] = [options.selector, options.eventName, options.handler]
     if selector is ''
-      @view.el.bind eventName, handler
+      @view.el.on eventName, handler
     else if selector is '@'
       @view.bind eventName, handler, @view
     else if selector[0] is '@'
@@ -140,7 +140,7 @@ class AS.ViewEvents
         emitter.bind eventName, handler, @view
     else
       selector = selector.replace /\$/g, "#"+@view.el.attr('id')
-      @view.el.delegate selector, eventName, handler
+      @view.el.on eventName, selector, handler
   # @::applyBinding.doc =
   #   params: [
   #     []

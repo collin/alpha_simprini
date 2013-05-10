@@ -1,10 +1,12 @@
 class AS.Models.RadioSelectionModel < AS.Model
   @belongsTo 'selected', remote:false
+  @field '_property', remote:false
 
   def initialize: (options={}) ->
-    @property = options.property
+    property = options.property
     delete options.property
     @_super.apply(this, arguments)
+    @_property.set property if property
     @select undefined
   # @::initialize.doc =
   #   params: [
@@ -15,9 +17,10 @@ class AS.Models.RadioSelectionModel < AS.Model
   #   """
 
   def select: (item) ->
-    if @property
-      @selected.get()?.model[@property]?.set(null)
-      item?.model[@property]?.set(true)
+    property = @_property.get()
+    if property
+      @selected.get()?.model[property]?.set(false)
+      item?.model[property]?.set(true)
 
     @selected.set(item)
   # @::select.doc =

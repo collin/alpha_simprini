@@ -3,8 +3,7 @@ module AS.Views.Destructable
     @events ?= {}
     @events["click .delete"] = "destroyModel"
     @_super.apply(this, arguments)
-    
 
   def destroyModel: (event) -> 
-    event.stopPropagation()
+    event.stopImmediatePropagation()
     @model.destroy()

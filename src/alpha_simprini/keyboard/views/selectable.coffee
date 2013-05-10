@@ -6,6 +6,6 @@ module AS.Views.Selectable
 
   def activateSelf: (event) ->
     if event
-      return unless $(event.target).parent()[0] is @el[0]
-    @navigableSelection().select(this)
+      return unless @el.is(event.currentTarget)
+    @navigableSelection().select @model
     

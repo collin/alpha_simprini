@@ -8,9 +8,11 @@ class AS.Application
   def initialize: (config={}) ->
     _.extend(this, config)
     @stateObjects = {}
-    @params = AS.params
+    @stateObjectConstructors = {}
+    @stateObjectOptions = {}
 
     @keyRouter = AS.KeyRouter.new(this, document.body)
+
   # @::initialize.doc =
   #   params: [
   #     []
@@ -102,9 +104,16 @@ class AS.Application
   #   """
 
   def takeOverState: (application) ->
+    @stateObjectConstructors = application.stateObjectConstructors
+    @stateObjectOptions = application.stateObjectOptions
+    
     for key, value of application.stateObjects
       # console.log "[takeOverState] #{key} => #{value.toString()}", value.id
-      @stateObjects[key] = @[key] = AS.Model.find(value.id)
+      replacement = AS.Model.find(value.id, null, false)
+      unless replacement
+        _constructor = AS.loadPath(@stateObjectConstructors[key])
+        replacement = _constructor.new (@stateObjectOptions[key] || [])...
+      @stateObjects[key] = @[key] = replacement
   # @::takeOverState.doc = 
   #   params: [
   #     ["application", AS.Application, true, tag:"The application to take over."]
@@ -117,6 +126,8 @@ class AS.Application
     return if @[name]?
 
     stateObject = if _constructor.new
+      @stateObjectConstructors[name] = _constructor.path()
+      @stateObjectOptions[name] = options
       _constructor.new.apply(_constructor, options)
     else
       _constructor
