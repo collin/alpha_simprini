@@ -5,8 +5,8 @@ GIT
     pathology-rake (0.2.0)
 
 GIT
-  remote: git://github.com/collin/html_package.git
-  revision: 2d94d506a91a9f2b0dbe461882288796c28599c7
+  remote: https://github.com/collin/html_package.git
+  revision: 91a58a6e571cd436d504d2fc2a25f40692a2e88d
   branch: master
   specs:
     html_package (0.0.7)
@@ -48,6 +48,8 @@ GEM
     coffee-script-source (1.6.1)
     color (1.4.1)
     colored (1.2)
+    domain_name (0.5.20190701)
+      unf (>= 0.0.5, < 1.0.0)
     execjs (1.4.0)
       multi_json (~> 1.0)
     facter (1.6.17)
@@ -68,12 +70,18 @@ GEM
     http (0.4.0)
       certified
       http_parser.rb
+    http-accept (1.7.0)
+    http-cookie (1.0.5)
+      domain_name (~> 0.5)
     http_parser.rb (0.5.3)
     json (1.7.7)
     listen (0.7.3)
-    mime-types (1.21)
+    mime-types (3.4.1)
+      mime-types-data (~> 3.2015)
+    mime-types-data (3.2022.0105)
     multi_json (1.6.1)
     multipart-post (1.2.0)
+    netrc (0.11.0)
     nio4r (0.4.3)
     nokogiri (1.5.6)
     oauth2 (0.5.2)
@@ -88,14 +96,20 @@ GEM
       http_parser.rb (>= 0.5.3)
       rack (>= 1.4.0)
       websocket_parser (>= 0.1.0)
-    rest-client (1.6.7)
-      mime-types (>= 1.16)
+    rest-client (2.1.0)
+      http-accept (>= 1.7.0, < 2.0)
+      http-cookie (>= 1.0.2, < 2.0)
+      mime-types (>= 1.16, < 4.0)
+      netrc (~> 0.8)
     thor (0.17.0)
     tilt (1.3.4)
     timers (1.1.0)
     uglifier (1.0.4)
       execjs (>= 0.3.0)
       multi_json (>= 1.0.2)
+    unf (0.1.4)
+      unf_ext
+    unf_ext (0.0.8.2)
     watchr (0.7)
     websocket_parser (0.1.2)
       http
