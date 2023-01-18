@@ -5,8 +5,8 @@ GIT
     pathology-rake (0.2.0)
 
 GIT
-  remote: git://github.com/collin/html_package.git
-  revision: 2d94d506a91a9f2b0dbe461882288796c28599c7
+  remote: https://github.com/collin/html_package.git
+  revision: 91a58a6e571cd436d504d2fc2a25f40692a2e88d
   branch: master
   specs:
     html_package (0.0.7)
@@ -79,7 +79,7 @@ GEM
     oauth2 (0.5.2)
       faraday (~> 0.7)
       multi_json (~> 1.0)
-    rack (1.5.2)
+    rack (1.6.13)
     rake (10.0.3)
     rb-fsevent (0.9.3)
     reel (0.3.0)
