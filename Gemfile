@@ -10,7 +10,7 @@ gem "color"
 gem "listen"
 gem 'rb-fsevent', '~> 0.9.1'
 gem "colored"
-gem "uglifier", "~> 1.0.3"
+gem "uglifier", "~> 2.7.2"
 gem "coffee-script"
 gem "github_uploader", "~> 0.1.0", require: false
 gem "html_package", github:"collin/html_package", branch:"master"
